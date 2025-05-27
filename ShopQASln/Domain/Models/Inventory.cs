@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace Domain.Models
 {
-    internal class Inventory
+    public class Inventory
     {
+        public int Id { get; set; }
+        public int ProductVariantId { get; set; }
+        public virtual ProductVariant? ProductVariant { get; set; }
+        public int Quantity { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

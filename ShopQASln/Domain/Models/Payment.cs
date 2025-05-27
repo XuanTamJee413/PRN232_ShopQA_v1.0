@@ -8,8 +8,8 @@ namespace Domain.Models
 {
     public class Payment
     {
-        public Guid Id { get; set; }
-        public Guid OrderId { get; set; }
+        public int Id { get; set; }
+        public int OrderId { get; set; }
         public virtual Order? Order { get; set; }
         public string Method { get; set; } = string.Empty; // e.g. "COD", "BankTransfer"
         public decimal Amount { get; set; }

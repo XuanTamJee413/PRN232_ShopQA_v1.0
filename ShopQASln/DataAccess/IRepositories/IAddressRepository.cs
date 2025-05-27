@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.IRepositories
 {
-    internal interface IAddressRepository
+    public interface IAddressRepository
     {
     }
 }
