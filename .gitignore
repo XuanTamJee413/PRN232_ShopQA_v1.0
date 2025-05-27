@@ -1,0 +1,51 @@
+## Build files
+bin/
+obj/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio
+.vs/
+
+## Rider
+.idea/
+
+## ASP.NET Core secrets
+secrets.json
+
+## Logs
+*.log
+
+## OS generated files
+.DS_Store
+Thumbs.db
+
+## Environment files
+.env
+
+## Publish outputs
+wwwroot/dist/
+wwwroot/node_modules/
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+*.nuspec
+
+## EF Core Migrations snapshot
+**/Migrations/*Snapshot.cs
+
+## node_modules (nếu dùng frontend tích hợp)
+node_modules/
+
+## Coverage reports
+coverage/
+
+## Others
+*.db
+*.sqlite
