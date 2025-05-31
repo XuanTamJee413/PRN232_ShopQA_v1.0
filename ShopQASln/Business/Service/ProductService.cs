@@ -29,28 +29,36 @@ namespace Business.Service
 
             if (!string.IsNullOrWhiteSpace(name))
             {
-                products = products.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+                products = products.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
             }
 
             if (categoryId.HasValue)
             {
-                products = products.Where(p => p.CategoryId == categoryId.Value).ToList();
+                products = products.Where(p => p.CategoryId == categoryId.Value);
             }
-            if (startPrice.HasValue && toPrice.HasValue) {
+
+            if (startPrice.HasValue && toPrice.HasValue)
+            {
                 products = products.Where(p => p.Price >= startPrice && p.Price <= toPrice);
             }
-            if (startPrice.HasValue )
+            else
             {
-                products = products.Where(p => p.Price >= startPrice );
+                if (startPrice.HasValue)
+                {
+                    products = products.Where(p => p.Price >= startPrice);
+                }
+
+                if (toPrice.HasValue)
+                {
+                    products = products.Where(p => p.Price <= toPrice);
+                }
             }
-            if ( toPrice.HasValue)
-            {
-                products = products.Where(p => p.Price <= toPrice);
-            }
-            if (products.IsNullOrEmpty())
-            {
-                throw new ArgumentException("Don't Have Product");
-            }
+
+            //if (!products.Any())
+            //{
+            //    return 0;
+            //}
+
             return products;
         }
 

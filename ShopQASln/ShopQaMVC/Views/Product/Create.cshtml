@@ -1,0 +1,89 @@
+﻿<div class="container mt-5">
+    <h2 class="mb-4 text-center">Create New Product</h2>
+
+    <!-- Form to create a new product -->
+    <form method="post" id="createProductForm" class="border p-4 rounded shadow-sm">
+        <div class="mb-3">
+            <label for="name" class="form-label">Product Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Enter product name" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" placeholder="Enter product description" rows="3" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" class="form-control" id="price" name="price" placeholder="Enter product price" step="0.01" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="categoryId" class="form-label">Category ID</label>
+            <input type="number" class="form-control" id="categoryId" name="categoryId" placeholder="Enter category ID" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Create Product</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#createProductForm').submit(function(e) {
+                e.preventDefault(); // Prevent form submission
+
+                var name = $('#name').val();
+                var description = $('#description').val();
+                var price = parseFloat($('#price').val());
+                var categoryId = parseInt($('#categoryId').val());
+                var errors = []; // Array to hold error messages
+
+                if (name.trim() === "") {
+                    errors.push("Name is required.");
+                } else if (!/^[a-zA-ZÀ-Ỹà-ỹ\s]+$/.test(name)) {
+                    errors.push("Name must contain only letters and spaces.");
+                }
+
+                if (description.trim() === "") {
+                    errors.push("Description is required.");
+                }
+
+                if (price <= 0) {
+                    errors.push("Price must be greater than zero.");
+                }
+
+                if (!categoryId) {
+                    errors.push("Category is required.");
+                }
+
+                if (errors.length > 0) {
+                    alert(errors.join("\n")); 
+                    return; 
+                }
+
+                var productData = {
+                    name: name,
+                    description: description,
+                    price: price,
+                    categoryId: categoryId
+                };
+
+                $.ajax({
+                    url: 'https://localhost:7101/api/Product', 
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(productData),
+                    success: function(response) {
+                        alert('Product created successfully!');
+                        window.location.href = '/Product'; 
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error creating product: ' + error);
+                    }
+                });
+            });
+        });
+    </script>
+}

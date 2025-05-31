@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
-    <ProjectReference Include="..\ShopQaMVC\ShopQaMVC.csproj" />
   </ItemGroup>
 
 </Project>

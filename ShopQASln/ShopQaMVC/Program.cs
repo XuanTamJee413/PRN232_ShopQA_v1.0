@@ -1,15 +1,15 @@
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+// Thêm các dịch vụ cần thiết
+builder.Services.AddControllersWithViews();  // Cho MVC
+builder.Services.AddRazorPages();  // Kích hoạt Razor Pages
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Cấu hình pipeline HTTP
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -20,8 +20,10 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+// Áp dụng Razor Pages và MVC
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();  // Đảm bảo rằng Razor Pages được cấu hình để xử lý các yêu cầu
 
 app.Run();
