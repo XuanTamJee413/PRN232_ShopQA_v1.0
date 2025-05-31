@@ -1,23 +1,37 @@
 ﻿@model LoginVM
 
-<h2>Đăng nhập</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center mb-4">Đăng nhập</h2>
 
-<form asp-action="Login" method="post">
-    <div>
-        <label>Tên đăng nhập hoặc Email</label>
-        <input asp-for="UsernameOrEmail" />
-        <span asp-validation-for="UsernameOrEmail"></span>
-    </div>
-    <div>
-        <label>Mật khẩu</label>
-        <input asp-for="Password" type="password" />
-        <span asp-validation-for="Password"></span>
-    </div>
-    <button type="submit">Đăng nhập</button>
-</form>
+            <form asp-action="Login" method="post">
+                <div class="mb-3">
+                    <label asp-for="UsernameOrEmail" class="form-label">Tên đăng nhập hoặc Email</label>
+                    <input asp-for="UsernameOrEmail" class="form-control" />
+                    <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
+                </div>
 
-<hr />
-<a href="/Account/GoogleLogin">Đăng nhập bằng Google</a>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label">Mật khẩu</label>
+                    <input asp-for="Password" type="password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                </div>
+            </form>
+
+            <hr class="my-4" />
+            <div class="text-center">
+                <a class="btn btn-danger mb-3" href="/Account/GoogleLogin">Đăng nhập bằng Google</a>
+                <p>Bạn chưa có tài khoản? <a href="/Account/Register">Đăng ký ngay</a></p>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -60,6 +60,27 @@ namespace ShopQaMVC.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+        [HttpGet]
+        public IActionResult Register() => View();
+
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterVM model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsJsonAsync("https://localhost:5001/api/auth/register", model);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError("", "Đăng ký thất bại");
+                return View(model);
+            }
+
+            return RedirectToAction("Login");
+        }
+
 
         [HttpGet]
         public IActionResult GoogleLogin()
@@ -79,7 +100,6 @@ namespace ShopQaMVC.Controllers
             var email = result.Principal.FindFirst(ClaimTypes.Email)?.Value ?? "";
             var name = result.Principal.Identity?.Name ?? "";
 
-            // TODO: Tạo user nếu chưa có, lưu session như login thường
             HttpContext.Session.SetString("User", $"{name} - {email}");
 
             return RedirectToAction("Index", "Home");
