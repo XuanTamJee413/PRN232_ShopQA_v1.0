@@ -39,13 +39,12 @@ namespace ShopQaMVC.Controllers
             var userInfo = await response.Content.ReadFromJsonAsync<UserVM>();
             HttpContext.Session.SetString("User", JsonSerializer.Serialize(userInfo));
 
-            // Tạo claims cho cookie authentication
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, (string)userInfo.Username),
-        new Claim(ClaimTypes.Email, (string)userInfo.Email),
-        new Claim(ClaimTypes.Role, (string)userInfo.Role)
-    };
+            {
+                new Claim(ClaimTypes.Name, (string)userInfo.Username),
+                new Claim(ClaimTypes.Email, (string)userInfo.Email),
+                new Claim(ClaimTypes.Role, (string)userInfo.Role)
+            };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties
@@ -57,7 +56,10 @@ namespace ShopQaMVC.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity), authProperties);
 
-            return RedirectToAction("Index", "Home");
+            if (userInfo.Role == "Admin")
+                return RedirectToAction("Index", "Product");
+            else
+                return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
@@ -104,6 +106,21 @@ namespace ShopQaMVC.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            // Đăng xuất khỏi cookie authentication
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Xóa session nếu có
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Login", "Account");
+        }
+
     }
 
 }
