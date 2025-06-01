@@ -4,16 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Models;
 
 namespace DataAccess.IRepositories
 {
     public interface ICategoryRepository
     {
+
         Task<IEnumerable<Category>> GetAllAsync();
         Task<Category?> GetByIdAsync(int id);
         Task AddAsync(Category category);
         Task UpdateAsync(Category category);
         Task DeleteAsync(int id);
+
+
+        IEnumerable<Category> GetAll();
+        Category? GetById(int id);
 
     }
 }

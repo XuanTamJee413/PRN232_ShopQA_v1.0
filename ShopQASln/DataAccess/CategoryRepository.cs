@@ -1,7 +1,9 @@
 ﻿using DataAccess.Context;
 using DataAccess.IRepositories;
 using Domain.Models;
+
 using Microsoft.EntityFrameworkCore;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +14,17 @@ namespace DataAccess
 {
     public class CategoryRepository : ICategoryRepository
     {
+       
+
+
         private readonly ShopQADbContext _context;
+
+
         public CategoryRepository(ShopQADbContext context)
         {
             _context = context;
         }
+
 
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
@@ -48,6 +56,16 @@ namespace DataAccess
                 _context.Categories.Remove(category);
                 await _context.SaveChangesAsync();
             }
+
+        public IEnumerable<Category> GetAll()
+        {
+            return _context.Categories.ToList();
+        }
+
+        public Category? GetById(int id)
+        {
+            return _context.Categories.FirstOrDefault(x => x.Id == id);
+
         }
     }
 }

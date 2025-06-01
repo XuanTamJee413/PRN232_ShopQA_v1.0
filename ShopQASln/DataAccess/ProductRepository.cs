@@ -1,6 +1,7 @@
 ﻿using DataAccess.Context;
 using DataAccess.IRepositories;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +19,11 @@ namespace DataAccess
             _context = context;
         }
 
-        public IEnumerable<Product> GetAll() => _context.Products.ToList();
+        public IEnumerable<Product> GetAll() => _context.Products.Include(p =>p.Category).ToList();
 
-        public Product? GetById(int id) => _context.Products.Find(id);
+        public Product? GetById(int id) => _context.Products
+            .Include(p => p.Category)
+            .FirstOrDefault(p => p.Id == id);
 
         public void Add(Product product)
         {

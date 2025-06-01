@@ -1,25 +1,49 @@
-using Business.Iservices;
-using Business.Services;
+
+﻿using Business.Iservices;
+using Business.Service;
+using DataAccess.Context;
+using DataAccess.IRepositories;
 using DataAccess;
+﻿using DataAccess;
+
 using DataAccess.Context;
 using DataAccess.IRepositories;
 using Microsoft.EntityFrameworkCore;
 
 
+
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Cấu hình CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", builder =>
+    {
+        builder.WithOrigins("https://localhost:7035") // Cho phép yêu cầu từ domain này
+               .AllowAnyMethod() // Cho phép bất kỳ phương thức HTTP nào
+               .AllowAnyHeader(); // Cho phép bất kỳ header nào
+    });
+});
+
+// Thêm DbContext và các dịch vụ khác
 builder.Services.AddDbContext<ShopQADbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         x => x.MigrationsAssembly("DataAccess")
     ));
+
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -35,6 +59,9 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 
+// Sử dụng CORS
+app.UseCors("AllowSpecificOrigin"); // Áp dụng chính sách CORS
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -44,8 +71,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+app.UseAuthentication();
+
+
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
