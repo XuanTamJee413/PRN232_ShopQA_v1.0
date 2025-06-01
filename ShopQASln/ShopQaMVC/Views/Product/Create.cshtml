@@ -19,8 +19,10 @@
         </div>
 
         <div class="mb-3">
-            <label for="categoryId" class="form-label">Category ID</label>
-            <input type="number" class="form-control" id="categoryId" name="categoryId" placeholder="Enter category ID" required />
+            <label for="categoryId" class="form-label">Category </label>
+            <select class="form-control category" id="categoryId" name="categoryId" required>
+                <option value="">-- Select category --</option>
+            </select>
         </div>
 
         <button type="submit" class="btn btn-primary w-100">Create Product</button>
@@ -31,15 +33,30 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
+        $.ajax({
+        type:'GET',
+        url:'https://localhost:7101/api/Category',
+        contentType: 'application/json',
+        success:(response) =>{
+            for(var i=0 ; i< response.length;i++){
+                const cate = response[i];
+                const category = '<option value="' + cate.id + '">' + cate.name + '</option>';
+                     $('.category').append(category);
+            }
+        },
+        error:(err) =>{console.log(err);}
+})
+
+
             $('#createProductForm').submit(function(e) {
-                e.preventDefault(); // Prevent form submission
+                e.preventDefault(); 
 
                 var name = $('#name').val();
                 var description = $('#description').val();
                 var price = parseFloat($('#price').val());
-                var categoryId = parseInt($('#categoryId').val());
-                var errors = []; // Array to hold error messages
-
+                        var categoryId = parseInt($('#categoryId').val());
+                console.log(categoryId);
+                var errors = []; 
                 if (name.trim() === "") {
                     errors.push("Name is required.");
                 } else if (!/^[a-zA-ZÀ-Ỹà-ỹ\s]+$/.test(name)) {
@@ -69,7 +86,7 @@
                     price: price,
                     categoryId: categoryId
                 };
-
+                console.log(productData);
                 $.ajax({
                     url: 'https://localhost:7101/api/Product', 
                     type: 'POST',
@@ -77,7 +94,7 @@
                     data: JSON.stringify(productData),
                     success: function(response) {
                         alert('Product created successfully!');
-                        window.location.href = '/Product'; 
+                        window.location.href = '/Product/ProductList'; 
                     },
                     error: function(xhr, status, error) {
                         alert('Error creating product: ' + error);
