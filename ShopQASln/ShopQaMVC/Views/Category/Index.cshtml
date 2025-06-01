@@ -1,0 +1,30 @@
+﻿@model List<Domain.Models.Category>
+
+<h2>Danh sách Category</h2>
+
+<a asp-action="Create" class="btn btn-success mb-3">New</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tên</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cat in Model)
+        {
+            <tr>
+                <td>@cat.Id</td>
+                <td>@cat.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@cat.Id" class="btn btn-primary btn-sm">Update</a>
+                    <form asp-action="Delete" asp-route-id="@cat.Id" method="post" style="display:inline-block" onsubmit="return confirm('Bạn có chắc muốn xóa không?');">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

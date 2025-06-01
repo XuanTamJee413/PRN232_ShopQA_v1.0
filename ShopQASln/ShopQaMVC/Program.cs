@@ -1,31 +1,27 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
+﻿using ShopQaMVC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddHttpClient("ShopApi", client =>
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    client.BaseAddress = new Uri("https://localhost:7101/"); // đúng cổng Web API
 })
-.AddCookie()
-.AddGoogle("Google", options =>
+.ConfigurePrimaryHttpMessageHandler(() =>
 {
-    options.ClientId = "GOOGLE_CLIENT_ID";
-    options.ClientSecret = "GOOGLE_CLIENT_SECRET";
-    options.CallbackPath = "/signin-google";
+    return new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+    };
 });
-builder.Services.AddDistributedMemoryCache();
 
-builder.Services.AddSession();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<CategoryApiService>();
+
 
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -35,17 +31,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseSession();
-app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Account}/{action=login}/{id?}");
+    pattern: "{controller=Category}/{action=Index}/{id?}");
 
 app.Run();
