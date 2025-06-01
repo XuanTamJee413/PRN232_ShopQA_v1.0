@@ -11,5 +11,9 @@ namespace DataAccess.IRepositories
     {
         IEnumerable<Category> GetAll();
         Category? GetById(int id);
+        Task<Category?> GetByIdAsync(int id);
+        Task AddAsync(Category category);
+        Task UpdateAsync(Category category);
+        Task DeleteAsync(int id);
     }
 }
