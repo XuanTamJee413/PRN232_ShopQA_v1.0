@@ -1,23 +1,45 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Thêm các dịch vụ cần thiết
 builder.Services.AddControllersWithViews();  // Cho MVC
 builder.Services.AddRazorPages();  // Kích hoạt Razor Pages
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie()
+.AddGoogle("Google", options =>
+{
+    options.ClientId = "GOOGLE_CLIENT_ID";
+    options.ClientSecret = "GOOGLE_CLIENT_SECRET";
+    options.CallbackPath = "/signin-google";
+});
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
-// Cấu hình pipeline HTTP
+// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
 
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseSession();
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Áp dụng Razor Pages và MVC
