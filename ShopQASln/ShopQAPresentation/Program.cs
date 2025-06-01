@@ -1,18 +1,16 @@
-<<<<<<< HEAD
 ﻿using Business.Iservices;
 using Business.Service;
 using DataAccess.Context;
 using DataAccess.IRepositories;
 using DataAccess;
-=======
 ﻿using DataAccess;
 using DataAccess.Context;
 using DataAccess.IRepositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
->>>>>>> 4012be3b525ad99380ec232ed5043aabc20d32f5
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,8 +49,6 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
-<<<<<<< HEAD
-=======
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -68,7 +64,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "fallback_secret_key"))
         };
     });
->>>>>>> 4012be3b525ad99380ec232ed5043aabc20d32f5
 var app = builder.Build();
 
 // Sử dụng CORS
@@ -82,11 +77,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-<<<<<<< HEAD
-=======
+
 app.UseAuthentication();
 
->>>>>>> 4012be3b525ad99380ec232ed5043aabc20d32f5
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
