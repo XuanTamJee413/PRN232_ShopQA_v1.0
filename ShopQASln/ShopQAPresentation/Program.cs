@@ -1,3 +1,5 @@
+using Business.Iservices;
+using Business.Service;
 using DataAccess;
 using DataAccess.Context;
 using DataAccess.IRepositories;
@@ -19,6 +21,7 @@ builder.Services.AddDbContext<ShopQADbContext>(options =>
         x => x.MigrationsAssembly("DataAccess")
     ));
 
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

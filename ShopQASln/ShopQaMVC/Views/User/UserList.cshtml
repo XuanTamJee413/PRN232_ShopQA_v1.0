@@ -1,0 +1,96 @@
+﻿@model IEnumerable<ShopQaMVC.Models.UserVM>
+
+@{
+    ViewData["Title"] = "User List";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" />
+
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">User List</h1>
+    @* Hiển thị thông báo *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#createUserModal">Add New User</button>
+
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>Id</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Id</td>
+                        <td>@user.Username</td>
+                        <td>@user.Email</td>
+                        <td>@user.Role</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editUserModal"
+                                    onclick="loadUserData(@user.Id, '@user.Username', '@user.Email', '@user.Role')">
+                                Edit
+                            </button>
+                            <a href="@Url.Action("Delete", "User", new { id = user.Id })"
+                               onclick="return confirm('Are you sure you want to delete this user?');"
+                               class="btn btn-danger btn-sm">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="5" class="text-center">No users found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- 🧩 Partial views for Create/Edit -->
+<partial name="_CreateUserPartial" model="new ShopQaMVC.Models.UserVM()" />
+<partial name="_EditUserPartial" model="new ShopQaMVC.Models.EditUserVM()" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function loadUserData(id, username, email, role) {
+            $('#editId').val(id);
+            $('#editUsername').val(username);
+            $('#editEmail').val(email);
+            $('#editRole').val(role);
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(function () {
+                $(".alert-success").alert('close');
+            }, 3000); // 3 giây tự động ẩn
+        });
+    </script>
+}
