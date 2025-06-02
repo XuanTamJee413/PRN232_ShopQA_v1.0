@@ -15,6 +15,7 @@ namespace Domain.Models
         public decimal Price { get; set; }
         public int CategoryId { get; set; }
         public Category Category { get; set; } = default!;
+        public string? ImageUrl { get; set; }
 
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
     }

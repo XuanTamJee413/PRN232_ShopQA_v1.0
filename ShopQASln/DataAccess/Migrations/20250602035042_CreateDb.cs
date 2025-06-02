@@ -69,7 +69,8 @@ namespace DataAccess.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: false)
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -154,6 +155,7 @@ namespace DataAccess.Migrations
                     Size = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Color = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Stock = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProductId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -336,11 +338,11 @@ namespace DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "Products",
-                columns: new[] { "Id", "CategoryId", "Description", "Name", "Price" },
+                columns: new[] { "Id", "CategoryId", "Description", "ImageUrl", "Name", "Price" },
                 values: new object[,]
                 {
-                    { 1, 1, "Form Hàn Quốc, vải lụa mát, thích hợp đi học và đi làm.", "Áo sơ mi trắng nam", 350000m },
-                    { 2, 2, "Vải co giãn, mặc nhẹ thoáng mát.", "Quần tây công sở", 420000m }
+                    { 1, 1, "Form Hàn Quốc, vải lụa mát, thích hợp đi học và đi làm.", null, "Áo sơ mi trắng nam", 350000m },
+                    { 2, 2, "Vải co giãn, mặc nhẹ thoáng mát.", null, "Quần tây công sở", 420000m }
                 });
 
             migrationBuilder.InsertData(
@@ -350,12 +352,12 @@ namespace DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "ProductVariants",
-                columns: new[] { "Id", "Color", "ProductId", "Size", "Stock" },
+                columns: new[] { "Id", "Color", "ImageUrl", "ProductId", "Size", "Stock" },
                 values: new object[,]
                 {
-                    { 1, "Trắng", 1, "M", 20 },
-                    { 2, "Xanh nhạt", 1, "L", 10 },
-                    { 3, "Đen", 2, "32", 15 }
+                    { 1, "Trắng", null, 1, "M", 20 },
+                    { 2, "Xanh nhạt", null, 1, "L", 10 },
+                    { 3, "Đen", null, 2, "32", 15 }
                 });
 
             migrationBuilder.InsertData(
