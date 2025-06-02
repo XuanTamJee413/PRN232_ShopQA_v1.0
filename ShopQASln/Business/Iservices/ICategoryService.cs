@@ -14,6 +14,7 @@ namespace Business.Iservices
         Task<Category?> GetCategoryByIdAsync(int id);
         Task AddCategoryAsync(CategoryDTO category);
         Task UpdateCategoryAsync(int CategoryId, CategoryDTO category);
-        Task DeleteCategoryAsync(int id);
+        Task<bool> DeleteCategoryAsync(int id);
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DataAccess.Context;
 using DataAccess.IRepositories;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,14 +45,16 @@ namespace DataAccess
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> HasProductsAsync(int categoryId)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                _context.Categories.Remove(category);
-                await _context.SaveChangesAsync();
-            }
+            return await _context.Products.AnyAsync(p => p.CategoryId == categoryId);
         }
+
+        public async Task DeleteAsync(Category category)
+        {
+            _context.Categories.Remove(category);
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

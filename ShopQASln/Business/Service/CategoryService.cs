@@ -7,6 +7,7 @@ using Business.DTO;
 using Business.Iservices;
 using DataAccess.IRepositories;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Business.Service
 {
@@ -45,9 +46,20 @@ namespace Business.Service
             await categoryRepository.UpdateAsync(ca);
         }
 
-        public async Task DeleteCategoryAsync(int id)
+        public async Task<bool> DeleteCategoryAsync(int id)
         {
-            await categoryRepository.DeleteAsync(id);
+            var category = await categoryRepository.GetByIdAsync(id);
+            if (category == null)
+                throw new Exception("Không tìm thấy danh mục.");
+
+            bool hasProducts = await categoryRepository.HasProductsAsync(id);
+            if (hasProducts)
+                return false; // Không xóa nếu có sản phẩm
+
+            await categoryRepository.DeleteAsync(category);
+            return true;
         }
+
+
     }
 }
