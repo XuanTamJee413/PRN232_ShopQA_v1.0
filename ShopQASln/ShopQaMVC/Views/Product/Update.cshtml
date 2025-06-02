@@ -1,0 +1,62 @@
+﻿<div class="container mt-5">
+    <h2 class="mb-4 text-center">Update Product</h2>
+
+    <!-- Form to update the product -->
+    <form method="post" id="updateProductForm" class="border p-4 rounded shadow-sm">
+        <div class="mb-3">
+            <label for="name" class="form-label">Product Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Enter product name" value="@Model.Product.Name" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" placeholder="Enter product description" rows="3" required>@Model.Product.Description</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="price" class="form-label">Price</label>
+            <input type="number" class="form-control" id="price" name="price" placeholder="Enter product price" step="0.01" value="@Model.Product.Price" required />
+        </div>
+
+        <div class="mb-3">
+            <label for="categoryId" class="form-label">Category ID</label>
+            <input type="number" class="form-control" id="categoryId" name="categoryId" placeholder="Enter category ID" value="@Model.Product.CategoryId" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Update Product</button>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Handle form submission for updating the product
+            $('#updateProductForm').submit(function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                var productData = {
+                    name: $('#name').val(),
+                    description: $('#description').val(),
+                    price: parseFloat($('#price').val()), // Convert to float for price
+                    categoryId: parseInt($('#categoryId').val()) // Convert to integer for categoryId
+                };
+
+                // Send POST request to API to update the product
+                $.ajax({
+                    url: 'https://localhost:7101/api/Product/@Model.Product.Id', // Your API endpoint for POST request (with product id)
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(productData),
+                    success: function(response) {
+                        alert('Product updated successfully!');
+                        window.location.href = '/Product'; // Redirect to product list page after successful update
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Error updating product: ' + error);
+                    }
+                });
+            });
+        });
+    </script>
+}

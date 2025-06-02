@@ -13,6 +13,7 @@ namespace Domain.Models
         public string Size { get; set; } = default!;
         public string Color { get; set; } = default!;
         public int Stock { get; set; }
+        public string? ImageUrl { get; set; }
 
         public int ProductId { get; set; }
         public Product Product { get; set; } = default!;

@@ -1,3 +1,4 @@
+
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace ShopQaMVC.Models
@@ -32,7 +33,6 @@ namespace ShopQaMVC.Models
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email format.")]
         public string Email { get; set; }
-
 
         [Required(ErrorMessage = "Role is required.")]
         public string Role { get; set; }
