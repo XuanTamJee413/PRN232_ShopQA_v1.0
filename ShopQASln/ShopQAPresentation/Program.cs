@@ -1,9 +1,9 @@
-﻿using Business.Iservices;
+
+using Business.Iservices;
 using Business.Service;
 using DataAccess.Context;
 using DataAccess.IRepositories;
 using DataAccess;
-﻿using DataAccess;
 using DataAccess.Context;
 using DataAccess.IRepositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,9 +37,10 @@ builder.Services.AddDbContext<ShopQADbContext>(options =>
         x => x.MigrationsAssembly("DataAccess")
     ));
 
+
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

@@ -1,7 +1,9 @@
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.Services.AddHttpClient("IgnoreSSL")
     .ConfigurePrimaryHttpMessageHandler(() =>
@@ -33,6 +35,20 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
+
+builder.Services.AddHttpClient("IgnoreSSL")
+    .ConfigurePrimaryHttpMessageHandler(() =>
+        new HttpClientHandler
+        {
+            // Bỏ qua kiểm tra chứng chỉ SSL (chỉ dùng khi dev)
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        });
+
+
+
+// Thêm các dịch vụ cần thiết
+builder.Services.AddControllersWithViews();  // Cho MVC
+builder.Services.AddRazorPages();  // Kích hoạt Razor Pages
 
 var app = builder.Build();
 
