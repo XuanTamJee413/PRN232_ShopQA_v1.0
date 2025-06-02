@@ -14,6 +14,9 @@ namespace DataAccess.IRepositories
         Task<Category?> GetByIdAsync(int id);
         Task AddAsync(Category category);
         Task UpdateAsync(Category category);
-        Task DeleteAsync(int id);
+        Task<bool> HasProductsAsync(int categoryId);
+        Task DeleteAsync(Category category);
+
+
     }
 }

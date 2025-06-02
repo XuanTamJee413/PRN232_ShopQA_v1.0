@@ -53,8 +53,24 @@ namespace ShopQAPresentation.Controllers.Category
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _categoryService.DeleteCategoryAsync(id);
-            return Ok();
+            try
+            {
+                bool deleted = await _categoryService.DeleteCategoryAsync(id);
+
+                if (!deleted)
+                {
+                    // Category còn sản phẩm nên không xóa được
+                    return BadRequest("Không thể xóa danh mục vì còn sản phẩm liên quan.");
+                }
+
+                return Ok("Xóa danh mục thành công.");
+            }
+            catch (Exception ex)
+            {
+                // Không tìm thấy category hoặc lỗi khác
+                return NotFound(ex.Message);
+            }
         }
+
     }
 }

@@ -1,0 +1,23 @@
+﻿@model List<ShopQaMVC.Models.CategoryVM>
+
+<h2>Category List</h2>
+<a href="/Category/Create" class="btn btn-success">+ Add Category</a>
+
+<table class="table table-bordered mt-3">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Actions</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.Name</td>
+            <td>
+                <a href="/Category/Edit/@item.Id" class="btn btn-warning">Edit</a>
+                <a href="/Category/Delete/@item.Id" class="btn btn-danger">Delete</a>
+            </td>
+        </tr>
+    }
+</table>
