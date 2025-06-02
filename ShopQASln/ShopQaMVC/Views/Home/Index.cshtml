@@ -26,6 +26,14 @@
                 {
                     <div class="col-md-3 mb-4">
                         <div class="card h-100">
+                            @if (!string.IsNullOrEmpty(p.ImageUrl))
+                            {
+                                <img src="@p.ImageUrl" class="card-img-top" style="max-height:180px;object-fit:cover;" alt="Ảnh sản phẩm" />
+                            }
+                            else
+                            {
+                                <img src="https://mabustudio.com/wp-content/uploads/2020/01/chup-trai-quan-ao-1-scaled-1024x1024.jpg" class="card-img-top" style="max-height:180px;object-fit:cover;" alt="No image" />
+                            }
                             <div class="card-body">
                                 <h6 class="card-title">@p.Name</h6>
                                 <p class="card-text">@p.Description</p>
