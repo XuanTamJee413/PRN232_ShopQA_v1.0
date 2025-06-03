@@ -1,4 +1,5 @@
 ﻿using DataAccess.Context;
+using Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,5 +41,34 @@ namespace ShopQAPresentation.Controllers
                 user.Role
             });
         }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterVM model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (model.Password != model.ConfirmPassword)
+                return BadRequest(new { message = "Mật khẩu không khớp" });
+
+            var isExist = await _context.Users.AnyAsync(u => u.Email == model.Email);
+            if (isExist)
+                return Conflict(new { message = "Email đã tồn tại" });
+
+            var user = new User
+            {
+                Username = model.Email,
+                Email = model.Email,
+                PasswordHash = model.Password, 
+                Role = "Customer"
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Đăng ký thành công" });
+        }
+
+
     }
 }

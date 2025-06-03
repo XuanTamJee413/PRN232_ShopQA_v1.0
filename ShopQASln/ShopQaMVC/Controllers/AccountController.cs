@@ -72,7 +72,7 @@ namespace ShopQaMVC.Controllers
                 return View(model);
 
             var client = _httpClientFactory.CreateClient();
-            var response = await client.PostAsJsonAsync("https://localhost:5001/api/auth/register", model);
+            var response = await client.PostAsJsonAsync("https://localhost:7101/api/auth/register", model);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -112,10 +112,8 @@ namespace ShopQaMVC.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // Đăng xuất khỏi cookie authentication
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // Xóa session nếu có
             HttpContext.Session.Clear();
 
             return RedirectToAction("Login", "Account");

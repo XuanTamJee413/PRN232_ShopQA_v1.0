@@ -38,6 +38,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="ProductList">Product</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="UserList">User</a>
+                            </li>
                         }
                         else
                         {
@@ -45,15 +48,7 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="ProductList">Product</a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="ProductList">Product</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Category" asp-action="Index">Category</a>
-                        </li>
+
                     </ul>
                     <ul class="navbar-nav ms-4">
                         @if (!isAuthenticated)
