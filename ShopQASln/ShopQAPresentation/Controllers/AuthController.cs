@@ -1,5 +1,5 @@
 ﻿using DataAccess.Context;
-using Domain.Models;
+using DomainUser = Domain.Models.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -55,7 +55,7 @@ namespace ShopQAPresentation.Controllers
             if (isExist)
                 return Conflict(new { message = "Email đã tồn tại" });
 
-            var user = new User
+            var user = new DomainUser
             {
                 Username = model.Email,
                 Email = model.Email,

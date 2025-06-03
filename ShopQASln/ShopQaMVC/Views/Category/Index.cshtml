@@ -1,5 +1,12 @@
 ﻿@model List<ShopQaMVC.Models.CategoryVM>
-
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 <h2>Category List</h2>
 <a href="/Category/Create" class="btn btn-success">+ Add Category</a>
 

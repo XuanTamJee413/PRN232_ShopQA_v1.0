@@ -102,7 +102,8 @@ namespace Business.Service
                 Name = productDTO.Name,
                 Description = productDTO.Description,
                 Price = productDTO.Price,
-                Category = categoryRepository.GetById(productDTO.CategoryId)
+                Category = categoryRepository.GetById(productDTO.CategoryId),
+                ImageUrl = null
             };
 
                 productRepository.Add(product);
