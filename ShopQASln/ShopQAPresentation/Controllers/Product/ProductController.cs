@@ -38,7 +38,7 @@ namespace ShopQAPresentation.Controllers.Product
             return Ok(product);
         }
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AddProduct(ProductDTO productDTO) {
             try
             {
@@ -51,7 +51,7 @@ namespace ShopQAPresentation.Controllers.Product
 
         }
         [HttpPut("{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateProduct(int id, ProductDTO productDTO)
         {
             try
@@ -65,7 +65,7 @@ namespace ShopQAPresentation.Controllers.Product
             }
         }
         [HttpDelete("{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteProduct(int id)
         {
             try

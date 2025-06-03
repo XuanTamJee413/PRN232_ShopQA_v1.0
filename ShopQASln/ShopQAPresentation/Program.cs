@@ -4,13 +4,10 @@ using Business.Service;
 using DataAccess.Context;
 using DataAccess.IRepositories;
 using DataAccess;
-using DataAccess.Context;
-using DataAccess.IRepositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,9 +21,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", builder =>
     {
-        builder.WithOrigins("https://localhost:7035") // Cho phép yêu cầu từ domain này
-               .AllowAnyMethod() // Cho phép bất kỳ phương thức HTTP nào
-               .AllowAnyHeader(); // Cho phép bất kỳ header nào
+        builder.WithOrigins("https://localhost:7035") 
+               .AllowAnyMethod()
+               .AllowAnyHeader(); 
     });
 });
 
@@ -68,7 +65,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 
 // Sử dụng CORS
-app.UseCors("AllowSpecificOrigin"); // Áp dụng chính sách CORS
+app.UseCors("AllowSpecificOrigin");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
