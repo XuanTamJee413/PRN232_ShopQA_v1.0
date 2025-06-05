@@ -31,20 +31,42 @@ namespace Business.Service
 
         public async Task AddCategoryAsync(CategoryDTO category)
         {
-            Category ca = new Category();
-            ca.Id = category.Id;
-            ca.Name = category.Name;
+            
+            var existingCategories = categoryRepository.GetAll();
+
+           
+            if (existingCategories.Any(c => c.Name.Trim().ToLower() == category.Name.Trim().ToLower()))
+            {
+                throw new Exception("Tên danh mục đã tồn tại.");
+            }
+
+           
+            Category ca = new Category
+            {
+                Id = category.Id,
+                Name = category.Name
+            };
             await categoryRepository.AddAsync(ca);
         }
 
-        public async Task UpdateCategoryAsync(int CategoryId, CategoryDTO category)
-        {   
-           
-            Category ca = categoryRepository.GetById(CategoryId);
-         
+        public async Task UpdateCategoryAsync(int categoryId, CategoryDTO category)
+        {
+            var ca = categoryRepository.GetById(categoryId);
+            if (ca == null)
+                throw new Exception("Không tìm thấy danh mục.");
+
+            // Kiểm tra tên trùng với danh mục khác (không phải chính nó)
+            var existingCategories = categoryRepository.GetAll();
+            if (existingCategories.Any(c => c.Id != categoryId &&
+                                            c.Name.Trim().ToLower() == category.Name.Trim().ToLower()))
+            {
+                throw new Exception("Tên danh mục đã tồn tại.");
+            }
+
             ca.Name = category.Name;
             await categoryRepository.UpdateAsync(ca);
         }
+
 
         public async Task<bool> DeleteCategoryAsync(int id)
         {

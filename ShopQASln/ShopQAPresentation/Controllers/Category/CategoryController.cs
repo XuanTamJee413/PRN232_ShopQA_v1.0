@@ -38,17 +38,31 @@ namespace ShopQAPresentation.Controllers.Category
         [HttpPost]
         public async Task<IActionResult> Create( CategoryDTO category)
         {
-            await _categoryService.AddCategoryAsync(category);
-            return Ok();
+            try
+            {
+                await _categoryService.AddCategoryAsync(category);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message); 
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, CategoryDTO category)
         {
-           
-            await _categoryService.UpdateCategoryAsync(id, category);
-            return Ok();
+            try
+            {
+                await _categoryService.UpdateCategoryAsync(id, category);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

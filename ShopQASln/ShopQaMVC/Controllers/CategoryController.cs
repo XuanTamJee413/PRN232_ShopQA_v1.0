@@ -34,15 +34,20 @@ namespace ShopQaMVC.Controllers
             if (!ModelState.IsValid) return View(category);
 
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-
             var response = await client.PostAsJsonAsync("https://localhost:7101/api/Category", category);
 
             if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Tạo danh mục thành công.";
                 return RedirectToAction("Index");
+            }
 
-            ModelState.AddModelError("", "Lỗi khi tạo danh mục");
+            // Lấy nội dung lỗi từ API và hiển thị ra ModelState
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("Name", errorMessage);
             return View(category);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
@@ -68,11 +73,17 @@ namespace ShopQaMVC.Controllers
             var response = await client.PutAsJsonAsync($"https://localhost:7101/api/Category/{category.Id}", category);
 
             if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Cập nhật danh mục thành công.";
                 return RedirectToAction("Index");
+            }
 
-            ModelState.AddModelError("", "Lỗi khi cập nhật danh mục");
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            ModelState.AddModelError("Name", errorMessage);
             return View(category);
         }
+
+
 
         [HttpGet]
         public async Task<IActionResult> Delete(int id)
@@ -80,8 +91,18 @@ namespace ShopQaMVC.Controllers
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
 
             var response = await client.DeleteAsync($"https://localhost:7101/api/Category/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Xóa danh mục thành công.";
+            }
+            else
+            {
+                TempData["Error"] = "Không thể xóa danh mục. Có thể danh mục đang chứa sản phẩm.";
+            }
 
             return RedirectToAction("Index");
+
+            
         }
     }
 }
