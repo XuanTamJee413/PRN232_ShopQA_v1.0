@@ -208,10 +208,10 @@ namespace DataAccess.Context
             modelBuilder.Entity<User>().HasData(
                 new User { Id = 1, Username = "tranthib", Email = "tranb@gmail.com", PasswordHash = "123", Role = "Customer" },
                 new User { Id = 2, Username = "leminhc", Email = "minhc@yahoo.com", PasswordHash = "123", Role = "Customer" },
-                new User { Id = 3, Username = "staff", Email = "staff@shopqa.vn", PasswordHash = "123", Role = "Support" },
+                new User { Id = 3, Username = "staff", Email = "staff@shopqa.vn", PasswordHash = "123", Role = "Staff" },
                 new User { Id = 4, Username = "phamthanh", Email = "thanhp@gmail.com", PasswordHash = "123", Role = "Customer" },
                 new User { Id = 5, Username = "nguyenhoa", Email = "hoa.nguyen@gmail.com", PasswordHash = "123", Role = "Customer" },
-                new User { Id = 6, Username = "admin", Email = "admin@shopqa.vn", PasswordHash = "123", Role = "Moderator" }
+                new User { Id = 6, Username = "admin", Email = "admin@shopqa.vn", PasswordHash = "123", Role = "Admin" }
             );
 
             // Address

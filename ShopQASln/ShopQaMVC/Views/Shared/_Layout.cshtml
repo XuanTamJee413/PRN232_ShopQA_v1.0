@@ -40,16 +40,27 @@
     <div class="offcanvas-menu-wrapper">
         <div class="offcanvas__option">
             <div class="offcanvas__links">
-                <a href="/Account/Login">Sign in</a>
+                @if (!isAuthenticated)
+                {
+                    <a href="/Account/Login">Sign in</a>
+                }
                 <a href="#">FAQs</a>
             </div>
             <div class="offcanvas__top__hover">
-                <span>Usd <i class="arrow_carrot-down"></i></span>
-                <ul>
-                    <li>USD</li>
-                    <li>EUR</li>
-                    <li>USD</li>
-                </ul>
+                @if (isAuthenticated && (userRole == "Customer" || userRole == "Admin"))
+                {
+                    <span>Settings <i class="arrow_carrot-down"></i></span>
+                    <ul>
+                        <li>Profile</li>
+                        <li>My Cart</li>
+                        <li>My Orders</li>
+                        <li><form id="logoutForm" asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-primary">Sign out</button>
+                        </form>
+                        </li>
+                    </ul>
+                }
             </div>
         </div>
         <div class="offcanvas__nav__option">
@@ -77,17 +88,27 @@
                     <div class="col-lg-6 col-md-5">
                         <div class="header__top__right">
                             <div class="header__top__links">
-                                <a href="/Account/Login">Sign in</a>
-                                <a href="/Home/FAQs">FAQs</a>
+                                @if (!isAuthenticated)
+                                {
+                                    <a href="/Account/Login">Sign in</a>
+                                }
+                                    <a href="/Home/NotFoundPage">FAQs</a>
                             </div>
                             <div class="header__top__hover">
-                                <span>Settings <i class="arrow_carrot-down"></i></span>
-                                <ul>
-                                    <li>Profile</li>
-                                    <li>My Cart</li>
-                                    <li>My Orders</li>
-                                    <li>Sign out</li>
-                                </ul>
+                                @if (isAuthenticated && (userRole == "Customer" || userRole == "Admin"))
+                                {
+                                    <span>Settings <i class="arrow_carrot-down"></i></span>
+                                    <ul>
+                                        <li>Profile</li>
+                                        <li>My Cart</li>
+                                        <li>My Orders</li>
+                                        <form id="logoutForm" asp-controller="Account" asp-action="Logout" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" style="background:none;border:none;color:inherit;padding:0;cursor:pointer;">Sign out</button>
+                                        </form>
+
+                                    </ul>
+                                }
                             </div>
                         </div>
                     </div>
@@ -109,15 +130,15 @@
                             <li>
                                 <a href="#">Pages</a>
                                 <ul class="dropdown">
-                                    <li><a href="./about.html">About Us</a></li>
-                                    <li><a href="./shop-details.html">Shop Details</a></li>
+                                    <li><a href="/Home/NotFoundPage">About Us</a></li>
+                                    <li><a href="/Home/NotFoundPage">Shop Details</a></li>
                                     <li><a href="./shopping-cart.html">Shopping Cart</a></li>
-                                    <li><a href="./checkout.html">Check Out</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
+                                    <li><a href="/Customer/Checkout">Check Out</a></li>
+                                    <li><a href="/Home/NotFoundPage">Blog Details</a></li>
                                 </ul>
                             </li>
-                            <li><a href="./blog.html">Blog</a></li>
-                            <li><a href="./contact.html">Contacts</a></li>
+                            <li><a href="/Home/NotFoundPage">Blog</a></li>
+                            <li><a href="/Home/NotFoundPage">Contacts</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -125,7 +146,7 @@
                     <div class="header__nav__option">
                         <a href="#" class="search-switch"><img src="~/img/icon/search.png" alt="" /></a>
                         <a href="#"><img src="~/img/icon/heart.png" alt="" /></a>
-                        <a href="#"><img src="~/img/icon/cart.png" alt="" /> <span>0</span></a>
+                        <a href="/Customer/Cart"><img src="~/img/icon/cart.png" alt="" /> <span>0</span></a>
                         <div class="price">$0.00</div>
                     </div>
                 </div>
@@ -135,8 +156,9 @@
     </header>
     <!-- Header Section End -->
     
-            @RenderBody()
-    
+    @RenderBody()
+    @RenderSection("Scripts", required: false)
+
     <!-- Footer Section Begin -->
     <footer class="footer">
         <div class="container">

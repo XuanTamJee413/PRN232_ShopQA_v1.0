@@ -42,11 +42,32 @@ namespace ShopQaMVC.Controllers
             return View(vm);
         }
 
-        //Tamnx ViewProduct list customer side
-        public IActionResult Shop()
+        // Tamnx ViewProduct list customer side
+        public async Task<IActionResult> Shop()
         {
-            return View();
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+
+                var response = await client.GetAsync("https://localhost:7101/api/Product");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    ViewBag.Error = "Không thể lấy dữ liệu sản phẩm từ API.";
+                    return View(new List<ProductDTO>());
+                }
+
+                var products = await response.Content.ReadFromJsonAsync<List<ProductDTO>>();
+                return View(products ?? new List<ProductDTO>());
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Lỗi khi gọi API: " + ex.Message;
+                return View(new List<ProductDTO>());
+            }
         }
+
+
         public IActionResult SingleProduct()
         {
             return View();
@@ -62,5 +83,10 @@ namespace ShopQaMVC.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+        public IActionResult NotFoundPage()
+        {
+            return View("404NotFound");
+        }
+
     }
 }
