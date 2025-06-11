@@ -32,7 +32,25 @@ namespace ShopQaMVC.Controllers
 
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Sai tài khoản hoặc mật khẩu");
+                // Đọc nội dung lỗi từ API
+                var errorContent = await response.Content.ReadAsStringAsync();
+                string errorMessage = "Sai tài khoản hoặc mật khẩu";
+
+                try
+                {
+                    // Giả sử API trả về { "message": "..." }
+                    using var doc = JsonDocument.Parse(errorContent);
+                    if (doc.RootElement.TryGetProperty("message", out var msgProp))
+                    {
+                        errorMessage = msgProp.GetString() ?? errorMessage;
+                    }
+                }
+                catch
+                {
+                    // Nếu không phải JSON hợp lệ, giữ nguyên thông báo mặc định
+                }
+
+                ModelState.AddModelError("", errorMessage);
                 return View(model);
             }
 
@@ -40,11 +58,11 @@ namespace ShopQaMVC.Controllers
             HttpContext.Session.SetString("User", JsonSerializer.Serialize(userInfo));
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, (string)userInfo.Username),
-                new Claim(ClaimTypes.Email, (string)userInfo.Email),
-                new Claim(ClaimTypes.Role, (string)userInfo.Role)
-            };
+    {
+        new Claim(ClaimTypes.Name, (string)userInfo.Username),
+        new Claim(ClaimTypes.Email, (string)userInfo.Email),
+        new Claim(ClaimTypes.Role, (string)userInfo.Role)
+    };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var authProperties = new AuthenticationProperties
@@ -61,6 +79,7 @@ namespace ShopQaMVC.Controllers
             else
                 return RedirectToAction("Index", "Home");
         }
+
 
         [HttpGet]
         public IActionResult Register() => View();

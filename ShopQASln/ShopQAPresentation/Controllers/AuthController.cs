@@ -26,13 +26,12 @@ namespace ShopQAPresentation.Controllers
 
             var user = await _context.Users
                 .FirstOrDefaultAsync(u =>
-                    (u.Username == model.UsernameOrEmail || u.Email == model.UsernameOrEmail)
-                    && u.PasswordHash == model.Password 
-                );
+                    (u.Username == model.UsernameOrEmail || u.Email == model.UsernameOrEmail));
 
             if (user == null)
-                return Unauthorized(new { message = "Invalid credentials" });
-
+                return Unauthorized(new { message = "Tài khoản không tồn tại" });
+            if (user.PasswordHash != model.Password)
+                return Unauthorized(new { message = "Mật khẩu không đúng" });
             return Ok(new
             {
                 user.Id,

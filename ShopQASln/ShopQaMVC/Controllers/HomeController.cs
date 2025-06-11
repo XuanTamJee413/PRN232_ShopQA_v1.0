@@ -15,6 +15,7 @@ namespace ShopQaMVC.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+        //tamnx Home
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient();
@@ -41,6 +42,15 @@ namespace ShopQaMVC.Controllers
             return View(vm);
         }
 
+        //Tamnx ViewProduct list customer side
+        public IActionResult Shop()
+        {
+            return View();
+        }
+        public IActionResult SingleProduct()
+        {
+            return View();
+        }
 
         public IActionResult Privacy()
         {

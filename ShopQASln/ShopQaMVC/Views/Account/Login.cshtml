@@ -1,38 +1,51 @@
 ﻿@model LoginVM
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h2 class="text-center mb-4">Đăng nhập</h2>
+<style>
+    body {
+        background: url('https://i.pinimg.com/736x/cb/6d/1f/cb6d1fb325d730e8be75f6cb15dcb8cf.jpg') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+    }
+</style>
 
-            <form asp-action="Login" method="post">
-                <div class="mb-3">
-                    <label asp-for="UsernameOrEmail" class="form-label">Tên đăng nhập hoặc Email</label>
-                    <input asp-for="UsernameOrEmail" class="form-control" />
-                    <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
-                </div>
+<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-start pt-5">
+    <div class="bg-white bg-opacity-75 p-5 rounded shadow" style="max-width: 450px; width: 100%;">
+        <h2 class="text-center mb-4 fw-bold">Đăng nhập</h2>
 
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label">Mật khẩu</label>
-                    <input asp-for="Password" type="password" class="form-control" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
+        <form asp-action="Login" method="post">
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                </div>
-            </form>
-
-            <hr class="my-4" />
-            <div class="text-center">
-                <a class="btn btn-danger mb-3" href="/Account/GoogleLogin">Đăng nhập bằng Google</a>
-                <p>Bạn chưa có tài khoản? <a href="/Account/Register">Đăng ký ngay</a></p>
+            <div class="mb-3">
+                <label asp-for="UsernameOrEmail" class="form-label">Tên đăng nhập hoặc Email</label>
+                <input asp-for="UsernameOrEmail" class="form-control" />
             </div>
 
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label">Mật khẩu</label>
+                <input asp-for="Password" type="password" class="form-control" />
+            </div>
+
+            <div class="text-center mb-3">
+                <button type="submit" class="btn btn-dark">Đăng nhập</button>
+            </div>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger p-2 mb-3">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+
+        </form>
+
+        <div class="text-center mb-3">
+            <a class="btn btn-danger w-100" href="/Account/GoogleLogin">Đăng nhập bằng Google</a>
         </div>
+
+        <p class="text-center">Chưa có tài khoản? <a href="/Account/Register" class="text-dark text-decoration-none"><strong>Đăng ký ngay</strong></a></p>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

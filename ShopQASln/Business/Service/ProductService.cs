@@ -37,23 +37,6 @@ namespace Business.Service
                 products = products.Where(p => p.CategoryId == categoryId.Value);
             }
 
-            if (startPrice.HasValue && toPrice.HasValue)
-            {
-                products = products.Where(p => p.Price >= startPrice && p.Price <= toPrice);
-            }
-            else
-            {
-                if (startPrice.HasValue)
-                {
-                    products = products.Where(p => p.Price >= startPrice);
-                }
-
-                if (toPrice.HasValue)
-                {
-                    products = products.Where(p => p.Price <= toPrice);
-                }
-            }
-
             //if (!products.Any())
             //{
             //    return 0;
@@ -88,11 +71,6 @@ namespace Business.Service
                 throw new ArgumentException("Description is required.");
             }
 
-            if (productDTO.Price <= 0)
-            {
-                throw new ArgumentException("Price must be greater than zero.");
-            }
-
             if (productDTO.CategoryId == null)
             {
                 throw new ArgumentException("Category is required.");
@@ -101,7 +79,6 @@ namespace Business.Service
             {
                 Name = productDTO.Name,
                 Description = productDTO.Description,
-                Price = productDTO.Price,
                 Category = categoryRepository.GetById(productDTO.CategoryId),
                 ImageUrl = null
             };
@@ -133,18 +110,12 @@ namespace Business.Service
                 throw new ArgumentException("Description is required.");
             }
 
-            if (productDTO.Price <= 0)
-            {
-                throw new ArgumentException("Price must be greater than zero.");
-            }
-
             if (productDTO.CategoryId == null)
             {
                 throw new ArgumentException("Category is required.");
             }
             product.Name = productDTO.Name;
             product.Description = productDTO.Description;
-            product.Price = productDTO.Price;
             product.Category = categoryRepository.GetById(productDTO.CategoryId);
             productRepository.Update(product);
             return product;

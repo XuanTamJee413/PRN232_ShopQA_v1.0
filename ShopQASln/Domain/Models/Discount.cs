@@ -9,11 +9,12 @@ namespace Domain.Models
     public class Discount
     {
         public int Id { get; set; }
-        public string Code { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
-        public bool IsPercentage { get; set; }
+        public decimal Amount { get; set; } // tamnx amount chỉ dùng %
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public int? UsageLimit { get; set; }
+        public bool Status { get; set; } // tamnx bật tắt
+
+        public int ProductVariantId { get; set; }
+        public ProductVariant ProductVariant { get; set; } = default!;
     }
 }
