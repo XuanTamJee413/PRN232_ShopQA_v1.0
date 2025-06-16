@@ -3,7 +3,7 @@ using DomainUser = Domain.Models.User;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShopQAPresentation.ViewModels;
+using Business.DTO;
 
 namespace ShopQAPresentation.Controllers
 {
@@ -19,7 +19,7 @@ namespace ShopQAPresentation.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginVM model)
+        public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -42,7 +42,7 @@ namespace ShopQAPresentation.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterVM model)
+        public async Task<IActionResult> Register([FromBody] RegisterDTO model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

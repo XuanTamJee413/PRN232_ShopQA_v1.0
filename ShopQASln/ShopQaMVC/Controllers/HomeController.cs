@@ -15,7 +15,7 @@ namespace ShopQaMVC.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        //tamnx Home
+        //tamnx Home customer site
         public async Task<IActionResult> Index()
         {
             var client = _httpClientFactory.CreateClient();
@@ -49,16 +49,29 @@ namespace ShopQaMVC.Controllers
             {
                 var client = _httpClientFactory.CreateClient();
 
-                var response = await client.GetAsync("https://localhost:7101/api/Product");
+                // Gọi API song song
+                var productTask = client.GetAsync("https://localhost:7101/api/Product");
+                var categoryTask = client.GetAsync("https://localhost:7101/api/Category");
 
-                if (!response.IsSuccessStatusCode)
+                await Task.WhenAll(productTask, categoryTask); // đợi cả 2 cùng xong
+
+                var products = new List<ProductDTO>();
+                var categories = new List<CategoryDTO>();
+
+                if (productTask.Result.IsSuccessStatusCode)
                 {
-                    ViewBag.Error = "Không thể lấy dữ liệu sản phẩm từ API.";
-                    return View(new List<ProductDTO>());
+                    products = await productTask.Result.Content.ReadFromJsonAsync<List<ProductDTO>>() ?? new();
                 }
+                else ViewBag.Error = "Không thể lấy dữ liệu sản phẩm.";
 
-                var products = await response.Content.ReadFromJsonAsync<List<ProductDTO>>();
-                return View(products ?? new List<ProductDTO>());
+                if (categoryTask.Result.IsSuccessStatusCode)
+                {
+                    categories = await categoryTask.Result.Content.ReadFromJsonAsync<List<CategoryDTO>>() ?? new();
+                }
+                else ViewBag.CategoryError = "Không thể lấy dữ liệu danh mục.";
+
+                ViewBag.Categories = categories;
+                return View(products);
             }
             catch (Exception ex)
             {

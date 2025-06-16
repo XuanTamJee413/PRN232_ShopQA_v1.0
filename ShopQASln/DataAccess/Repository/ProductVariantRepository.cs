@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess
+namespace DataAccess.Repository
 {
-    public class AddressRepository : IAddressRepository
+    public class ProductVariantRepository : IProductVariantRepository
     {
     }
 }

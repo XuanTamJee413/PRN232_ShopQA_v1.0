@@ -45,16 +45,14 @@
                                     <div class="card-body">
                                         <div class="shop__sidebar__categories">
                                             <ul class="nice-scroll">
-                                                <li><a href="#">Men (20)</a></li>
-                                                <li><a href="#">Women (20)</a></li>
-                                                <li><a href="#">Bags (20)</a></li>
-                                                <li><a href="#">Clothing (20)</a></li>
-                                                <li><a href="#">Shoes (20)</a></li>
-                                                <li><a href="#">Accessories (20)</a></li>
-                                                <li><a href="#">Kids (20)</a></li>
-                                                <li><a href="#">Kids (20)</a></li>
-                                                <li><a href="#">Kids (20)</a></li>
+                                                @foreach (var category in (List<CategoryDTO>)ViewBag.Categories)
+                                                {
+                                                    <li>
+                                                        <a href="#">@category.Name</a>
+                                                    </li>
+                                                }
                                             </ul>
+
                                         </div>
                                     </div>
                                 </div>
@@ -219,12 +217,13 @@
                     </div>
                 </div>
                 <div class="row">
-
                     @foreach (var product in Model)
                     {
                         <div class="col-lg-4 col-md-6 col-sm-6">
                             <div class="product__item">
                                 <div class="product__item__pic set-bg" data-setbg="/@product.ImageUrl">
+                                    <span class="label">Sale</span>
+
                                     <ul class="product__hover">
                                         <li>
                                             <a href="#"><img src="~/img/icon/cart.png" alt=""> <span>+ Cart</span></a>
