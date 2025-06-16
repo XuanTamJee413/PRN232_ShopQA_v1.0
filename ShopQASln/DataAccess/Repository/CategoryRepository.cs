@@ -12,7 +12,6 @@ namespace DataAccess.Repository
 {
     public class CategoryRepository : ICategoryRepository
     {
-
         private readonly ShopQADbContext _context;
 
         public CategoryRepository(ShopQADbContext context)
@@ -56,5 +55,20 @@ namespace DataAccess.Repository
             await _context.SaveChangesAsync();
         }
 
+       
+        public async Task<bool> ExistsByNameAsync(string name, int? excludeId = null)
+        {
+           
+            var normalizedName = name.ToLower();
+            var query = _context.Categories.Where(c => c.Name.ToLower() == normalizedName);
+
+           
+            if (excludeId.HasValue)
+            {
+                query = query.Where(c => c.Id != excludeId.Value);
+            }
+
+            return await query.AnyAsync();
+        }
     }
 }

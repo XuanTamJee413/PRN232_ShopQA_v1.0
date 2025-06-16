@@ -11,12 +11,14 @@ namespace ShopQAPresentation.Controllers.Category
     {
         private readonly ICategoryService _categoryService;
 
-        public CategoryController(ICategoryService categoryService) { 
-        this._categoryService = categoryService;
+        public CategoryController(ICategoryService categoryService)
+        {
+            this._categoryService = categoryService;
         }
 
         [HttpGet]
-        public IActionResult getAllCategory() {
+        public IActionResult getAllCategory()
+        {
             try
             {
                 return Ok(_categoryService.getAll());
@@ -36,18 +38,43 @@ namespace ShopQAPresentation.Controllers.Category
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create( CategoryDTO category)
+        public async Task<IActionResult> Create([FromBody] CategoryDTO category)
         {
-            await _categoryService.AddCategoryAsync(category);
-            return Ok();
+            try
+            {
+                await _categoryService.AddCategoryAsync(category);
+                return Ok(new { message = "Thêm danh mục thành công." });
+            }
+            catch (InvalidOperationException ex) 
+            {
+                return Conflict(new { message = ex.Message }); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, CategoryDTO category)
+        public async Task<IActionResult> Update(int id, [FromBody] CategoryDTO category)
         {
-           
-            await _categoryService.UpdateCategoryAsync(id, category);
-            return Ok();
+            try
+            {
+                await _categoryService.UpdateCategoryAsync(id, category);
+                return Ok(new { message = "Cập nhật danh mục thành công." });
+            }
+            catch (InvalidOperationException ex) 
+            {
+                return Conflict(new { message = ex.Message }); 
+            }
+            catch (KeyNotFoundException ex) 
+            {
+                return NotFound(new { message = ex.Message }); 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
@@ -59,7 +86,7 @@ namespace ShopQAPresentation.Controllers.Category
 
                 if (!deleted)
                 {
-                    // Category còn sản phẩm nên không xóa được
+                    
                     return BadRequest("Không thể xóa danh mục vì còn sản phẩm liên quan.");
                 }
 
@@ -67,10 +94,9 @@ namespace ShopQAPresentation.Controllers.Category
             }
             catch (Exception ex)
             {
-                // Không tìm thấy category hoặc lỗi khác
+                
                 return NotFound(ex.Message);
             }
         }
-
     }
 }

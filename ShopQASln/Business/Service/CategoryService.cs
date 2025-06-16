@@ -14,7 +14,7 @@ namespace Business.Service
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository categoryRepository;
-        
+
         public CategoryService(ICategoryRepository categoryRepository)
         {
             this.categoryRepository = categoryRepository;
@@ -31,17 +31,36 @@ namespace Business.Service
 
         public async Task AddCategoryAsync(CategoryDTO category)
         {
+           
+            if (await categoryRepository.ExistsByNameAsync(category.Name))
+            {
+                
+                throw new InvalidOperationException("Không được trùng tên");
+            }
+
+           
             Category ca = new Category();
-            ca.Id = category.Id;
             ca.Name = category.Name;
             await categoryRepository.AddAsync(ca);
         }
 
-        public async Task UpdateCategoryAsync(int CategoryId, CategoryDTO category)
-        {   
+        public async Task UpdateCategoryAsync(int categoryId, CategoryDTO category)
+        {
+          
+            if (await categoryRepository.ExistsByNameAsync(category.Name, categoryId))
+            {
+               
+                throw new InvalidOperationException("Không được trùng tên");
+            }
+
            
-            Category ca = categoryRepository.GetById(CategoryId);
-         
+            var ca = await categoryRepository.GetByIdAsync(categoryId);
+            if (ca == null)
+            {
+                throw new KeyNotFoundException($"Không tìm thấy danh mục với ID {categoryId}.");
+            }
+
+           
             ca.Name = category.Name;
             await categoryRepository.UpdateAsync(ca);
         }
@@ -54,12 +73,10 @@ namespace Business.Service
 
             bool hasProducts = await categoryRepository.HasProductsAsync(id);
             if (hasProducts)
-                return false; // Không xóa nếu có sản phẩm
+                return false; 
 
             await categoryRepository.DeleteAsync(category);
             return true;
         }
-
-
     }
 }
