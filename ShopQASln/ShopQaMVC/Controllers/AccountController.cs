@@ -71,7 +71,7 @@ namespace ShopQaMVC.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity), authProperties);
 
-            if (userInfo.Role == "Admin")
+            if (userInfo.Role == "Moderator")
                 return RedirectToAction("ProductList", "Product");
             else
                 return RedirectToAction("Index", "Home");

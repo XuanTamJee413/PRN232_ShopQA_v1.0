@@ -70,7 +70,6 @@
     <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
     <ProjectReference Include="..\Domain\Domain.csproj" />
 	  <ProjectReference Include="..\Business\Business.csproj" />
-	  <ProjectReference Include="..\ShopQAPresentation\ShopQAPresentation.csproj" />
   </ItemGroup>
 
   <ItemGroup>
