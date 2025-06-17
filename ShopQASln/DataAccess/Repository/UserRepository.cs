@@ -45,5 +45,21 @@ namespace DataAccess.Repository
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<User?> FindByEmailOrUsernameAsync(string emailOrUsername)
+        {
+            return await _context.Users
+                .Include(u => u.Addresses)
+                .FirstOrDefaultAsync(u =>
+                    u.Email.Contains(emailOrUsername) ||
+                    u.Username.Contains(emailOrUsername)
+                );
+        }
+        public async Task<IEnumerable<User>> FilterByRoleAsync(string role)
+        {
+            return await _context.Users
+                .Include(u => u.Addresses)
+                .Where(u => u.Role == role)
+                .ToListAsync();
+        }
     }
 }

@@ -1,50 +1,59 @@
 ﻿@model ShopQaMVC.Models.UserVM
 
 <div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
+    <div class="modal-dialog modal-lg" role="document">
+        <!-- modal-lg for larger form -->
+        <div class="modal-content" style="border-radius:1.5rem; overflow:hidden; min-height:500px;">
             <form asp-action="Create" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New User</h5>
-                    <button type="button" class="close" data-dismiss="modal">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title font-weight-bold">Add New User</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" style="opacity:1;">
                         <span>&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-                    <div class="form-group">
-                        <label asp-for="Username"></label>
-                        <input asp-for="Username" class="form-control" />
-                        <span asp-validation-for="Username" class="text-danger"></span>
+                <!-- Đã thêm padding-bottom để form có khoảng cách phía dưới -->
+                <div class="modal-body p-5" style="padding-bottom:2rem;">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Username" class="font-weight-bold"></label>
+                            <input asp-for="Username" class="form-control" style="border-radius:1rem; font-size:1.2rem; height:48px;" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label asp-for="Email" class="font-weight-bold"></label>
+                            <input asp-for="Email" class="form-control" style="border-radius:1rem; font-size:1.2rem; height:48px;" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label asp-for="Password" class="font-weight-bold"></label>
+                            <input asp-for="Password" class="form-control" style="border-radius:1rem; font-size:1.2rem; height:48px;" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="Email"></label>
-                        <input asp-for="Email" class="form-control" />
-                        <span asp-validation-for="Email" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="Password"></label>
-                        <input asp-for="Password" class="form-control" />
-                        <span asp-validation-for="Password" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label asp-for="Role"></label>
-                        <select asp-for="Role" class="form-control">
-                            <option value="Customer">Customer</option>
-                            <option value="Admin">Admin</option>
-                        </select>
+                        <label asp-for="Role" class="font-weight-bold mb-1"></label>
+                        <div>
+                            <select asp-for="Role" class="form-control" style="border-radius:1rem; font-size:1.2rem; height:48px;">
+                                <option value="Customer">Customer</option>
+                                <option value="Support">Support</option>
+                                <option value="Moderator">Moderator</option>
+                            </select>
+                        </div>
                         <span asp-validation-for="Role" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Create</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                </div>
             </form>
+            <div class="modal-footer bg-light" style="border-top:1px solid #eee;">
+                <button type="submit" class="btn btn-primary px-5 py-2" style="border-radius:2rem; font-weight:600; font-size:1.1rem;">Create</button>
+                <button type="button" class="btn btn-secondary px-5 py-2" style="border-radius:2rem; font-weight:600; font-size:1.1rem;" data-dismiss="modal">Cancel</button>
+            </div>
         </div>
     </div>
 </div>

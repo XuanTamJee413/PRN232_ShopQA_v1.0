@@ -123,5 +123,59 @@ namespace ShopQaMVC.Controllers
             TempData["Error"] = "Failed to delete user.";
             return RedirectToAction(nameof(UserList));
         }
+        [HttpGet]
+        public async Task<IActionResult> Search(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                TempData["Error"] = "Please enter a keyword to search.";
+                return RedirectToAction(nameof(UserList));
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{_apiBaseUrl}/search?keyword={keyword}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadAsStringAsync();
+                var user = JsonSerializer.Deserialize<UserVM>(jsonData, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return View("UserList", new List<UserVM> { user! });
+            }
+
+            TempData["Error"] = "User not found.";
+            return RedirectToAction(nameof(UserList));
+        }
+        [HttpGet]
+        public async Task<IActionResult> FilterByRole(string role)
+        {
+            if (string.IsNullOrWhiteSpace(role))
+            {
+                TempData["Error"] = "Please select a role to filter.";
+                return RedirectToAction(nameof(UserList));
+            }
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.GetAsync($"{_apiBaseUrl}/filter?role={role}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadAsStringAsync();
+                var users = JsonSerializer.Deserialize<List<UserVM>>(jsonData, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return View("UserList", users);
+            }
+
+            TempData["Error"] = "No users found with selected role.";
+            return RedirectToAction(nameof(UserList));
+        }
+
+
     }
 }
