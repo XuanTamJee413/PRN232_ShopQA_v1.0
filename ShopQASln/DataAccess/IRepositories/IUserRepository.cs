@@ -17,5 +17,7 @@ namespace DataAccess.IRepositories
         Task UpdateAsync(User user);
         
         Task DeleteAsync(int id);
+        Task<User?> FindByEmailOrUsernameAsync(string emailOrUsername);
+        Task<IEnumerable<User>> FilterByRoleAsync(string role);
     }
 }

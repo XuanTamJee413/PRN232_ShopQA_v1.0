@@ -4,93 +4,189 @@
     ViewData["Title"] = "User List";
 }
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css" />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="section-title text-center mb-4">
+                <h2 class="font-weight-bold" style="color:#111; font-size:2.5rem;">User List</h2>
+            </div>
 
-<div class="container mt-4">
-    <h1 class="mb-4 text-center">User List</h1>
-    @* Hiển thị thông báo *@
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    }
-    <button class="btn btn-success mb-3" data-toggle="modal" data-target="#createUserModal">Add New User</button>
+            <!-- 🔍 Search + Filter -->
+            <form id="searchForm" class="mb-4">
+                <div class="input-group input-group-lg">
+                    <input type="text" id="keywordInput" class="form-control" placeholder="Search by username or email..." />
+                    <select id="roleSelect" class="custom-select" style="max-width: 200px;">
+                        <option value="">All Roles</option>
+                        <option value="Customer">Customer</option>
+                        <option value="Support">Support</option>
+                        <option value="Moderator">Moderator</option>
+                    </select>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fa fa-search"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </form>
 
-    <table class="table table-bordered table-hover">
-        <thead class="thead-dark">
-            <tr>
-                <th>Id</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model != null && Model.Any())
+            <!-- ✅ Notifications -->
+            @if (TempData["Success"] != null)
             {
-                foreach (var user in Model)
-                {
-                    <tr>
-                        <td>@user.Id</td>
-                        <td>@user.Username</td>
-                        <td>@user.Email</td>
-                        <td>@user.Role</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editUserModal"
-                                    onclick="loadUserData(@user.Id, '@user.Username', '@user.Email', '@user.Role')">
-                                Edit
-                            </button>
-                            <a href="@Url.Action("Delete", "User", new { id = user.Id })"
-                               onclick="return confirm('Are you sure you want to delete this user?');"
-                               class="btn btn-danger btn-sm">Delete</a>
-                        </td>
-                    </tr>
-                }
+                <div class="alert alert-success" id="successAlert">@TempData["Success"]</div>
             }
-            else
+            @if (TempData["Error"] != null)
             {
-                <tr><td colspan="5" class="text-center">No users found.</td></tr>
+                <div class="alert alert-danger" id="errorAlert">@TempData["Error"]</div>
             }
-        </tbody>
-    </table>
+             <div class="d-flex justify-content-end mb-3">
+     <button class="btn btn-primary py-2 px-4" style="border-radius: 2rem; font-weight:600;" data-toggle="modal" data-target="#createUserModal">
+         <i class="fa fa-plus mr-1"></i> Add New User
+     </button>
+ </div>
+            <!-- 📋 User Table -->
+            <div class="table-responsive">
+                <table class="table table-bordered" id="userTable">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Id</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        @if (Model != null && Model.Any())
+                        {
+                            var index = 0;
+                            foreach (var user in Model)
+                            {
+                                <tr data-user-index="@index">
+                                    <td>@user.Id</td>
+                                    <td>@user.Username</td>
+                                    <td>@user.Email</td>
+                                    <td>@user.Role</td>
+                                    <td>
+                                        <a class="btn btn-warning btn-sm mr-1" data-toggle="modal" data-target="#editUserModal"
+                                           onclick="loadUserData(@user.Id, '@user.Username', '@user.Email', '@user.Role')">
+                                            Edit
+                                        </a>
+                                        <a href="@Url.Action("Delete", "User", new { id = user.Id })"
+                                           onclick="return confirm('Are you sure you want to delete this user?');"
+                                           class="btn btn-danger btn-sm">Delete</a>
+                                    </td>
+                                </tr>
+                                index++;
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="text-center">No users found.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 🔢 Pagination -->
+            <nav>
+                <ul class="pagination justify-content-center" id="pagination"></ul>
+            </nav>
+        </div>
+    </div>
 </div>
 
-<!-- 🧩 Partial views for Create/Edit -->
+<!-- 🔧 Modals (optional) -->
 <partial name="_CreateUserPartial" model="new ShopQaMVC.Models.UserVM()" />
 <partial name="_EditUserPartial" model="new ShopQaMVC.Models.EditUserVM()" />
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.bundle.min.js"></script>
-
     <script>
+        const rowsPerPage = 5;
+        let currentPage = 1;
+
         function loadUserData(id, username, email, role) {
             $('#editId').val(id);
             $('#editUsername').val(username);
             $('#editEmail').val(email);
             $('#editRole').val(role);
         }
-    </script>
-    <script>
-        $(document).ready(function () {
-            setTimeout(function () {
-                $(".alert-success").alert('close');
-            }, 3000); // 3 giây tự động ẩn
+
+        function renderPagination(totalRows) {
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = document.createElement('li');
+                li.className = 'page-item' + (i === currentPage ? ' active' : '');
+                li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+                li.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    currentPage = i;
+                    updateTable();
+                });
+                pagination.appendChild(li);
+            }
+        }
+
+                function updateTable() {
+            const allRows = document.querySelectorAll('#userTableBody tr');
+            const visibleRows = Array.from(allRows).filter(row => row.classList.contains('filtered-row'));
+
+            visibleRows.forEach((row, index) => {
+                row.style.display = (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) ? '' : 'none';
+            });
+
+            renderPagination(visibleRows.length);
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const keyword = document.getElementById('keywordInput').value.toLowerCase();
+            const role = document.getElementById('roleSelect').value;
+
+            const rows = document.querySelectorAll('#userTableBody tr');
+
+            rows.forEach(row => {
+                row.classList.remove('filtered-row');
+
+                const username = row.children[1].innerText.toLowerCase();
+                const email = row.children[2].innerText.toLowerCase();
+                const userRole = row.children[3].innerText;
+
+                const matchKeyword = keyword === "" || username.includes(keyword) || email.includes(keyword);
+                const matchRole = role === "" || userRole === role;
+
+                if (matchKeyword && matchRole) {
+                    row.classList.add('filtered-row');
+                }
+
+                // Tạm ẩn hết, sau đó updateTable sẽ xử lý hiển thị đúng
+                row.style.display = 'none';
+            });
+
+            currentPage = 1;
+            updateTable();
         });
+
+
+               document.addEventListener('DOMContentLoaded', function () {
+            const rows = document.querySelectorAll('#userTableBody tr');
+            rows.forEach(row => row.classList.add('filtered-row'));
+            updateTable();
+        });
+
+        // Auto-hide alerts after 3 seconds
+        setTimeout(function() {
+            var successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                successAlert.style.display = 'none';
+            }
+            var errorAlert = document.getElementById('errorAlert');
+            if (errorAlert) {
+                errorAlert.style.display = 'none';
+            }
+        }, 3000);
     </script>
 }

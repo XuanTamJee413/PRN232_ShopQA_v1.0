@@ -1,7 +1,9 @@
 ﻿using Business.DTO;
 using Business.Iservices;
+using Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ShopQAPresentation.Controllers.User
 {
@@ -78,6 +80,25 @@ namespace ShopQAPresentation.Controllers.User
             await _userService.DeleteUserAsync(id);
             return NoContent();
         }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUser([FromQuery] string keyword)
+        {
+            var user = await _userService.FindByEmailOrUsernameAsync(keyword);
+            if (user == null)
+                return NotFound(new { message = "User not found." });
+
+            return Ok(user);
+        }
+
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterByRole([FromQuery] string role)
+        {
+            var users = await _userService.FilterUsersByRoleAsync(role);
+            return Ok(users);
+        }
+      
+
     }
 }
 

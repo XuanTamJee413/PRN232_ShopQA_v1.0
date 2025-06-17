@@ -110,5 +110,31 @@ namespace Business.Service
                 return Convert.ToBase64String(hashBytes);
             }
         }
+        public async Task<UserDTO?> FindByEmailOrUsernameAsync(string keyword)
+        {
+            var user = await _userRepository.FindByEmailOrUsernameAsync(keyword);
+            if (user == null) return null;
+
+            return new UserDTO
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                Role = user.Role
+            };
+        }
+
+        public async Task<IEnumerable<UserDTO>> FilterUsersByRoleAsync(string role)
+        {
+            var users = await _userRepository.FilterByRoleAsync(role);
+
+            return users.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Email = u.Email,
+                Role = u.Role
+            });
+        }
     }
 }

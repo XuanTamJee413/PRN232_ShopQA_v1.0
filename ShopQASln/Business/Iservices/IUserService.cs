@@ -14,5 +14,7 @@ namespace Business.Iservices
         Task<IEnumerable<UserDTO>> GetAllUsersAsync();
         Task UpdateUserAsync(UserDTO userDto);
         Task DeleteUserAsync(int id);
+        Task<UserDTO?> FindByEmailOrUsernameAsync(string keyword);
+        Task<IEnumerable<UserDTO>> FilterUsersByRoleAsync(string role);
     }
 }
