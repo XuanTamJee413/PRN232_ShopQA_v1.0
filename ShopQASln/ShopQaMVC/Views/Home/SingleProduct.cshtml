@@ -1,4 +1,6 @@
-﻿@*
+﻿@model List<Business.DTO.ProductVariantDTO>
+
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
@@ -11,8 +13,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="product__details__breadcrumb">
-                        <a href="./index.html">Home</a>
-                        <a href="./shop.html">Shop</a>
+                        <a href="/Home">Home</a>
+                        <a href="/Home/Shop">Shop</a>
                         <span>Single Product</span>
                     </div>
                 </div>
@@ -20,59 +22,34 @@
             <div class="row">
                 <div class="col-lg-3 col-md-3">
                     <ul class="nav nav-tabs" role="tablist">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#tabs-1" role="tab">
-                                <div class="product__thumb__pic set-bg" data-setbg="/img/shop-details/thumb-1.png">
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-2" role="tab">
-                                <div class="product__thumb__pic set-bg" data-setbg="/img/shop-details/thumb-2.png">
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-3" role="tab">
-                                <div class="product__thumb__pic set-bg" data-setbg="/img/shop-details/thumb-3.png">
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#tabs-4" role="tab">
-                                <div class="product__thumb__pic set-bg" data-setbg="/img/shop-details/thumb-4.png">
-                                    <i class="fa fa-play"></i>
-                                </div>
-                            </a>
-                        </li>
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var variant = Model[i];
+                            <li class="nav-item">
+                                <a class="nav-link @(i == 0 ? "active" : "")" data-toggle="tab" href="#tabs-@i" role="tab">
+                                    <div class="product__thumb__pic set-bg">
+                                        <img src="@variant.ImageUrl" onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';" alt="Product Image" />
+                                    </div>
+                                </a>
+                            </li>
+                        }
                     </ul>
                 </div>
                 <div class="col-lg-6 col-md-9">
                     <div class="tab-content">
-                        <div class="tab-pane active" id="tabs-1" role="tabpanel">
-                            <div class="product__details__pic__item">
-                                <img src="~/img/shop-details/product-big-2.png" alt="">
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var variant = Model[i];
+                            <div class="tab-pane @(i == 0 ? "active" : "")" id="tabs-@i" role="tabpanel">
+                                <div class="product__details__pic__item">
+                                    <img src="@variant.ImageUrl" onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';" alt="variant image" class="img-fluid">
+                                </div>
                             </div>
-                        </div>
-                        <div class="tab-pane" id="tabs-2" role="tabpanel">
-                            <div class="product__details__pic__item">
-                                <img src="~/img/shop-details/product-big-3.png" alt="">
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tabs-3" role="tabpanel">
-                            <div class="product__details__pic__item">
-                                <img src="~/img/shop-details/product-big.png" alt="">
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tabs-4" role="tabpanel">
-                            <div class="product__details__pic__item">
-                                <img src="~/img/shop-details/product-big-4.png" alt="">
-                                <a href="https://www.youtube.com/watch?v=8PJ3_p7VqHw&list=RD8PJ3_p7VqHw&start_radio=1" class="video-popup"><i class="fa fa-play"></i></a>
-                            </div>
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
     <div class="product__details__content">
@@ -80,7 +57,7 @@
             <div class="row d-flex justify-content-center">
                 <div class="col-lg-8">
                     <div class="product__details__text">
-                        <h4>Hooded thermal anorak</h4>
+                        <h4>Chọn chi size và màu phù hợp với bạn</h4>
                         <div class="rating">
                             <i class="fa fa-star"></i>
                             <i class="fa fa-star"></i>
@@ -91,9 +68,7 @@
                         </div>
                         <h3>$270.00 <span>70.00</span></h3>
                         <p>
-                            Coat with quilted lining and an adjustable hood. Featuring long sleeves with adjustable
-                            cuff tabs, adjustable asymmetric hem with elastic side tabs and a front zip fastening
-                            with placket.
+                            Bạn mặc Size nào cũng vừa, bạn chọn màu nào cũng đẹp, hãy chọn một màu và một size phù hợp với bạn nhất nhé.
                         </p>
                         <div class="product__details__option">
                             <div class="product__details__option__size">

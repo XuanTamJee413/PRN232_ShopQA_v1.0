@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Business.DTO;
+using Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Business.Iservices
 {
     public interface IBrandService
     {
-        Task<List<Brand>> GetAllAsync();
-        Task<Brand?> GetByIdAsync(int id);
-        Task<Brand> AddAsync(Brand brand);
-        Task<bool> UpdateAsync(Brand brand);
+        Task<List<BrandDTO>> GetAllAsync();
+        Task<BrandDTO?> GetByIdAsync(int id);
+        Task<BrandDTO> AddAsync(BrandDTO brandDto);
+        Task<bool> UpdateAsync(BrandDTO brandDto);
         Task<bool> DeleteAsync(int id);
     }
 }

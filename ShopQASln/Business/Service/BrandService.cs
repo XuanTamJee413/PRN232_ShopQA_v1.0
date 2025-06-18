@@ -1,4 +1,5 @@
-﻿using Business.Iservices;
+﻿using Business.DTO;
+using Business.Iservices;
 using DataAccess.Context;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -19,31 +20,48 @@ namespace Business.Service
             _context = context;
         }
 
-        public async Task<List<Brand>> GetAllAsync()
-        {
-            return await _context.Brands.ToListAsync();
-        }
-
-        public async Task<Brand?> GetByIdAsync(int id)
+        public async Task<List<BrandDTO>> GetAllAsync()
         {
             return await _context.Brands
-                .Include(b => b.Products)
-                .FirstOrDefaultAsync(b => b.Id == id);
+                .Select(b => new BrandDTO
+                {
+                    Id = b.Id,
+                    Name = b.Name
+                })
+                .ToListAsync();
         }
 
-        public async Task<Brand> AddAsync(Brand brand)
+        public async Task<BrandDTO?> GetByIdAsync(int id)
         {
+            var brand = await _context.Brands.FindAsync(id);
+            if (brand == null) return null;
+
+            return new BrandDTO
+            {
+                Id = brand.Id,
+                Name = brand.Name
+            };
+        }
+
+        public async Task<BrandDTO> AddAsync(BrandDTO brandDto)
+        {
+            var brand = new Brand
+            {
+                Name = brandDto.Name
+            };
             _context.Brands.Add(brand);
             await _context.SaveChangesAsync();
-            return brand;
+
+            brandDto.Id = brand.Id;
+            return brandDto;
         }
 
-        public async Task<bool> UpdateAsync(Brand brand)
+        public async Task<bool> UpdateAsync(BrandDTO brandDto)
         {
-            var existing = await _context.Brands.FindAsync(brand.Id);
+            var existing = await _context.Brands.FindAsync(brandDto.Id);
             if (existing == null) return false;
 
-            existing.Name = brand.Name;
+            existing.Name = brandDto.Name;
             await _context.SaveChangesAsync();
             return true;
         }

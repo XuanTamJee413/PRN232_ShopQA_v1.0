@@ -9,6 +9,7 @@ using Business.Iservices;
 using DataAccess;
 using DataAccess.IRepositories;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Business.Service
@@ -23,6 +24,27 @@ namespace Business.Service
             this.productRepository = productRepository;
             this.categoryRepository = categoryRepository;
         }
+
+        // Tamnx lay product hien thi cho Shop.html
+        public IEnumerable<Product> GetVisibleProducts(string? name, int? categoryId, int? brandId)
+        {
+            var products = productRepository.GetAll();
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                products = products.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (categoryId.HasValue)
+            {
+                products = products.Where(p => p.CategoryId == categoryId.Value);
+            }
+            if (brandId.HasValue)
+                products = products.Where(p => p.BrandId == brandId.Value);
+
+            return products;
+        }
+
         public IEnumerable<Product> GetAllProduct(string? name, int? categoryId, decimal? startPrice, decimal? toPrice)
         {
             var products = productRepository.GetAll();

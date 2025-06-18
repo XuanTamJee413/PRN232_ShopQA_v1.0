@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.IRepositories
+namespace Business.Iservices
 {
-    public interface IProductVariantRepository
+    public interface IProductVariantService
     {
-        Task<List<ProductVariant>> GetByProductIdAsync(int productId);
+        Task<List<ProductVariant>> GetVariantsByProductIdAsync(int productId);
     }
+
 }
