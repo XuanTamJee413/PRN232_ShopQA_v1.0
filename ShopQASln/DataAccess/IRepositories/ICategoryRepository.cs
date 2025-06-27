@@ -24,5 +24,9 @@ namespace DataAccess.IRepositories
         /// <param name="excludeId">ID của danh mục cần loại trừ (dùng cho trường hợp cập nhật).</param>
         /// <returns>True nếu tên đã tồn tại, ngược lại là False.</returns>
         Task<bool> ExistsByNameAsync(string name, int? excludeId = null);
+
+      
+        Task<IEnumerable<Category>> SearchByNameAsync(string keyword);
+        Task<IEnumerable<Category>> SortByNameAsync(bool sortAsc);
     }
 }

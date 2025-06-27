@@ -1,4 +1,9 @@
 ﻿@model List<ShopQaMVC.Models.CategoryVM>
+
+@{
+    ViewData["Title"] = "Category List";
+}
+
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-success">@TempData["Message"]</div>
@@ -7,24 +12,57 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
+
+@if (ViewBag.ErrorMessage != null)
+{
+    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
+}
+
 <h2>Category List</h2>
-<a href="/Category/Create" class="btn btn-success">+ Add Category</a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="/Category/Create" class="btn btn-success">+ Add Category</a>
+
+    <form asp-action="Index" method="get" class="d-flex">
+        <input type="text" name="searchKeyword" class="form-control me-2" placeholder="Search by name..." value="@ViewBag.CurrentSearchKeyword" />
+        <button type="submit" class="btn btn-primary">Search</button>
+        @if (!string.IsNullOrEmpty(ViewBag.CurrentSearchKeyword))
+        {
+            <a asp-action="Index" class="btn btn-secondary ms-2">Clear Search</a>
+        }
+    </form>
+</div>
 
 <table class="table table-bordered mt-3">
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Actions</th>
-    </tr>
-    @foreach (var item in Model)
-    {
+    <thead>
         <tr>
-            <td>@item.Id</td>
-            <td>@item.Name</td>
-            <td>
-                <a href="/Category/Edit/@item.Id" class="btn btn-warning">Edit</a>
-                <a href="/Category/Delete/@item.Id" class="btn btn-danger">Delete</a>
-            </td>
+            <th>ID</th>
+            <th>
+                Name
+                <div class="d-inline-block ms-2">
+                    <a href="@Url.Action("Index", new { searchKeyword = ViewBag.CurrentSearchKeyword, sortBy = "name", sortOrder = "asc" })" class="btn btn-sm btn-outline-secondary py-0 px-1">▲</a>
+                    <a href="@Url.Action("Index", new { searchKeyword = ViewBag.CurrentSearchKeyword, sortBy = "name", sortOrder = "desc" })" class="btn btn-sm btn-outline-secondary py-0 px-1">▼</a>
+                </div>
+            </th>
+            <th>Actions</th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>
+                    <a href="/Category/Edit/@item.Id" class="btn btn-warning">Edit</a>
+                    <a href="/Category/Delete/@item.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="3" class="text-center">No categories found.</td>
+            </tr>
+        }
+    </tbody>
 </table>

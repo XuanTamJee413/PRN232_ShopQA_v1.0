@@ -70,5 +70,23 @@ namespace DataAccess.Repository
 
             return await query.AnyAsync();
         }
+        public async Task<IEnumerable<Category>> SearchByNameAsync(string keyword)
+        {
+            var normalizedKeyword = keyword.ToLower();
+            return await _context.Categories
+                .Where(c => c.Name.ToLower().Contains(normalizedKeyword))
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Category>> SortByNameAsync(bool sortAsc)
+        {
+            var query = _context.Categories.AsQueryable();
+
+            query = sortAsc
+                ? query.OrderBy(c => c.Name)
+                : query.OrderByDescending(c => c.Name);
+
+            return await query.ToListAsync();
+        }
     }
 }

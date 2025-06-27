@@ -35,25 +35,62 @@ namespace ShopQAPresentation.Controllers.Category
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] BrandDTO brandDto)
         {
-            var created = await _brandService.AddAsync(brandDto);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            try
+            {
+                var created = await _brandService.AddAsync(brandDto);
+                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] BrandDTO brandDto)
         {
             if (id != brandDto.Id) return BadRequest();
-            var success = await _brandService.UpdateAsync(brandDto);
-            if (!success) return NotFound();
-            return NoContent();
+
+            try
+            {
+                var success = await _brandService.UpdateAsync(brandDto);
+                if (!success) return NotFound();
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _brandService.DeleteAsync(id);
-            if (!success) return NotFound();
-            return NoContent();
+            try
+            {
+                var success = await _brandService.DeleteAsync(id);
+                if (!success) return NotFound();
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string name)
+        {
+            var result = await _brandService.SearchByNameAsync(name);
+            return Ok(result);
+        }
+
+        [HttpGet("sort")]
+        public async Task<IActionResult> Sort([FromQuery] bool desc = false)
+        {
+            var result = await _brandService.SortByNameAsync(desc);
+            return Ok(result);
+        }
+
     }
 }

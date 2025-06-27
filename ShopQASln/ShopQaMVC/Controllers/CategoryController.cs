@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using ShopQaMVC.Models;
+using System.Globalization;
 using System.Net;
 using System.Text.Json; 
 
@@ -14,15 +16,43 @@ namespace ShopQaMVC.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchKeyword, string sortBy, string sortOrder)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            var response = await client.GetAsync("https://localhost:7101/api/Category");
+            string requestUrl = "https://localhost:7101/api/Category";
+
+            // Handle search
+            if (!string.IsNullOrEmpty(searchKeyword))
+            {
+                requestUrl += $"/search?keyword={Uri.EscapeDataString(searchKeyword)}";
+            }
+            // Handle sort
+            else if (!string.IsNullOrEmpty(sortBy))
+            {
+                bool sortAscending = true; // Default to ascending
+                if (sortOrder?.ToLower() == "desc")
+                {
+                    sortAscending = false;
+                }
+                requestUrl += $"/sort?sortAsc={sortAscending.ToString().ToLower()}";
+            }
+
+            var response = await client.GetAsync(requestUrl);
 
             if (!response.IsSuccessStatusCode)
+            {
+                // You might want to log the error or show a more specific error message
+                ViewBag.ErrorMessage = "Failed to retrieve categories. Please try again later.";
                 return View(new List<CategoryVM>());
+            }
 
             var categories = await response.Content.ReadFromJsonAsync<List<CategoryVM>>();
+
+            // Pass the current search and sort parameters to the view to maintain state
+            ViewBag.CurrentSearchKeyword = searchKeyword;
+            ViewBag.CurrentSortBy = sortBy;
+            ViewBag.CurrentSortOrder = sortOrder;
+
             return View(categories);
         }
 

@@ -78,5 +78,14 @@ namespace Business.Service
             await categoryRepository.DeleteAsync(category);
             return true;
         }
+        public async Task<IEnumerable<Category>> SearchCategoriesByNameAsync(string keyword)
+        {
+            return await categoryRepository.SearchByNameAsync(keyword);
+        }
+
+        public async Task<IEnumerable<Category>> SortCategoriesByNameAsync(bool sortAsc)
+        {
+            return await categoryRepository.SortByNameAsync(sortAsc);
+        }
     }
 }

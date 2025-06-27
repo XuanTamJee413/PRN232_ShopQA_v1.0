@@ -43,8 +43,30 @@ namespace Business.Service
             };
         }
 
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var brand = await _context.Brands
+                .Include(b => b.Products)  
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (brand == null)
+                return false;
+
+            if (brand.Products != null && brand.Products.Any())
+                throw new InvalidOperationException("Không Thể Xóa Vì Đang Tồn Tại Sản Phẩm Thuộc Brand Này.");
+
+            _context.Brands.Remove(brand);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<BrandDTO> AddAsync(BrandDTO brandDto)
         {
+            var exists = await _context.Brands
+                .AnyAsync(b => b.Name.ToLower() == brandDto.Name.ToLower());
+            if (exists)
+                throw new InvalidOperationException("Tên Brand Đã Tồn Tại");
+
             var brand = new Brand
             {
                 Name = brandDto.Name
@@ -61,19 +83,46 @@ namespace Business.Service
             var existing = await _context.Brands.FindAsync(brandDto.Id);
             if (existing == null) return false;
 
+            var nameExists = await _context.Brands
+                .AnyAsync(b => b.Id != brandDto.Id && b.Name.ToLower() == brandDto.Name.ToLower());
+            if (nameExists)
+                throw new InvalidOperationException("Tên Brand Đã Tồn Tại");
+
             existing.Name = brandDto.Name;
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<List<BrandDTO>> SearchByNameAsync(string name)
         {
-            var brand = await _context.Brands.FindAsync(id);
-            if (brand == null) return false;
+            var query = _context.Brands
+                .Where(b => b.Name.Contains(name));
 
-            _context.Brands.Remove(brand);
-            await _context.SaveChangesAsync();
-            return true;
+            return await query
+                .Select(b => new BrandDTO
+                {
+                    Id = b.Id,
+                    Name = b.Name
+                })
+                .ToListAsync();
         }
+
+        public async Task<List<BrandDTO>> SortByNameAsync(bool descending)
+        {
+            var query = _context.Brands.AsQueryable();
+
+            query = descending
+                ? query.OrderByDescending(b => b.Name)
+                : query.OrderBy(b => b.Name);
+
+            return await query
+                .Select(b => new BrandDTO
+                {
+                    Id = b.Id,
+                    Name = b.Name
+                })
+                .ToListAsync();
+        }
+
     }
 }

@@ -1,0 +1,60 @@
+﻿@model List<ShopQaMVC.Models.BrandVM>
+
+@{
+    ViewData["Title"] = "Brand List";
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<h2>Brand List</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="/Brand/Create" class="btn btn-success">+ Add Brand</a>
+
+    <form asp-action="Index" method="get" class="d-flex">
+        <input type="text" name="searchQuery" class="form-control me-2" placeholder="Search by Brand Name..." value="@ViewBag.CurrentSearchQuery" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>
+                Name
+                <div class="d-inline-block ms-2">
+                    <a href="@Url.Action("Index", new { searchQuery = ViewBag.CurrentSearchQuery, sortBy = "nameAsc" })" class="btn btn-sm btn-outline-secondary py-0 px-1">▲</a>
+                    <a href="@Url.Action("Index", new { searchQuery = ViewBag.CurrentSearchQuery, sortBy = "nameDesc" })" class="btn btn-sm btn-outline-secondary py-0 px-1">▼</a>
+                </div>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>
+                    <a href="/Brand/Edit/@item.Id" class="btn btn-warning">Edit</a>
+                    <a href="/Brand/Delete/@item.Id" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="3" class="text-center">No brands found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
