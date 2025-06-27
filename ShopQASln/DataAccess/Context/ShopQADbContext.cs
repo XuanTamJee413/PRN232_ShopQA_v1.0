@@ -22,6 +22,7 @@ namespace DataAccess.Context
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Address> Addresses => Set<Address>();
+        public DbSet<Review> Review { get; set; } = default!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
