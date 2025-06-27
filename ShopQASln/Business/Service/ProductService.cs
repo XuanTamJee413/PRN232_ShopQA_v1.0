@@ -11,6 +11,7 @@ using DataAccess.IRepositories;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using static Business.DTO.InventoryDTO;
 
 namespace Business.Service
 {
@@ -18,11 +19,12 @@ namespace Business.Service
     {
         private readonly IProductRepository productRepository;
         private readonly ICategoryRepository categoryRepository;
-
-        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository)
+        private readonly IBrandRepository brandRepository;
+        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, IBrandRepository brandRepository)
         {
             this.productRepository = productRepository;
             this.categoryRepository = categoryRepository;
+            this.brandRepository = brandRepository;
         }
 
         // Tamnx lay product hien thi cho Shop.html
@@ -45,83 +47,131 @@ namespace Business.Service
             return products;
         }
 
-      
 
 
-        public Product getProductById(int id)
+
+        public ProductResponseDTO GetProductById(int id)
         {
-            Product product = productRepository.GetById(id);
+            var product = productRepository.GetProductById(id);
             if (product == null)
             {
-                return null;
+                throw new ArgumentException("Product not found.");
             }
-            return product;
-        }
-        public Product AddProduct(ProductDTO productDTO)
-        {
-            if (string.IsNullOrWhiteSpace(productDTO.Name)) { 
-    
-                throw new ArgumentException("Name is required.");
-            }
-            if (!Regex.IsMatch(productDTO.Name, @"^[a-zA-ZÀ-Ỹà-ỹ\s]+$"))
+
+            return new ProductResponseDTO
             {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                CategoryId = product.Category.Id,
+                CategoryName = product.Category.Name,
+                ImageUrl = product.ImageUrl,
+                Brand = product.Brand,
+                Variants = product.Variants.Select(v => new ProductVariantResponseDTO
+                {
+                    Id = v.Id,
+                    Price = v.Price,
+                    Size = v.Size,
+                    Color = v.Color,
+                    Stock = v.Stock,
+                    ImageUrl = v.ImageUrl,
+                    ProductId = v.ProductId,
+                    Inventory = v.Inventory != null ? new InventoryResponseDTO
+                    {
+                        Id = v.Inventory.Id,
+                        Quantity = v.Inventory.Quantity,
+                        UpdatedAt = v.Inventory.UpdatedAt
+                    } : null
+                }).ToList()
+            };
+        }
+
+
+        public Product AddProduct(ProductCreateReqDTO productDTO)
+        {
+            if (string.IsNullOrWhiteSpace(productDTO.Name))
+                throw new ArgumentException("Name is required.");
+
+            if (!Regex.IsMatch(productDTO.Name, @"^[a-zA-ZÀ-ỹà-ỹ\s]+$"))
                 throw new ArgumentException("Name must contain only letters and spaces.");
-            }
 
             if (string.IsNullOrWhiteSpace(productDTO.Description))
-            {
                 throw new ArgumentException("Description is required.");
-            }
 
-            if (productDTO.CategoryId == null)
-            {
-                throw new ArgumentException("Category is required.");
-            }
+            if (productDTO.CategoryId <= 0)
+                throw new ArgumentException("Invalid category ID.");
+
+            var category = categoryRepository.GetById(productDTO.CategoryId);
+            if (category == null)
+                throw new ArgumentException("Category not found.");
+
+            var brand = brandRepository.GetById(productDTO.BrandId);
+            if (brand == null)
+                throw new ArgumentException("Brand not found.");
+
             var product = new Product
             {
                 Name = productDTO.Name,
                 Description = productDTO.Description,
-                Category = categoryRepository.GetById(productDTO.CategoryId),
+                Category = category,
+                Brand = brand,
                 ImageUrl = null
             };
 
-                productRepository.Add(product);
+            productRepository.Add(product);
+            return product;
+        }
 
-                return product;
-            }
 
-        public Product UpdateProduct(int productId,ProductDTO productDTO)
+        public Product UpdateProduct(int productId, ProductCreateReqDTO productDTO)
         {
-
-            Product product = productRepository.GetById(productId);
-            if (product == null) {
-                throw new ArgumentException("Not Found!");
+            var product = productRepository.GetById(productId);
+            if (product == null)
+            {
+                throw new ArgumentException("Product not found!");
             }
+
+            // Kiểm tra tên
             if (string.IsNullOrWhiteSpace(productDTO.Name))
             {
-
                 throw new ArgumentException("Name is required.");
             }
+
             if (!Regex.IsMatch(productDTO.Name, @"^[a-zA-ZÀ-Ỹà-ỹ\s]+$"))
             {
                 throw new ArgumentException("Name must contain only letters and spaces.");
             }
 
+            // Kiểm tra mô tả
             if (string.IsNullOrWhiteSpace(productDTO.Description))
             {
                 throw new ArgumentException("Description is required.");
             }
 
-            if (productDTO.CategoryId == null)
+            // Kiểm tra Category
+            var category = categoryRepository.GetById(productDTO.CategoryId);
+            if (category == null)
             {
-                throw new ArgumentException("Category is required.");
+                throw new ArgumentException("Invalid CategoryId.");
             }
+
+            // Kiểm tra Brand
+            var brand = brandRepository.GetById(productDTO.BrandId);
+            if (brand == null)
+            {
+                throw new ArgumentException("Invalid BrandId.");
+            }
+
+            // Cập nhật thông tin
             product.Name = productDTO.Name;
             product.Description = productDTO.Description;
-            product.Category = categoryRepository.GetById(productDTO.CategoryId);
+            product.Category = category;
+            product.Brand = brand;
+
             productRepository.Update(product);
             return product;
         }
+
 
         public string DeleteProduct(int id)
         {
@@ -177,7 +227,7 @@ namespace Business.Service
                     Name = p.Brand.Name
                     // thêm thuộc tính khác nếu cần
                 },
-                Variants = p.Variants.Select(v => new ProductVariant
+                Variants = p.Variants.Select(v => new ProductVariantResponseDTO
                 {
                     Id = v.Id,
                     Price = v.Price,
@@ -185,9 +235,15 @@ namespace Business.Service
                     Color = v.Color,
                     Stock = v.Stock,
                     ImageUrl = v.ImageUrl,
-                    // KHÔNG gán Product để tránh vòng lặp
-                    ProductId = v.ProductId
+                    ProductId = v.ProductId,
+                    Inventory = v.Inventory != null ? new InventoryResponseDTO
+                    {
+                        Id = v.Inventory.Id,
+                        Quantity = v.Inventory.Quantity,
+                        UpdatedAt = v.Inventory.UpdatedAt
+                    } : null
                 }).ToList()
+
             });
 
             return result;

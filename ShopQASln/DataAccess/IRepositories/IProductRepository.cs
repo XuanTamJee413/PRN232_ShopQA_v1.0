@@ -11,6 +11,7 @@ namespace DataAccess.IRepositories
     {
         IEnumerable<Product> GetAll();
         Product? GetById(int id);
+        Product? GetProductById(int id);
         void Add(Product product);
         void Update(Product product);
         void Delete(int id);
