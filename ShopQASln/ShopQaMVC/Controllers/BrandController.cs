@@ -16,51 +16,44 @@ namespace ShopQaMVC.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        
-        public async Task<IActionResult> Index(string searchQuery, string sortBy)
+        public async Task<IActionResult> Index(string searchQuery, string sortBy, int page = 1)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            List<BrandVM> brands = new List<BrandVM>();
+            List<BrandVM> brands = new();
             HttpResponseMessage response;
 
            
+            var query = $"?page={page}";
+
             if (!string.IsNullOrWhiteSpace(searchQuery))
             {
-              
-                response = await client.GetAsync($"{_apiBaseUrl}/search?name={Uri.EscapeDataString(searchQuery)}");
+                query += $"&search={Uri.EscapeDataString(searchQuery)}";
             }
-            else if (!string.IsNullOrWhiteSpace(sortBy))
+
+            if (!string.IsNullOrWhiteSpace(sortBy))
             {
-                
-                bool sendDesc = false; 
-                if (sortBy.EndsWith("Desc")) 
-                {
-                    sendDesc = true;
-                }
-               
-                response = await client.GetAsync($"{_apiBaseUrl}/sort?desc={sendDesc}");
+                var desc = sortBy.EndsWith("Desc") ? "desc" : "asc";
+                query += $"&sort={desc}";
             }
-            else
-            {
-              
-                response = await client.GetAsync(_apiBaseUrl);
-            }
+
+            response = await client.GetAsync($"{_apiBaseUrl}/paged{query}");
 
             if (response.IsSuccessStatusCode)
             {
-                brands = await response.Content.ReadFromJsonAsync<List<BrandVM>>() ?? new List<BrandVM>();
+                brands = await response.Content.ReadFromJsonAsync<List<BrandVM>>() ?? new();
             }
             else
             {
-                TempData["Error"] = $"Failed to retrieve brands from API. Status: {response.StatusCode}. Check Brand API's /search or /sort endpoint and server logs: {await response.Content.ReadAsStringAsync()}";
-               
+                TempData["Error"] = $"Lỗi khi gọi API: {response.StatusCode}. Server trả: {await response.Content.ReadAsStringAsync()}";
             }
 
-           
             ViewBag.CurrentSearchQuery = searchQuery;
+            ViewBag.CurrentSort = sortBy;
+            ViewBag.CurrentPage = page;
 
             return View(brands);
         }
+
 
         [HttpGet]
         public IActionResult Create() => View();

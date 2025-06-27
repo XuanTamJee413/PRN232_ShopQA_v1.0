@@ -2,6 +2,10 @@
 
 @{
     ViewData["Title"] = "Category List";
+    var currentSearch = ViewBag.CurrentSearchKeyword as string;
+    var currentSort = ViewBag.CurrentSort as string;
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var hasMoreCategories = (bool)(ViewBag.HasMoreCategories ?? false);
 }
 
 @if (TempData["Message"] != null)
@@ -12,23 +16,21 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
-
 @if (ViewBag.ErrorMessage != null)
 {
     <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
 }
 
 <h2>Category List</h2>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <a href="/Category/Create" class="btn btn-success">+ Add Category</a>
 
     <form asp-action="Index" method="get" class="d-flex">
-        <input type="text" name="searchKeyword" class="form-control me-2" placeholder="Search by name..." value="@ViewBag.CurrentSearchKeyword" />
+        <input type="text" name="searchKeyword" class="form-control me-2" placeholder="Search by name..." value="@currentSearch" />
+       
+        <input type="hidden" name="sortBy" value="@currentSort" />
         <button type="submit" class="btn btn-primary">Search</button>
-        @if (!string.IsNullOrEmpty(ViewBag.CurrentSearchKeyword))
-        {
-            <a asp-action="Index" class="btn btn-secondary ms-2">Clear Search</a>
-        }
     </form>
 </div>
 
@@ -39,26 +41,30 @@
             <th>
                 Name
                 <div class="d-inline-block ms-2">
-                    <a href="@Url.Action("Index", new { searchKeyword = ViewBag.CurrentSearchKeyword, sortBy = "name", sortOrder = "asc" })" class="btn btn-sm btn-outline-secondary py-0 px-1">▲</a>
-                    <a href="@Url.Action("Index", new { searchKeyword = ViewBag.CurrentSearchKeyword, sortBy = "name", sortOrder = "desc" })" class="btn btn-sm btn-outline-secondary py-0 px-1">▼</a>
+                  
+                    <a href="@Url.Action("Index", new { searchKeyword = currentSearch, sortBy = "name_asc", page = currentPage })" class="btn btn-sm btn-outline-secondary py-0 px-1">▲</a>
+                    <a href="@Url.Action("Index", new { searchKeyword = currentSearch, sortBy = "name_desc", page = currentPage })" class="btn btn-sm btn-outline-secondary py-0 px-1">▼</a>
                 </div>
             </th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @if (Model.Any())
         {
-            <tr>
-                <td>@item.Id</td>
-                <td>@item.Name</td>
-                <td>
-                    <a href="/Category/Edit/@item.Id" class="btn btn-warning">Edit</a>
-                    <a href="/Category/Delete/@item.Id" class="btn btn-danger">Delete</a>
-                </td>
-            </tr>
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>
+                        <a href="/Category/Edit/@item.Id" class="btn btn-warning">Edit</a>
+                        <a href="/Category/Delete/@item.Id" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa?');">Delete</a>
+                    </td>
+                </tr>
+            }
         }
-        @if (!Model.Any())
+        else
         {
             <tr>
                 <td colspan="3" class="text-center">No categories found.</td>
@@ -66,3 +72,18 @@
         }
     </tbody>
 </table>
+
+<div class="d-flex justify-content-center">
+    @if (currentPage > 1)
+    {
+        <a class="btn btn-outline-primary me-2"
+           href="@Url.Action("Index", new { searchKeyword = currentSearch, sortBy = currentSort, page = currentPage - 1 })">Previous</a>
+    }
+    <span class="align-self-center">Page @currentPage</span>
+   
+    @if (hasMoreCategories)
+    {
+        <a class="btn btn-outline-primary ms-2"
+           href="@Url.Action("Index", new { searchKeyword = currentSearch, sortBy = currentSort, page = currentPage + 1 })">Next</a>
+    }
+</div>

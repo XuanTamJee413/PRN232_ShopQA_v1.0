@@ -17,5 +17,7 @@ namespace Business.Iservices
         Task<bool> DeleteCategoryAsync(int id);
         Task<IEnumerable<Category>> SearchCategoriesByNameAsync(string keyword);
         Task<IEnumerable<Category>> SortCategoriesByNameAsync(bool sortAsc);
+        Task<IEnumerable<Category>> SearchSortPagedCategoriesAsync(string? keyword, bool? sortAsc, int page, int pageSize);
+
     }
 }

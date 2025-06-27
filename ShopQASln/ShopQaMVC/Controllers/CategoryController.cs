@@ -10,51 +10,61 @@ namespace ShopQaMVC.Controllers
     public class CategoryController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-
+        private readonly string _apiBaseUrl = "https://localhost:7101/api/Category";
         public CategoryController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IActionResult> Index(string searchKeyword, string sortBy, string sortOrder)
+        public async Task<IActionResult> Index(string searchKeyword, string sortBy, int page = 1)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            string requestUrl = "https://localhost:7101/api/Category";
+            List<CategoryVM> categories = new();
 
-            // Handle search
-            if (!string.IsNullOrEmpty(searchKeyword))
+           
+            var queryBuilder = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            queryBuilder["page"] = page.ToString();
+            queryBuilder["pageSize"] = "5"; 
+
+            if (!string.IsNullOrWhiteSpace(searchKeyword))
             {
-                requestUrl += $"/search?keyword={Uri.EscapeDataString(searchKeyword)}";
+                queryBuilder["keyword"] = searchKeyword;
             }
-            // Handle sort
-            else if (!string.IsNullOrEmpty(sortBy))
+
+           
+            if (!string.IsNullOrWhiteSpace(sortBy))
             {
-                bool sortAscending = true; // Default to ascending
-                if (sortOrder?.ToLower() == "desc")
+                if (sortBy.Equals("name_asc", StringComparison.OrdinalIgnoreCase))
                 {
-                    sortAscending = false;
+                    queryBuilder["sortAsc"] = "true";
                 }
-                requestUrl += $"/sort?sortAsc={sortAscending.ToString().ToLower()}";
+                else if (sortBy.Equals("name_desc", StringComparison.OrdinalIgnoreCase))
+                {
+                    queryBuilder["sortAsc"] = "false";
+                }
             }
 
-            var response = await client.GetAsync(requestUrl);
+            var apiEndpoint = $"{_apiBaseUrl}/paged?{queryBuilder.ToString()}";
 
-            if (!response.IsSuccessStatusCode)
+            var response = await client.GetAsync(apiEndpoint);
+
+            if (response.IsSuccessStatusCode)
             {
-                // You might want to log the error or show a more specific error message
-                ViewBag.ErrorMessage = "Failed to retrieve categories. Please try again later.";
-                return View(new List<CategoryVM>());
+                categories = await response.Content.ReadFromJsonAsync<List<CategoryVM>>() ?? new();
+            }
+            else
+            {
+                TempData["Error"] = $"Lỗi khi gọi API: {response.StatusCode}. Server trả: {await response.Content.ReadAsStringAsync()}";
             }
 
-            var categories = await response.Content.ReadFromJsonAsync<List<CategoryVM>>();
-
-            // Pass the current search and sort parameters to the view to maintain state
             ViewBag.CurrentSearchKeyword = searchKeyword;
-            ViewBag.CurrentSortBy = sortBy;
-            ViewBag.CurrentSortOrder = sortOrder;
+            ViewBag.CurrentSort = sortBy; 
+            ViewBag.CurrentPage = page;
+            ViewBag.HasMoreCategories = categories.Count == 5; 
 
             return View(categories);
         }
+
 
         [HttpGet]
         public IActionResult Create() => View();

@@ -124,5 +124,36 @@ namespace Business.Service
                 .ToListAsync();
         }
 
+        public async Task<List<BrandDTO>> GetPagedAsync(string? search, string? sort, int page)
+        {
+            const int pageSize = 5;
+            var query = _context.Brands.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x => x.Name.Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(sort))
+            {
+                if (sort.ToLower() == "asc")
+                    query = query.OrderBy(x => x.Name);
+                else if (sort.ToLower() == "desc")
+                    query = query.OrderByDescending(x => x.Name);
+            }
+
+            var result = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(x => new BrandDTO
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                })
+                .ToListAsync();
+
+            return result;
+        }
+
     }
 }

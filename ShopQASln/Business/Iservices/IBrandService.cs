@@ -17,5 +17,7 @@ namespace Business.Iservices
         Task<bool> DeleteAsync(int id);
         Task<List<BrandDTO>> SearchByNameAsync(string name);
         Task<List<BrandDTO>> SortByNameAsync(bool descending);
+        Task<List<BrandDTO>> GetPagedAsync(string? search, string? sort, int page);
+
     }
 }

@@ -128,5 +128,20 @@ namespace ShopQAPresentation.Controllers.Category
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("paged")]
+        public async Task<IActionResult> SearchSortPaged( [FromQuery] string? keyword,[FromQuery] bool? sortAsc, [FromQuery] int page = 1,[FromQuery] int pageSize = 5)
+        {
+            try
+            {
+                var result = await _categoryService.SearchSortPagedCategoriesAsync(keyword, sortAsc, page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

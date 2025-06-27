@@ -92,5 +92,12 @@ namespace ShopQAPresentation.Controllers.Category
             return Ok(result);
         }
 
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged([FromQuery] string? search,[FromQuery] string? sort,[FromQuery] int page = 1)
+        {
+            var brands = await _brandService.GetPagedAsync(search, sort, page);
+            return Ok(brands);
+        }
+
     }
 }
