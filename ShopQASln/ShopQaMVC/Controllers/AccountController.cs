@@ -72,7 +72,7 @@ namespace ShopQaMVC.Controllers
                 new ClaimsPrincipal(claimsIdentity), authProperties);
 
             if (userInfo.Role == "Admin")
-                return RedirectToAction("ProductList", "Product");
+                return RedirectToAction("Dashboard", "Admin");
             else
                 return RedirectToAction("Index", "Home");
         }
