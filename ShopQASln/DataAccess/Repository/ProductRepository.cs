@@ -19,7 +19,7 @@ namespace DataAccess.Repository
             _context = context;
         }
 
-        public IEnumerable<Product> GetAll() => _context.Products.Include(p =>p.Category).Include(p => p.Brand).ToList();
+        public IEnumerable<Product> GetAll() => _context.Products.Include(p =>p.Category).Include(p => p.Brand).Include(p=>p.Variants).ToList();
 
         public Product? GetById(int id) => _context.Products
             .Include(p => p.Category)

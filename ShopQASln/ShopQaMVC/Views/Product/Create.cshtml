@@ -1,7 +1,6 @@
 ﻿<div class="container mt-5">
     <h2 class="mb-4 text-center">Create New Product</h2>
 
-    <!-- Form to create a new product -->
     <form method="post" id="createProductForm" class="border p-4 rounded shadow-sm">
         <div class="mb-3">
             <label for="name" class="form-label">Product Name</label>
@@ -19,8 +18,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="categoryId" class="form-label">Category </label>
-            <select class="form-control category" id="categoryId" name="categoryId" required>
+            <label for="categoryId" class="form-label">Category</label>
+            <select class="form-control" id="categoryId" name="categoryId" required>
                 <option value="">-- Select category --</option>
             </select>
         </div>
@@ -31,77 +30,90 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
-                $(document).ready(function() {
-                $.ajax({
-                type:'GET',
-                url:'https://localhost:7101/api/Category',
+        $(document).ready(function () {
+            // Load categories
+            $.ajax({
+                url: 'https://localhost:7101/api/Category',
+                type: 'GET',
                 contentType: 'application/json',
-                success:(response) =>{
-                    for(var i=0 ; i< response.length;i++){
-                        const cate = response[i];
-                        const category = '<option value="' + cate.id + '">' + cate.name + '</option>';
-                             $('.category').append(category);
+                dataType: 'json',
+                success: function (response) {
+                    const categorySelect = $('#categoryId');
+                    if (Array.isArray(response)) {
+                        response.forEach(function (category) {
+                            const option = `<option value="${category.id}">${category.name}</option>`;
+                            categorySelect.append(option);
+                        });
+                    } else {
+                        console.warn("Category response is not array:", response);
                     }
                 },
-                error:(err) =>{console.log(err);}
-        })
+                error: function (xhr, status, error) {
+                    console.error('Error loading categories:', xhr.responseText || error);
+                    alert('Không thể tải danh mục sản phẩm. Vui lòng thử lại.');
+                }
+            });
 
+            // Form submit
+            $('#createProductForm').submit(function (e) {
+                e.preventDefault();
 
-                    $('#createProductForm').submit(function(e) {
-                        e.preventDefault();
+                const name = $('#name').val().trim();
+                const description = $('#description').val().trim();
+                const price = parseFloat($('#price').val());
+                const categoryId = parseInt($('#categoryId').val());
 
-                        var name = $('#name').val();
-                        var description = $('#description').val();
-                        var price = parseFloat($('#price').val());
-                                var categoryId = parseInt($('#categoryId').val());
-                        console.log(categoryId);
-                        var errors = [];
-                        if (name.trim() === "") {
-                            errors.push("Name is required.");
-                        } else if (!/^[a-zA-ZÀ-Ỹà-ỹ\s]+$/.test(name)) {
-                            errors.push("Name must contain only letters and spaces.");
-                        }
+                let errors = [];
 
-                        if (description.trim() === "") {
-                            errors.push("Description is required.");
-                        }
+                if (name === "") {
+                    errors.push("Name is required.");
+                } else if (!/^[a-zA-ZÀ-Ỹà-ỹ0-9\s\-]+$/.test(name)) {
+                    errors.push("Name must contain only letters, numbers, spaces or hyphens.");
+                }
 
-                        if (price <= 0) {
-                            errors.push("Price must be greater than zero.");
-                        }
+                if (description === "") {
+                    errors.push("Description is required.");
+                }
 
-                        if (!categoryId) {
-                            errors.push("Category is required.");
-                        }
+                if (isNaN(price) || price <= 0) {
+                    errors.push("Price must be a number greater than zero.");
+                }
 
-                        if (errors.length > 0) {
-                            alert(errors.join("\n"));
-                            return;
-                        }
+                if (isNaN(categoryId) || categoryId <= 0) {
+                    errors.push("Category is required.");
+                }
 
-                        var productData = {
-                            name: name,
-                            description: description,
-                            price: price,
-                            categoryId: categoryId,
-                                    imageUrl: ''
-                        };
-                        console.log(productData);
-                        $.ajax({
-                            url: 'https://localhost:7101/api/Product',
-                            type: 'POST',
-                            contentType: 'application/json',
-                            data: JSON.stringify(productData),
-                            success: function(response) {
-                                alert('Product created successfully!');
-                                window.location.href = '/Product/ProductList';
-                            },
-                            error: function(xhr, status, error) {
-                                alert('Error creating product: ' + error);
-                            }
-                        });
-                    });
+                if (errors.length > 0) {
+                    alert(errors.join("\n"));
+                    return;
+                }
+
+                const productData = {
+                    name: name,
+                    description: description,
+                    price: price,
+                    categoryId: categoryId,
+                    imageUrl: ""
+                };
+
+                $.ajax({
+                    url: 'https://localhost:7101/api/Product',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(productData),
+                    success: function (response) {
+                        alert('Product created successfully!');
+                        window.location.href = '/Product/ProductList';
+                    },
+                    error: function (xhr, status, error) {
+                        const errorMessage = xhr.responseText || error;
+                        console.error('Error creating product:', errorMessage);
+                        alert('Error creating product: ' + errorMessage);
+                    }
                 });
+            });
+        });
     </script>
 }

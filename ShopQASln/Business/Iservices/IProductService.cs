@@ -12,7 +12,7 @@ namespace Business.Iservices
     {
         IEnumerable<Product> GetVisibleProducts(string? name, int? categoryId, int? brandId);
 
-        IEnumerable<Product> GetAllProduct(string? name, int? categoryId, decimal? startPrice ,decimal? toPrice);
+        IEnumerable<ProductResponseDTO> GetAllProduct(string? name, int? categoryId, decimal? startPrice ,decimal? toPrice);
 
         Product getProductById(int id);
         Product AddProduct(ProductDTO productDTO);

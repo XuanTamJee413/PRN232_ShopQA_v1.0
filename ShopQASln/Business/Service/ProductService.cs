@@ -45,27 +45,7 @@ namespace Business.Service
             return products;
         }
 
-        public IEnumerable<Product> GetAllProduct(string? name, int? categoryId, decimal? startPrice, decimal? toPrice)
-        {
-            var products = productRepository.GetAll();
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                products = products.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (categoryId.HasValue)
-            {
-                products = products.Where(p => p.CategoryId == categoryId.Value);
-            }
-
-            //if (!products.Any())
-            //{
-            //    return 0;
-            //}
-
-            return products;
-        }
+      
 
 
         public Product getProductById(int id)
@@ -153,6 +133,64 @@ namespace Business.Service
             }
             productRepository.Delete(id);
             return "Delete Succesfull!";
+        }
+
+        public IEnumerable<ProductResponseDTO> GetAllProduct(string? name, int? categoryId, decimal? startPrice, decimal? toPrice)
+        {
+            var products = productRepository.GetAll();
+
+            // Lọc theo tên sản phẩm
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                products = products.Where(p => p.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Lọc theo danh mục
+            if (categoryId.HasValue)
+            {
+                products = products.Where(p => p.CategoryId == categoryId.Value);
+            }
+
+            // Lọc theo khoảng giá trong các biến thể
+            if (startPrice.HasValue)
+            {
+                products = products.Where(p => p.Variants.Any(v => v.Price >= startPrice.Value));
+            }
+
+            if (toPrice.HasValue)
+            {
+                products = products.Where(p => p.Variants.Any(v => v.Price <= toPrice.Value));
+            }
+
+            // Ánh xạ sang DTO (chuyển từ entity sang response model)
+            var result = products.Select(p => new ProductResponseDTO
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                CategoryId = p.CategoryId,
+                CategoryName = p.Category?.Name,
+                ImageUrl = p.ImageUrl,
+                Brand = new Brand
+                {
+                    Id = p.Brand.Id,
+                    Name = p.Brand.Name
+                    // thêm thuộc tính khác nếu cần
+                },
+                Variants = p.Variants.Select(v => new ProductVariant
+                {
+                    Id = v.Id,
+                    Price = v.Price,
+                    Size = v.Size,
+                    Color = v.Color,
+                    Stock = v.Stock,
+                    ImageUrl = v.ImageUrl,
+                    // KHÔNG gán Product để tránh vòng lặp
+                    ProductId = v.ProductId
+                }).ToList()
+            });
+
+            return result;
         }
     }
 }
