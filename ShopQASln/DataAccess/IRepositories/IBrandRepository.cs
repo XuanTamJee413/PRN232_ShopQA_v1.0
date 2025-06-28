@@ -7,8 +7,8 @@ using Domain.Models;
 
 namespace DataAccess.IRepositories
 {
-    public interface IOrderRepository
+    public interface IBrandRepository
     {
-        IEnumerable<Order> GetAllOrders();
+        Brand? GetById(int id);
     }
 }

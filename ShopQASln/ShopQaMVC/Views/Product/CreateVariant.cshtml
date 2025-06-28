@@ -1,0 +1,79 @@
+﻿@page
+@model ShopQaMVC.Pages.Product.CreateVariantModel
+
+
+@{
+    ViewData["Title"] = "Add Variant";
+}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Add New Variant</h2>
+
+    <form id="createVariantForm">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="size" class="form-label">Size</label>
+                <input type="text" class="form-control" id="size" required />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="color" class="form-label">Color</label>
+                <input type="text" class="form-control" id="color" required />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label for="price" class="form-label">Price (VND)</label>
+                <input type="number" class="form-control" id="price" min="0" required />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="inventoryQuantity" class="form-label">Inventory Quantity</label>
+                <input type="number" class="form-control" id="inventoryQuantity" min="0" required />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="imageUrl" class="form-label">Image URL</label>
+                <input type="text" class="form-control" id="imageUrl" placeholder="/images/..." />
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">➕ Add Variant</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            const productId = @Model.ProductId;
+
+            $('#createVariantForm').submit(function (e) {
+                e.preventDefault();
+
+                const data = {
+                    productId: productId,
+                    price: parseFloat($('#price').val()),
+                    size: $('#size').val().trim(),
+                    color: $('#color').val().trim(),
+                    stock: 0, // optional
+                    imageUrl: $('#imageUrl').val().trim(),
+                    inventoryQuantity: parseInt($('#inventoryQuantity').val())
+                };
+
+                $.ajax({
+                    url: 'https://localhost:7101/api/Product/variant',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function () {
+                        alert("✅ Variant added successfully!");
+                        $('#createVariantForm')[0].reset();
+                    },
+                    error: function (xhr) {
+                        alert("❌ Failed to add variant: " + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+}

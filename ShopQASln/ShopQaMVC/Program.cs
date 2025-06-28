@@ -67,7 +67,10 @@ app.UseRouting();
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapRazorPages(); // 👈 phải có dòng này
+});
 // Áp dụng Razor Pages và MVC
 app.MapControllerRoute(
     name: "default",

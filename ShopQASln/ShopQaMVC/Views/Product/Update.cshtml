@@ -1,26 +1,29 @@
 ﻿<div class="container mt-5">
     <h2 class="mb-4 text-center">Update Product</h2>
 
-    <!-- Form to update the product -->
     <form method="post" id="updateProductForm" class="border p-4 rounded shadow-sm">
         <div class="mb-3">
             <label for="name" class="form-label">Product Name</label>
-            <input type="text" class="form-control" id="name" name="name" placeholder="Enter product name" value="@Model.Product.Name" required />
+            <input type="text" class="form-control" id="name" name="name" value="@Model.Product.Name" required />
         </div>
 
         <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description" placeholder="Enter product description" rows="3" required>@Model.Product.Description</textarea>
+            <textarea class="form-control" id="description" name="description" rows="3" required>@Model.Product.Description</textarea>
         </div>
 
         <div class="mb-3">
-            <label for="price" class="form-label">Price</label>
-            <input type="number" class="form-control" id="price" name="price" placeholder="Enter product price" step="0.01" value="@Model.Product.Price" required />
+            <label for="categoryId" class="form-label">Category</label>
+            <select class="form-control" id="categoryId" name="categoryId" required>
+                <option value="">-- Select category --</option>
+            </select>
         </div>
 
         <div class="mb-3">
-            <label for="categoryId" class="form-label">Category ID</label>
-            <input type="number" class="form-control" id="categoryId" name="categoryId" placeholder="Enter category ID" value="@Model.Product.CategoryId" required />
+            <label for="brandId" class="form-label">Brand</label>
+            <select class="form-control" id="brandId" name="brandId" required>
+                <option value="">-- Select brand --</option>
+            </select>
         </div>
 
         <button type="submit" class="btn btn-primary w-100">Update Product</button>
@@ -29,31 +32,67 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Handle form submission for updating the product
-            $('#updateProductForm').submit(function(e) {
-                e.preventDefault(); // Prevent default form submission
 
-                var productData = {
-                    name: $('#name').val(),
-                    description: $('#description').val(),
-                    price: parseFloat($('#price').val()), // Convert to float for price
-                    categoryId: parseInt($('#categoryId').val()) // Convert to integer for categoryId
+    <script>
+        $(document).ready(function () {
+            const productId = @Model.Product.Id;
+            const selectedCategoryId = @Model.Product.CategoryId;
+            const selectedBrandId = @Model.Product.BrandId;
+
+            // Load categories
+            $.getJSON('https://localhost:7101/api/Category', function (categories) {
+                const categorySelect = $('#categoryId');
+                categorySelect.empty().append(`<option value="">-- Select category --</option>`);
+                categories.forEach(c => {
+                    const selected = c.id === selectedCategoryId ? 'selected' : '';
+                    categorySelect.append(`<option value="${c.id}" ${selected}>${c.name}</option>`);
+                });
+            });
+
+            // Load brands
+            $.getJSON('https://localhost:7101/api/Brand', function (brands) {
+                const brandSelect = $('#brandId');
+                brandSelect.empty().append(`<option value="">-- Select brand --</option>`);
+                brands.forEach(b => {
+                    const selected = b.id === selectedBrandId ? 'selected' : '';
+                    brandSelect.append(`<option value="${b.id}" ${selected}>${b.name}</option>`);
+                });
+            });
+
+            // Submit form
+            $('#updateProductForm').submit(function (e) {
+                e.preventDefault();
+
+                const name = $('#name').val().trim();
+                const description = $('#description').val().trim();
+                const categoryId = parseInt($('#categoryId').val());
+                const brandId = parseInt($('#brandId').val());
+
+                if (!name || !description || !categoryId || !brandId) {
+                    alert("All fields are required.");
+                    return;
+                }
+
+                const data = {
+                    id: productId,
+                    name: name,
+                    description: description,
+                    categoryId: categoryId,
+                    brandId: brandId
                 };
 
-                // Send POST request to API to update the product
                 $.ajax({
-                    url: 'https://localhost:7101/api/Product/@Model.Product.Id', // Your API endpoint for POST request (with product id)
+                    url: `https://localhost:7101/api/Product/${productId}`,
                     type: 'PUT',
                     contentType: 'application/json',
-                    data: JSON.stringify(productData),
-                    success: function(response) {
-                        alert('Product updated successfully!');
-                        window.location.href = '/Product'; // Redirect to product list page after successful update
+                    data: JSON.stringify(data),
+                    success: function () {
+                        alert('✅ Product updated successfully!');
+                        window.location.href = '/Product/ProductList';
                     },
-                    error: function(xhr, status, error) {
-                        alert('Error updating product: ' + error);
+                    error: function (xhr) {
+                        const err = xhr.responseJSON?.message || xhr.responseText || "Unknown error";
+                        alert("❌ Failed to update product: " + err);
                     }
                 });
             });
