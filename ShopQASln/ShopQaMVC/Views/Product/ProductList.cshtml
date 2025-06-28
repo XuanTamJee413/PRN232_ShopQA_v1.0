@@ -3,9 +3,11 @@
 
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Product List</h2>
+
     <div class="mb-3">
         <a href="/Product/Create" class="btn btn-success">Create New Product</a>
     </div>
+
     <!-- Filter Form -->
     <form id="searchForm" method="get" class="mb-4">
         <div class="row">
@@ -13,15 +15,19 @@
                 <label for="name" class="form-label">Product Name</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Search by name" />
             </div>
-           
-
+            <div class="col-md-3 mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select id="category" name="categoryId" class="form-control">
+                    <option value="">-- Select Category --</option>
+                </select>
+            </div>
             <div class="col-md-2 mb-3 d-flex align-items-end">
                 <button type="submit" class="btn btn-primary w-100">Search</button>
             </div>
         </div>
     </form>
 
-    <!-- Product List -->
+    <!-- Product Table -->
     <div class="table-responsive" id="productTable">
         <table class="table table-striped table-hover">
             <thead>
@@ -32,67 +38,48 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-              
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
+
     <!-- Pagination -->
     <nav>
         <ul class="pagination justify-content-center" id="pagination"></ul>
     </nav>
-    <!-- Product Detail Modal (hidden by default) -->
-    <div class="modal fade" id="productDetailModal" tabindex="-1" aria-labelledby="productDetailModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="productDetailModalLabel">Product Detail</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Name:</strong> <span id="detailName"></span></p>
-                    <p><strong>Description:</strong> <span id="detailDescription"></span></p>
-                    <p><strong>Price:</strong> <span id="detailPrice"></span></p>
-                    <p><strong>Category:</strong> <span id="detailCategory"></span></p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Update Product Modal -->
     <div class="modal fade" id="updateProductModal" tabindex="-1" aria-labelledby="updateProductModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateProductModalLabel">Update Product</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updateProductForm">
+                <form id="updateProductForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateProductModalLabel">Update Product</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="updateProductId" />
                         <div class="mb-3">
                             <label for="updateName" class="form-label">Product Name</label>
-                            <input type="text" class="form-control" id="updateName" name="name" placeholder="Enter product name" required />
+                            <input type="text" class="form-control" id="updateName" required />
                         </div>
                         <div class="mb-3">
                             <label for="updateDescription" class="form-label">Description</label>
-                            <textarea class="form-control" id="updateDescription" name="description" placeholder="Enter product description" rows="3" required></textarea>
+                            <textarea class="form-control" id="updateDescription" rows="3" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="updatePrice" class="form-label">Price</label>
-                            <input type="number" class="form-control" id="updatePrice" name="price" placeholder="Enter product price" step="0.01" required />
+                            <label for="updateCategory" class="form-label">Category</label>
+                            <select class="form-control" id="updateCategory" required></select>
                         </div>
-                        @* <div class="mb-3"> *@
-                        @*     <label for="updateCategoryId" class="form-label">Category ID</label> *@
-                        @*     <input type="number" class="form-control" id="updateCategoryId" name="categoryId" placeholder="Enter category ID" required /> *@
-                        @* </div> *@
                         <div class="mb-3">
-                            <label for="categoryId" class="form-label">Category </label>
-                            <select class="form-control category" id="updateCategoryId" name="categoryId" required>
-                            </select>
+                            <label for="updateBrand" class="form-label">Brand</label>
+                            <select class="form-control" id="updateBrand" required></select>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Update Product</button>
-                    </form>
-                </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -100,12 +87,14 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-                    $(document).ready(function() {
-                const pageSize = 5;
+        $(document).ready(function () {
+            const pageSize = 5;
             let currentPage = 1;
 
+            // Render pagination
             function renderPagination(totalPages) {
                 const pagination = $('#pagination');
                 pagination.empty();
@@ -122,14 +111,15 @@
                 }
             }
 
+            // Fetch products with filter
             function fetchProducts() {
-                var name = $('#name').val();
+                const name = $('#name').val();
+                const categoryId = $('#category').val();
+
                 $.ajax({
                     url: 'https://localhost:7101/api/Product',
                     type: 'GET',
-                    data: {
-                        name: name
-                    },
+                    data: { name: name, categoryId: categoryId },
                     success: function (data) {
                         const tableBody = $('#productTable tbody');
                         tableBody.empty();
@@ -142,7 +132,7 @@
                         } else {
                             $.each(pagedData, function (index, product) {
                                 const row = '<tr>' +
-                                    '<td><a href="#" class="product-link" data-id="' + product.id + '">' + product.name + '</a></td>' +
+                                   '<td><a href="/Product/Detail/' + product.id + '" class="product-detail-link">' + product.name + '</a></td>' +
                                     '<td>' + product.description + '</td>' +
                                     '<td>' + product.categoryName + '</td>' +
                                     '<td>' +
@@ -158,146 +148,125 @@
                         renderPagination(totalPages);
                     },
                     error: function (xhr, status, error) {
-                        console.error('Error fetching data: ' + error);
+                        console.error('Error fetching products: ' + error);
                     }
                 });
             }
 
+            // Load categories for filter dropdown
+            function loadCategories() {
+                $.getJSON('https://localhost:7101/api/Category', function (categories) {
+                    const categorySelect = $('#category');
+                    categorySelect.empty().append('<option value="">-- Select Category --</option>');
+                    categories.forEach(c => {
+                        categorySelect.append(`<option value="${c.id}">${c.name}</option>`);
+                    });
+                    categorySelect.show();
+                });
+            }
+
+            // Initialize categories dropdown
+            loadCategories();
+
+            // Handle search form submission
             $('#searchForm').submit(function (e) {
                 e.preventDefault();
                 currentPage = 1;
                 fetchProducts();
             });
 
-            $('#productTable').on('click', '.product-link', function(e) {
+            // Handle product update
+            $('#productTable').on('click', '.update-btn', function (e) {
                 e.preventDefault();
-
-                var productId = $(this).data('id'); 
+                const productId = $(this).data('id');
 
                 $.ajax({
-                    url: 'https://localhost:7101/api/Product/' + productId, 
+                    url: 'https://localhost:7101/api/Product/' + productId,
                     type: 'GET',
-                    success: function(product) {
-                        $('#detailName').text(product.name);
-                        $('#detailDescription').text(product.description);
-                        $('#detailPrice').text(product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }));
-                        $('#detailCategory').text(product.category.name);
-
-                        $('#productDetailModal').modal('show');
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching product details: ' + error);
-                    }
-                });
-            });
-
-            $('#productTable').on('click', '.update-btn', function(e) {
-                e.preventDefault();
-                var productId = $(this).data('id');
-
-                $.ajax({
-                    url: 'https://localhost:7101/api/Product/' + productId, 
-                    type: 'GET',
-                    success: function(product) {
+                    success: function (product) {
+                        $('#updateProductId').val(product.id);
                         $('#updateName').val(product.name);
                         $('#updateDescription').val(product.description);
-                        $('#updatePrice').val(product.price);
-                        $('#updateCategoryId').val(product.category.id);
 
-                        $('#updateProductModal').data('current-values', product); 
+                        // Load categories for update form
+                        $.getJSON('https://localhost:7101/api/Category', function (categories) {
+                            const categorySelect = $('#updateCategory');
+                            categorySelect.empty();
+                            categories.forEach(c => {
+                                const selected = c.id === product.categoryId ? 'selected' : '';
+                                categorySelect.append(`<option value="${c.id}" ${selected}>${c.name}</option>`);
+                            });
+                        });
+
+                        // Load brands for update form
+                        $.getJSON('https://localhost:7101/api/Brand', function (brands) {
+                            const brandSelect = $('#updateBrand');
+                            brandSelect.empty();
+                            brands.forEach(b => {
+                                const selected = b.id === product.brand.id ? 'selected' : '';
+                                brandSelect.append(`<option value="${b.id}" ${selected}>${b.name}</option>`);
+                            });
+                        });
 
                         $('#updateProductModal').modal('show');
                     },
-                    error: function(xhr, status, error) {
-                        console.error('Error fetching product data: ' + error);
+                    error: function (xhr, status, error) {
+                        alert('Error fetching product: ' + error);
                     }
                 });
             });
 
-            $('#updateProductForm').submit(function(e) {
-                e.preventDefault(); 
+            // Handle product update form submission
+            $('#updateProductForm').submit(function (e) {
+                e.preventDefault();
+                const id = $('#updateProductId').val();
+                const name = $('#updateName').val().trim();
+                const description = $('#updateDescription').val().trim();
+                const categoryId = parseInt($('#updateCategory').val());
+                const brandId = parseInt($('#updateBrand').val());
 
-                var name = $('#updateName').val().trim();
-                var description = $('#updateDescription').val().trim();
-                var price = parseFloat($('#updatePrice').val());
-                var categoryId = parseInt($('#updateCategoryId').val());
-                var errors = [];
-
-                if (name === "") {
-                    errors.push("Name is required.");
-                } else if (!/^[a-zA-ZÀ-Ỹà-ỹ\s]+$/.test(name)) {
-                    errors.push("Name must contain only letters and spaces.");
+                if (!name || !description || !categoryId || !brandId) {
+                    alert("Please fill out all fields.");
+                    return;
                 }
 
-                if (description === "") {
-                    errors.push("Description is required.");
-                }
-
-                if (price <= 0) {
-                    errors.push("Price must be greater than zero.");
-                }
-
-                if (!categoryId) {
-                    errors.push("Category is required.");
-                }
-
-                if (errors.length > 0) {
-                    alert(errors.join("\n")); 
-                    return; 
-                }
-
-                var productData = {
+                const data = {
+                    id: id,
                     name: name,
                     description: description,
-                    price: price,
-                    categoryId: categoryId
-                };
-
-                var currentProduct = $('#updateProductModal').data('current-values');
-
-                var updatedProductData = {
-                  name: name,
-                    description: description,
-                    price: price,
                     categoryId: categoryId,
-                    ImageUrl: ''
+                    brandId: brandId
                 };
 
-                if (productData.name !== currentProduct.name) updatedProductData.name = productData.name;
-                if (productData.description !== currentProduct.description) updatedProductData.description = productData.description;
-                if (productData.price !== currentProduct.price) updatedProductData.price = productData.price;
-                if (productData.categoryId !== currentProduct.category.id) updatedProductData.categoryId = productData.categoryId;
-
-                var productId = currentProduct.id;
                 $.ajax({
-                    url: 'https://localhost:7101/api/Product/' + productId, 
+                    url: 'https://localhost:7101/api/Product/' + id,
                     type: 'PUT',
                     contentType: 'application/json',
-                    data: JSON.stringify(updatedProductData),
-                    success: function(response) {
-                        alert('Product updated successfully!');
-                        fetchProducts(); 
-                        $('#updateProductModal').modal('hide'); 
+                    data: JSON.stringify(data),
+                    success: function () {
+                        alert('✅ Product updated successfully!');
+                        $('#updateProductModal').modal('hide');
+                        fetchProducts();
                     },
-                    error: function(xhr, status, error) {
-                        alert('Error updating product: ' + error);
+                    error: function (xhr) {
+                        alert('❌ Error updating product: ' + xhr.responseText);
                     }
                 });
             });
 
-            $('#productTable').on('click', '.delete-btn', function(e) {
+            // Handle product delete
+            $('#productTable').on('click', '.delete-btn', function (e) {
                 e.preventDefault();
-                var productId = $(this).data('id');
-
+                const productId = $(this).data('id');
                 if (confirm('Are you sure you want to delete this product?')) {
                     $.ajax({
                         url: 'https://localhost:7101/api/Product/' + productId,
                         type: 'DELETE',
-                        success: function(response) {
+                        success: function () {
                             alert('Product deleted successfully!');
-                            fetchProducts(); 
+                            fetchProducts();
                         },
-                        error: function(xhr, status, error) {
+                        error: function (xhr, status, error) {
                             alert('Error deleting product: ' + error);
                         }
                     });
@@ -306,8 +275,5 @@
 
             fetchProducts();
         });
-
-
-
     </script>
 }

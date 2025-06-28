@@ -20,11 +20,14 @@ namespace Business.Service
         private readonly IProductRepository productRepository;
         private readonly ICategoryRepository categoryRepository;
         private readonly IBrandRepository brandRepository;
-        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, IBrandRepository brandRepository)
+        private readonly IProductVariantRepository _variantRepo;
+
+        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, IBrandRepository brandRepository, IProductVariantRepository variantRepo)
         {
             this.productRepository = productRepository;
             this.categoryRepository = categoryRepository;
             this.brandRepository = brandRepository;
+            _variantRepo = variantRepo;
         }
 
         // Tamnx lay product hien thi cho Shop.html
@@ -248,5 +251,88 @@ namespace Business.Service
 
             return result;
         }
+        public ProductVariantWithInventoryResDTO UpdateVariantWithInventory(int variantId, ProductVariantWithInventoryUpdateDTO dto)
+        {
+            var variant = _variantRepo.GetVariantWithInventory(variantId)
+                ?? throw new ArgumentException("Không tìm thấy biến thể sản phẩm.");
+
+            variant.Price = dto.Price;
+            variant.Size = dto.Size;
+            variant.Color = dto.Color;
+            variant.Stock = dto.Stock;
+            variant.ImageUrl = dto.ImageUrl;
+
+            if (variant.Inventory != null)
+            {
+                variant.Inventory.Quantity = dto.InventoryQuantity;
+                variant.Inventory.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                variant.Inventory = new Inventory
+                {
+                    ProductVariantId = variant.Id,
+                    Quantity = dto.InventoryQuantity,
+                    UpdatedAt = DateTime.UtcNow
+                };
+            }
+
+            _variantRepo.Update(variant);
+            _variantRepo.Save();
+
+            return new ProductVariantWithInventoryResDTO
+            {
+                Id = variant.Id,
+                Price = variant.Price,
+                Size = variant.Size,
+                Color = variant.Color,
+                Stock = variant.Stock,
+                ImageUrl = variant.ImageUrl,
+                Inventory = new InventoryResponseDTO
+                {
+                    Id = variant.Inventory.Id,
+                    Quantity = variant.Inventory.Quantity,
+                    UpdatedAt = variant.Inventory.UpdatedAt
+                }
+            };
+        }
+
+        public ProductVariantWithInventoryResDTO CreateVariant(ProductVariantCreateDTO dto)
+        {
+            var variant = new ProductVariant
+            {
+                ProductId = dto.ProductId,
+                Price = dto.Price,
+                Size = dto.Size,
+                Color = dto.Color,
+                Stock = dto.Stock,
+                ImageUrl = dto.ImageUrl,
+                Inventory = new Inventory
+                {
+                    Quantity = dto.InventoryQuantity,
+                    UpdatedAt = DateTime.UtcNow
+                }
+            };
+
+            _variantRepo.Add(variant);
+            _variantRepo.Save();
+
+            return new ProductVariantWithInventoryResDTO
+            {
+                Id = variant.Id,
+                Price = variant.Price,
+                Size = variant.Size,
+                Color = variant.Color,
+                Stock = variant.Stock,
+                ImageUrl = variant.ImageUrl,
+                Inventory = new InventoryResponseDTO
+                {
+                    Id = variant.Inventory.Id,
+                    Quantity = variant.Inventory.Quantity,
+                    UpdatedAt = variant.Inventory.UpdatedAt
+                }
+            };
+        }
+
     }
 }

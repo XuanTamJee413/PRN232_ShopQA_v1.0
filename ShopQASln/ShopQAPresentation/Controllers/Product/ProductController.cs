@@ -84,5 +84,33 @@ namespace ShopQAPresentation.Controllers.Product
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("variant/{variantId}")]
+        public IActionResult UpdateVariantWithInventory(int variantId, [FromBody] ProductVariantWithInventoryUpdateDTO dto)
+        {
+            try
+            {
+                var result = _productService.UpdateVariantWithInventory(variantId, dto);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+        [HttpPost("variant")]
+        public IActionResult CreateVariant([FromBody] ProductVariantCreateDTO dto)
+        {
+            try
+            {
+                var result = _productService.CreateVariant(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
     }
 }

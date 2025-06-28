@@ -159,6 +159,7 @@
                     products.forEach(p => {
                         productFilter.append(`<option value="${p.id}">${p.name}</option>`);
                     });
+                    productFilter.show();
                 },
                 error: function () {
                     alert('Không thể tải danh sách sản phẩm.');

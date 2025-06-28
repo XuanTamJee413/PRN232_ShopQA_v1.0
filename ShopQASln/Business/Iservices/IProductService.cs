@@ -19,6 +19,9 @@ namespace Business.Iservices
         Product UpdateProduct(int id, ProductCreateReqDTO productDTO);
 
         String DeleteProduct(int id);
+        ProductVariantWithInventoryResDTO UpdateVariantWithInventory(int variantId, ProductVariantWithInventoryUpdateDTO dto);
+
+        ProductVariantWithInventoryResDTO CreateVariant(ProductVariantCreateDTO dto);
 
     }
 }

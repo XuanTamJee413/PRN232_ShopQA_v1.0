@@ -25,5 +25,25 @@ namespace DataAccess.Repository
                 .Where(v => v.ProductId == productId)
                 .ToListAsync();
         }
+        public ProductVariant? GetVariantWithInventory(int variantId)
+        {
+            return _context.ProductVariants
+                .Include(v => v.Inventory)
+                .FirstOrDefault(v => v.Id == variantId);
+        }
+
+        public void Update(ProductVariant variant)
+        {
+            _context.ProductVariants.Update(variant);
+        }
+
+        public void Save()
+        {
+            _context.SaveChanges();
+        }
+        public void Add(ProductVariant variant)
+        {
+            _context.ProductVariants.Add(variant);
+        }
     }
 }

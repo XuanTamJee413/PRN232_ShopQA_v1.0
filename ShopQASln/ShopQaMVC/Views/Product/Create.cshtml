@@ -1,4 +1,8 @@
-﻿<div class="container mt-5">
+﻿@{
+    ViewData["Title"] = "Create Product";
+}
+
+<div class="container mt-5">
     <h2 class="mb-4 text-center">Create New Product</h2>
 
     <form method="post" id="createProductForm" class="border p-4 rounded shadow-sm">
@@ -13,14 +17,16 @@
         </div>
 
         <div class="mb-3">
-            <label for="price" class="form-label">Price</label>
-            <input type="number" class="form-control" id="price" name="price" placeholder="Enter product price" step="0.01" required />
+            <label for="categoryId" class="form-label">Category</label>
+            <select class="form-control" id="categoryId" name="categoryId" required >
+                <option value="">-- Select category --</option>
+            </select>
         </div>
 
         <div class="mb-3">
-            <label for="categoryId" class="form-label">Category</label>
-            <select class="form-control" id="categoryId" name="categoryId" required>
-                <option value="">-- Select category --</option>
+            <label for="brandId" class="form-label">Brand</label>
+            <select class="form-control" id="brandId" name="brandId" required>
+                <option value="">-- Select brand --</option>
             </select>
         </div>
 
@@ -30,60 +36,59 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script>
         $(document).ready(function () {
-            // Load categories
+            console.log("🟢 JS ready");
+
+            // Load Categories
             $.ajax({
                 url: 'https://localhost:7101/api/Category',
-                type: 'GET',
-                contentType: 'application/json',
+                method: 'GET',
                 dataType: 'json',
-                success: function (response) {
+                success: function (categories) {
                     const categorySelect = $('#categoryId');
-                    if (Array.isArray(response)) {
-                        response.forEach(function (category) {
-                            const option = `<option value="${category.id}">${category.name}</option>`;
-                            categorySelect.append(option);
-                        });
-                    } else {
-                        console.warn("Category response is not array:", response);
-                    }
+                    categories.forEach(function (cat) {
+                        categorySelect.append(`<option value="${cat.id}">${cat.name}</option>`);
+                    });
+                    categorySelect.show();
+
                 },
-                error: function (xhr, status, error) {
-                    console.error('Error loading categories:', xhr.responseText || error);
-                    alert('Không thể tải danh mục sản phẩm. Vui lòng thử lại.');
+                error: function () {
+                    alert("❌ Failed to load categories");
                 }
             });
 
-            // Form submit
-            $('#createProductForm').submit(function (e) {
+            // Load Brands
+            $.ajax({
+                url: 'https://localhost:7101/api/Brand',
+                method: 'GET',
+                dataType: 'json',
+                success: function (brands) {
+                    const brandSelect = $('#brandId');
+                    brands.forEach(function (brand) {
+                        brandSelect.append(`<option value="${brand.id}">${brand.name}</option>`);
+                    });
+                     brandSelect.show();
+                },
+                error: function () {
+                    alert("❌ Failed to load brands");
+                }
+            });
+
+            // Submit form
+            $('#createProductForm').on('submit', function (e) {
                 e.preventDefault();
 
                 const name = $('#name').val().trim();
                 const description = $('#description').val().trim();
-                const price = parseFloat($('#price').val());
                 const categoryId = parseInt($('#categoryId').val());
+                const brandId = parseInt($('#brandId').val());
 
                 let errors = [];
-
-                if (name === "") {
-                    errors.push("Name is required.");
-                } else if (!/^[a-zA-ZÀ-Ỹà-ỹ0-9\s\-]+$/.test(name)) {
-                    errors.push("Name must contain only letters, numbers, spaces or hyphens.");
-                }
-
-                if (description === "") {
-                    errors.push("Description is required.");
-                }
-
-                if (isNaN(price) || price <= 0) {
-                    errors.push("Price must be a number greater than zero.");
-                }
-
-                if (isNaN(categoryId) || categoryId <= 0) {
-                    errors.push("Category is required.");
-                }
+                if (!name) errors.push("Product name is required.");
+                if (!description) errors.push("Description is required.");
+                if (isNaN(categoryId) || categoryId <= 0) errors.push("Please select a category.");
+                if (isNaN(brandId) || brandId <= 0) errors.push("Please select a brand.");
 
                 if (errors.length > 0) {
                     alert(errors.join("\n"));
@@ -91,26 +96,27 @@
                 }
 
                 const productData = {
+                    id: 0,
                     name: name,
                     description: description,
-                    price: price,
                     categoryId: categoryId,
-                    imageUrl: ""
+                    brandId: brandId
                 };
+
+                console.log("📤 Sending product:", productData);
 
                 $.ajax({
                     url: 'https://localhost:7101/api/Product',
-                    type: 'POST',
+                    method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(productData),
-                    success: function (response) {
-                        alert('Product created successfully!');
+                    success: function () {
+                        alert("✅ Product created successfully!");
                         window.location.href = '/Product/ProductList';
                     },
-                    error: function (xhr, status, error) {
-                        const errorMessage = xhr.responseText || error;
-                        console.error('Error creating product:', errorMessage);
-                        alert('Error creating product: ' + errorMessage);
+                    error: function (xhr) {
+                        const msg = xhr.responseJSON?.message || xhr.responseText || "Unknown error";
+                        alert("❌ Error creating product: " + msg);
                     }
                 });
             });
