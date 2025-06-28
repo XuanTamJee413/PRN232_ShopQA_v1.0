@@ -116,26 +116,7 @@
             </div>
         </div>
         <div class="container">
-            @if (isAuthenticated && ( userRole == "Admin"))
-            {
-                <div class="col-lg-3 col-md-3">
-                    <div class="header__logo">
-                        <a href="/Home"><img src="~/img/logo.png" alt="" /></a>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6">
-                    <nav class="header__menu mobile-menu">
-                        <ul>
-                            <li class="active"><a href="/Product/ProductList">Product</a></li>
-                            <li class="active"><a href=" /Order/OrderList">Order</a></li>
-                            <li class="active"><a href=" /Review/ReviewList">Review</a></li>
-                            <li><a href="@Url.Action("Shop", "Home")">Shop</a></li>
-                        </ul>
-                    </nav>
-                </div>
-            }
-            else
-            {
+            
             <div class="row">
                 <div class="col-lg-3 col-md-3">
                     <div class="header__logo">
@@ -171,7 +152,6 @@
                     </div>
                 </div>
             </div>
-            }
             <div class="canvas__open"><i class="fa fa-bars"></i></div>
         </div>
     </header>

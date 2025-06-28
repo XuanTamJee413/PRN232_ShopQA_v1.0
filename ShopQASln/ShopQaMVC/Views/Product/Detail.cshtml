@@ -228,6 +228,20 @@
             $('#nextPageBtn').prop('disabled', currentPage * pageSize >= filteredVariants.length);
         }
 
+        // Function to show update modal with selected variant data
+        function showUpdateVariant(id, size, color, price, inventoryQuantity, imageUrl) {
+            // Set the values of the form fields in the update modal
+            $('#updateVariantId').val(id);
+            $('#updateSize').val(size);
+            $('#updateColor').val(color);
+            $('#updatePrice').val(price);
+            $('#updateInventoryQuantity').val(inventoryQuantity);
+            $('#updateImageUrl').val(imageUrl);
+
+            // Show the update variant modal
+            $('#updateVariantModal').modal('show');
+        }
+
         $('#prevPageBtn').click(function () {
             if (currentPage > 1) {
                 currentPage--;
@@ -280,4 +294,3 @@
         });
     </script>
 }
-
