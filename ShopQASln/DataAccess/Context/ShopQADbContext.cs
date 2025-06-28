@@ -20,9 +20,11 @@ namespace DataAccess.Context
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
         public DbSet<Order> Orders => Set<Order>();
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Address> Addresses => Set<Address>();
-
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.EnableSensitiveDataLogging();
@@ -186,6 +188,7 @@ namespace DataAccess.Context
                 .Property(d => d.Amount)
                 .IsRequired();
             Seed(modelBuilder);
+           
         }
 
         private void Seed(ModelBuilder modelBuilder)

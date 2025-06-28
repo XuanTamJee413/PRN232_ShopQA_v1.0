@@ -9,6 +9,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DataAccess.Repository;
 using Microsoft.AspNetCore.OData;
+using Business.Services;
+using Business.DTO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,6 +57,10 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.Configure<VnPayConfig>(builder.Configuration.GetSection("VnPayConfig"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
