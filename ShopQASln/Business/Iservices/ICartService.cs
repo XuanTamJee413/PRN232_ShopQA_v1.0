@@ -9,7 +9,7 @@ namespace Business.Iservices
 {
     public interface ICartService
     {
-        Task<Cart?> GetCartByUserIdAsync(int userId);
+        public Task<List<Cart>> GetCartsByUserIdAsync(int userId);
         Task<bool> AddItemToCartAsync(CartItem item);
         Task<bool> RemoveItemFromCartAsync(int cartId, int itemId);
     }

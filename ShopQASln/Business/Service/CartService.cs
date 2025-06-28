@@ -1,5 +1,7 @@
-﻿using DataAccess.Context;
+﻿using Business.Iservices;
+using DataAccess.Context;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Business.Service
 {
-    internal class CartService
+    public class CartService : ICartService
     {
         private readonly ShopQADbContext _context;
 
@@ -17,17 +19,20 @@ namespace Business.Service
             _context = context;
         }
 
-        public async Task<Cart?> GetCartByUserIdAsync(int userId)
+        public async Task<List<Cart>> GetCartsByUserIdAsync(int userId)
         {
-            return await _context.Carts
+            return await _context.Cart
                 .Include(c => c.Items)
                 .ThenInclude(i => i.ProductVariant)
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+                .Where(c => c.UserId == userId)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
         }
+
 
         public async Task<bool> AddItemToCartAsync(CartItem item)
         {
-            var cart = await _context.Carts
+            var cart = await _context.Cart
                 .Include(c => c.Items)
                 .FirstOrDefaultAsync(c => c.Id == item.CartId);
 
@@ -49,7 +54,7 @@ namespace Business.Service
 
         public async Task<bool> RemoveItemFromCartAsync(int cartId, int itemId)
         {
-            var cart = await _context.Carts
+            var cart = await _context.Cart
                 .Include(c => c.Items)
                 .FirstOrDefaultAsync(c => c.Id == cartId);
 

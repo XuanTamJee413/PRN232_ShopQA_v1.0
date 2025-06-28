@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Business.Iservices;
+using Domain.Models;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,14 +19,14 @@ namespace ShopQAPresentation.Controllers.Customer
 
         // GET: api/cart/{userId}
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCart(int userId)
+        public async Task<IActionResult> GetCarts(int userId)
         {
-            var cart = await _cartService.GetCartByUserIdAsync(userId);
-            if (cart == null)
+            var carts = await _cartService.GetCartsByUserIdAsync(userId);
+            if (carts == null || carts.Count == 0)
             {
                 return NotFound();
             }
-            return Ok(cart);
+            return Ok(carts);
         }
 
         // POST: api/cart

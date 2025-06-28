@@ -47,7 +47,7 @@
                 <a href="#">FAQs</a>
             </div>
             <div class="offcanvas__top__hover">
-                @if (isAuthenticated && (userRole == "Customer" || userRole == "Admin"))
+                @if (isAuthenticated && (userRole == "Customer" || userRole == "Admin" || userRole == "Staff"))
                 {
                     <span>Settings <i class="arrow_carrot-down"></i></span>
                     <ul>

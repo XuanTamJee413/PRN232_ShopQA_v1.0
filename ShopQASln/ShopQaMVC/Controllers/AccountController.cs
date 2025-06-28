@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ShopQaMVC.Models;
 using System.Security.Claims;
 using System.Text.Json;
+using Business.DTO;
 
 namespace ShopQaMVC.Controllers
 {
@@ -28,12 +29,16 @@ namespace ShopQaMVC.Controllers
                 return View(model);
 
             var client = _httpClientFactory.CreateClient();
-            var response = await client.PostAsJsonAsync("https://localhost:7101/api/Auth/login", model);
+            var response = await client.PostAsJsonAsync("https://localhost:7101/api/Auth/login", new
+            {
+                UsernameOrEmail = model.UsernameOrEmail,
+                Password = model.Password
+            });
 
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                string errorMessage = "Sai tài khoản hoặc mật khẩu";
+                string errorMessage = "Đăng nhập thất bại";
 
                 try
                 {
@@ -43,40 +48,58 @@ namespace ShopQaMVC.Controllers
                         errorMessage = msgProp.GetString() ?? errorMessage;
                     }
                 }
-                catch
-                {
-                }
+                catch { }
 
                 ModelState.AddModelError("", errorMessage);
                 return View(model);
             }
 
-            var userInfo = await response.Content.ReadFromJsonAsync<UserVM>();
-            HttpContext.Session.SetString("User", JsonSerializer.Serialize(userInfo));
+            var userDto = await response.Content.ReadFromJsonAsync<UserDTO>();
+            Console.WriteLine(">>> userDto nhan duoc:");
+            Console.WriteLine($"Username: {userDto.Username}");
+            Console.WriteLine($"Email: {userDto.Email}");
+            Console.WriteLine($"Role: {userDto.Role}");
+            Console.WriteLine($"Token: {userDto.Token}");
+            if (userDto == null)
+            {
+                ModelState.AddModelError("", "Dữ liệu trả về không hợp lệ");
+                return View(model);
+            }
+
+            // Lưu user + token vào Session
+            HttpContext.Session.SetString("User", JsonSerializer.Serialize(userDto));
+            HttpContext.Session.SetString("JwtToken", userDto.Token ?? "");
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, (string)userInfo.Username),
-                new Claim(ClaimTypes.Email, (string)userInfo.Email),
-                new Claim(ClaimTypes.Role, (string)userInfo.Role)
+                new Claim(ClaimTypes.Name, userDto.Username),
+                new Claim(ClaimTypes.Email, userDto.Email),
+                new Claim(ClaimTypes.Role, userDto.Role),
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
+            var authProps = new AuthenticationProperties
             {
                 IsPersistent = model.RememberMe,
                 ExpiresUtc = model.RememberMe ? DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddMinutes(30)
             };
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity), authProperties);
+                new ClaimsPrincipal(claimsIdentity), authProps);
 
-            if (userInfo.Role == "Admin")
-                return RedirectToAction("ProductList", "Product");
-            else
-                return RedirectToAction("Index", "Home");
+            Console.WriteLine(">>> Dang nhap thanh cong:");
+            Console.WriteLine("Username: " + userDto.Username);
+            Console.WriteLine("Role: " + userDto.Role);
+            Console.WriteLine("IsAuthenticated sau SignIn: " + (HttpContext.User.Identity?.IsAuthenticated ?? false));
+            Console.WriteLine("User.Identity.Name: " + HttpContext.User.Identity?.Name);
+            return userDto.Role switch
+            {
+                "Customer" => RedirectToAction("Index", "Home"),
+                "Staff" => RedirectToAction("ProductList", "Product"),
+                "Admin" => RedirectToAction("UserList", "User"),
+                _ => RedirectToAction("NotFoundPage", "Home")
+            };
         }
-
 
         [HttpGet]
         public IActionResult Register() => View();

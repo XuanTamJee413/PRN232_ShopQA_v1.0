@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Models
@@ -18,6 +19,7 @@ namespace Domain.Models
     {
         public int Id { get; set; }
         public int CartId { get; set; }
+        [JsonIgnore]
         public virtual Cart? Cart { get; set; }
         public int ProductVariantId { get; set; }
         public virtual ProductVariant? ProductVariant { get; set; }

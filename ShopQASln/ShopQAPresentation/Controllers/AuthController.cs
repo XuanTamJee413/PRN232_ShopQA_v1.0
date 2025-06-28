@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Business.DTO;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace ShopQAPresentation.Controllers
 {
@@ -12,10 +16,12 @@ namespace ShopQAPresentation.Controllers
     public class AuthController : ControllerBase
     {
         private readonly ShopQADbContext _context;
+        private readonly IConfiguration _config;
 
-        public AuthController(ShopQADbContext context)
+        public AuthController(ShopQADbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
 
         [HttpPost("login")]
@@ -32,12 +38,34 @@ namespace ShopQAPresentation.Controllers
                 return Unauthorized(new { message = "Tài khoản không tồn tại" });
             if (user.PasswordHash != model.Password)
                 return Unauthorized(new { message = "Mật khẩu không đúng" });
-            return Ok(new
+
+            var claims = new[]
             {
-                user.Id,
-                user.Username,
-                user.Email,
-                user.Role
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: creds
+            );
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            return Ok(new UserDTO
+            {
+                    Id = user.Id,
+                    Username = user.Username,
+                    Email = user.Email,
+                    Role = user.Role,
+                    Password = "",
+                    Token = tokenString,
             });
         }
 
@@ -58,7 +86,7 @@ namespace ShopQAPresentation.Controllers
             {
                 Username = model.Email,
                 Email = model.Email,
-                PasswordHash = model.Password, 
+                PasswordHash = model.Password,
                 Role = "Customer"
             };
 
