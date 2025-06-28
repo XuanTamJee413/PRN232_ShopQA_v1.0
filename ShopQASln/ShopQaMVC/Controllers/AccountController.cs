@@ -96,7 +96,7 @@ namespace ShopQaMVC.Controllers
             {
                 "Customer" => RedirectToAction("Index", "Home"),
                 "Staff" => RedirectToAction("ProductList", "Product"),
-                "Admin" => RedirectToAction("UserList", "User"),
+                "Admin" => RedirectToAction("Dashboard", "Admin"),
                 _ => RedirectToAction("NotFoundPage", "Home")
             };
         }

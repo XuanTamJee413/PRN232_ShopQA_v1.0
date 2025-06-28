@@ -55,9 +55,9 @@
                         <li>My Cart</li>
                         <li>My Orders</li>
                         <li><form id="logoutForm" asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-primary">Sign out</button>
-                        </form>
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-primary">Sign out</button>
+                            </form>
                         </li>
                     </ul>
                 }
@@ -67,7 +67,7 @@
             <a href="#" class="search-switch"><img src="~/img/icon/search.png" alt="" /></a>
             <a href="#"><img src="~/img/icon/heart.png" alt="" /></a>
             <a href="#"><img src="~/img/icon/cart.png" alt="" /> <span>0</span></a>
-            <div class="price">$0.00</div>
+            <div class="price">.00</div>
         </div>
         <div id="mobile-menu-wrap"></div>
         <div class="offcanvas__text">
@@ -92,7 +92,7 @@
                                 {
                                     <a href="/Account/Login">Sign in</a>
                                 }
-                                    <a href="/Home/NotFoundPage">FAQs</a>
+                                <a href="/Home/NotFoundPage">FAQs</a>
                             </div>
                             <div class="header__top__hover">
                                 @if (isAuthenticated && (userRole == "Customer" || userRole == "Admin"))
@@ -116,6 +116,7 @@
             </div>
         </div>
         <div class="container">
+            
             <div class="row">
                 <div class="col-lg-3 col-md-3">
                     <div class="header__logo">

@@ -13,5 +13,6 @@ namespace Domain.Models
         public virtual ProductVariant? ProductVariant { get; set; }
         public int Quantity { get; set; }
         public DateTime UpdatedAt { get; set; }
+
     }
 }

@@ -12,5 +12,13 @@ namespace ShopQaMVC.Controllers
         {
             return View();
         }
+        public IActionResult Update(int id)
+        {
+            return View();
+        }
+        public IActionResult Detail(int id)
+        {
+            return View();
+        }
     }
 }

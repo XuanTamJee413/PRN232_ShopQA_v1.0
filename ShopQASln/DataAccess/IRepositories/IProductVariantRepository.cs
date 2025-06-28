@@ -10,5 +10,9 @@ namespace DataAccess.IRepositories
     public interface IProductVariantRepository
     {
         Task<List<ProductVariant>> GetByProductIdAsync(int productId);
+        ProductVariant? GetVariantWithInventory(int variantId);
+        void Update(ProductVariant variant);
+        void Save();
+        void Add(ProductVariant variant);
     }
 }

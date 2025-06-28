@@ -28,42 +28,48 @@ namespace ShopQAPresentation.Controllers.Product
         //[Authorize(Roles = "Admin")]
         public IActionResult GetProductById(int id)
         {
-            var product = _productService.getProductById(id);
-
-            if (product == null)
-            {
-                return NotFound($"Product with ID {id} not found.");  
-            }
-
-            return Ok(product);
-        }
-        [HttpPost]
-        //[Authorize(Roles = "Admin")]
-        public IActionResult AddProduct(ProductDTO productDTO) {
             try
             {
-                return Ok(_productService.AddProduct(productDTO));
+                var product = _productService.GetProductById(id);
 
+                return Ok(product);
             }
-            catch (ArgumentException ex) {
-                return BadRequest(ex.Message);
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
             }
-
         }
+
+        [HttpPost]
+        // [Authorize(Roles = "Admin")]
+        public IActionResult AddProduct(ProductCreateReqDTO productDTO)
+        {
+            try
+            {
+                var result = _productService.AddProduct(productDTO);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
         [HttpPut("{id}")]
         //[Authorize(Roles = "Admin")]
-        public IActionResult UpdateProduct(int id, ProductDTO productDTO)
+        public IActionResult UpdateProduct(int id, ProductCreateReqDTO productDTO)
         {
             try
             {
                 var updatedProduct = _productService.UpdateProduct(id, productDTO);
-                return Ok(updatedProduct);  
+                return Ok(updatedProduct);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);  
+                return BadRequest(ex.Message);
             }
         }
+
         [HttpDelete("{id}")]
         //[Authorize(Roles = "Admin")]
         public IActionResult DeleteProduct(int id)
@@ -78,5 +84,33 @@ namespace ShopQAPresentation.Controllers.Product
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("variant/{variantId}")]
+        public IActionResult UpdateVariantWithInventory(int variantId, [FromBody] ProductVariantWithInventoryUpdateDTO dto)
+        {
+            try
+            {
+                var result = _productService.UpdateVariantWithInventory(variantId, dto);
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+        [HttpPost("variant")]
+        public IActionResult CreateVariant([FromBody] ProductVariantCreateDTO dto)
+        {
+            try
+            {
+                var result = _productService.CreateVariant(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
     }
 }

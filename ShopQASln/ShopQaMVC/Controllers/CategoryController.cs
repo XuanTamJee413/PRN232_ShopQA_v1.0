@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using ShopQaMVC.Models;
+using System.Globalization;
 using System.Net;
 using System.Text.Json; 
 
@@ -8,23 +10,61 @@ namespace ShopQaMVC.Controllers
     public class CategoryController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-
+        private readonly string _apiBaseUrl = "https://localhost:7101/api/Category";
         public CategoryController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchKeyword, string sortBy, int page = 1)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            var response = await client.GetAsync("https://localhost:7101/api/Category");
+            List<CategoryVM> categories = new();
 
-            if (!response.IsSuccessStatusCode)
-                return View(new List<CategoryVM>());
+           
+            var queryBuilder = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            queryBuilder["page"] = page.ToString();
+            queryBuilder["pageSize"] = "5"; 
 
-            var categories = await response.Content.ReadFromJsonAsync<List<CategoryVM>>();
+            if (!string.IsNullOrWhiteSpace(searchKeyword))
+            {
+                queryBuilder["keyword"] = searchKeyword;
+            }
+
+           
+            if (!string.IsNullOrWhiteSpace(sortBy))
+            {
+                if (sortBy.Equals("name_asc", StringComparison.OrdinalIgnoreCase))
+                {
+                    queryBuilder["sortAsc"] = "true";
+                }
+                else if (sortBy.Equals("name_desc", StringComparison.OrdinalIgnoreCase))
+                {
+                    queryBuilder["sortAsc"] = "false";
+                }
+            }
+
+            var apiEndpoint = $"{_apiBaseUrl}/paged?{queryBuilder.ToString()}";
+
+            var response = await client.GetAsync(apiEndpoint);
+
+            if (response.IsSuccessStatusCode)
+            {
+                categories = await response.Content.ReadFromJsonAsync<List<CategoryVM>>() ?? new();
+            }
+            else
+            {
+                TempData["Error"] = $"Lỗi khi gọi API: {response.StatusCode}. Server trả: {await response.Content.ReadAsStringAsync()}";
+            }
+
+            ViewBag.CurrentSearchKeyword = searchKeyword;
+            ViewBag.CurrentSort = sortBy; 
+            ViewBag.CurrentPage = page;
+            ViewBag.HasMoreCategories = categories.Count == 5; 
+
             return View(categories);
         }
+
 
         [HttpGet]
         public IActionResult Create() => View();

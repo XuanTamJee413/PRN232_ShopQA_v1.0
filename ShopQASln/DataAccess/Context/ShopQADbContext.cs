@@ -23,6 +23,8 @@ namespace DataAccess.Context
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Address> Addresses => Set<Address>();
         public DbSet<Cart> Cart => Set<Cart>();
+        public DbSet<Review> Review { get; set; } = default!;
+        public DbSet<Inventory> Inventory => Set<Inventory>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -173,10 +175,11 @@ namespace DataAccess.Context
 
             // Inventory
             modelBuilder.Entity<Inventory>()
-                .HasOne(i => i.ProductVariant)
-                .WithMany()
-                .HasForeignKey(i => i.ProductVariantId)
-                .OnDelete(DeleteBehavior.Cascade);
+       .HasOne(i => i.ProductVariant)
+       .WithOne(pv => pv.Inventory)
+       .HasForeignKey<Inventory>(i => i.ProductVariantId)
+       .OnDelete(DeleteBehavior.Cascade);
+
 
             modelBuilder.Entity<Inventory>()
                 .Property(i => i.Quantity)

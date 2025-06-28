@@ -98,5 +98,50 @@ namespace ShopQAPresentation.Controllers.Category
                 return NotFound(ex.Message);
             }
         }
+
+        // Search
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string keyword)
+        {
+            try
+            {
+                var result = await _categoryService.SearchCategoriesByNameAsync(keyword);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // Sort
+        [HttpGet("sort")]
+        public async Task<IActionResult> Sort([FromQuery] bool sortAsc = true)
+        {
+            try
+            {
+                var result = await _categoryService.SortCategoriesByNameAsync(sortAsc);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("paged")]
+        public async Task<IActionResult> SearchSortPaged( [FromQuery] string? keyword,[FromQuery] bool? sortAsc, [FromQuery] int page = 1,[FromQuery] int pageSize = 5)
+        {
+            try
+            {
+                var result = await _categoryService.SearchSortPagedCategoriesAsync(keyword, sortAsc, page, pageSize);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

@@ -1,0 +1,81 @@
+﻿@model List<ShopQaMVC.Models.BrandVM>
+
+@{
+    ViewData["Title"] = "Brand List";
+    var currentSearch = ViewBag.CurrentSearchQuery as string;
+    var currentSort = ViewBag.CurrentSort as string;
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+}
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<h2>Brand List</h2>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <a href="/Brand/Create" class="btn btn-success">+ Add Brand</a>
+
+    <form asp-action="Index" method="get" class="d-flex">
+        <input type="text" name="searchQuery" class="form-control me-2" placeholder="Search by Brand Name..." value="@currentSearch" />
+        <input type="hidden" name="sortBy" value="@currentSort" />
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
+
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>
+                Name
+                <div class="d-inline-block ms-2">
+                    <a href="@Url.Action("Index", new { searchQuery = currentSearch, sortBy = "nameAsc", page = currentPage })" class="btn btn-sm btn-outline-secondary py-0 px-1">▲</a>
+                    <a href="@Url.Action("Index", new { searchQuery = currentSearch, sortBy = "nameDesc", page = currentPage })" class="btn btn-sm btn-outline-secondary py-0 px-1">▼</a>
+                </div>
+            </th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Name</td>
+                    <td>
+                        <a href="/Brand/Edit/@item.Id" class="btn btn-warning">Edit</a>
+                        <a href="/Brand/Delete/@item.Id" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this brand?');">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="3" class="text-center">No brands found.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-center">
+    @if (currentPage > 1)
+    {
+        <a class="btn btn-outline-primary me-2" href="@Url.Action("Index", new { searchQuery = currentSearch, sortBy = currentSort, page = currentPage - 1 })">Previous</a>
+    }
+
+    <span class="align-self-center">Page @currentPage</span>
+
+    @if (Model.Count == 5)
+    {
+        <a class="btn btn-outline-primary ms-2" href="@Url.Action("Index", new { searchQuery = currentSearch, sortBy = currentSort, page = currentPage + 1 })">Next</a>
+    }
+</div>
