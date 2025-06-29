@@ -6,6 +6,13 @@ namespace ShopQaMVC.Controllers
     {
         public IActionResult OrderList()
         {
+            var token = HttpContext.Session.GetString("JwtToken");
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            ViewBag.Token = token;
             return View(); // trả về view Razor là OrderList.cshtml
         }
     }

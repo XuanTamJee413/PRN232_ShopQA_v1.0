@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Create Product";
 }
-
+<input type="hidden" id="jwtToken" value="@ViewBag.Token" />
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Create New Product</h2>
 
@@ -39,11 +39,15 @@
     <script>
         $(document).ready(function () {
             console.log("🟢 JS ready");
-
+               const token = $('#jwtToken').val();
+               console.log(token);
             // Load Categories
             $.ajax({
                 url: 'https://localhost:7101/api/Category',
                 method: 'GET',
+                    headers: {
+            'Authorization': 'Bearer ' + token
+        },
                 dataType: 'json',
                 success: function (categories) {
                     const categorySelect = $('#categoryId');
@@ -108,6 +112,9 @@
                 $.ajax({
                     url: 'https://localhost:7101/api/Product',
                     method: 'POST',
+                        headers: {
+            'Authorization': 'Bearer ' + token
+        },
                     contentType: 'application/json',
                     data: JSON.stringify(productData),
                     success: function () {

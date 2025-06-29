@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Review List";
 }
-
+<input type="hidden" id="jwtToken" value="@ViewBag.Token" />
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Danh sách đánh giá sản phẩm</h2>
 
@@ -60,7 +60,7 @@
             let filteredReviews = [];
             let currentPage = 1;
             const pageSize = 5;
-
+             const token = $('#jwtToken').val();
             function renderStars(rating) {
                 return '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
             }
@@ -100,6 +100,9 @@
                         $.ajax({
                             url: `https://localhost:7101/api/Review/${id}`,
                             type: 'DELETE',
+                             headers: {
+            'Authorization': 'Bearer ' + token
+        },
                             success: function () {
                                 allReviews = allReviews.filter(r => r.id !== id);
                                 applyFilter();
@@ -153,6 +156,9 @@
             $.ajax({
                 url: 'https://localhost:7101/api/Product',
                 type: 'GET',
+                 headers: {
+            'Authorization': 'Bearer ' + token
+        },
                 dataType: 'json',
                 success: function (products) {
                     const productFilter = $('#productFilter');
@@ -170,6 +176,9 @@
             $.ajax({
                 url: 'https://localhost:7101/api/Review',
                 type: 'GET',
+                 headers: {
+            'Authorization': 'Bearer ' + token
+        },
                 dataType: 'json',
                 success: function (data) {
                     allReviews = data;

@@ -10,6 +10,7 @@ namespace ShopQaMVC.Controllers
 
         public void OnGet(int productId)
         {
+
             ProductId = productId;
         }
     }
