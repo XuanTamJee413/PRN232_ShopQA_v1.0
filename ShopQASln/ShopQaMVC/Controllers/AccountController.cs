@@ -92,13 +92,19 @@ namespace ShopQaMVC.Controllers
             Console.WriteLine("Role: " + userDto.Role);
             Console.WriteLine("IsAuthenticated sau SignIn: " + (HttpContext.User.Identity?.IsAuthenticated ?? false));
             Console.WriteLine("User.Identity.Name: " + HttpContext.User.Identity?.Name);
-            return userDto.Role switch
-            {
-                "Customer" => RedirectToAction("Index", "Home"),
-                "Staff" => RedirectToAction("ProductList", "Product"),
-                "Admin" => RedirectToAction("Dashboard", "Admin"),
-                _ => RedirectToAction("NotFoundPage", "Home")
-            };
+            ViewBag.UserJson = JsonSerializer.Serialize(userDto);
+            ViewBag.Token = userDto.Token;
+            ViewBag.Role = userDto.Role;
+            ViewBag.LoginSuccess = true;
+            return View("Login");
+
+            //return userDto.Role switch
+            //{
+            //    "Customer" => RedirectToAction("Index", "Home"),
+            //    "Staff" => RedirectToAction("ProductList", "Product"),
+            //    "Admin" => RedirectToAction("Dashboard", "Admin"),
+            //    _ => RedirectToAction("NotFoundPage", "Home")
+            //};
         }
 
         [HttpGet]

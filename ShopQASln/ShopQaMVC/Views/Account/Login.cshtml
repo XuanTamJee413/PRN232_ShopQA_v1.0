@@ -49,3 +49,34 @@
         <p class="text-center">Chưa có tài khoản? <a href="/Account/Register" class="text-dark text-decoration-none"><strong>Đăng ký ngay</strong></a></p>
     </div>
 </div>
+@if (ViewBag.LoginSuccess == true)
+{
+    <script>
+        const token = "@ViewBag.Token";
+        const user = JSON.parse('@Html.Raw(ViewBag.UserJson)'); 
+
+        // Lưu sessionStorage
+        sessionStorage.setItem("JwtToken", token);
+        sessionStorage.setItem("User", JSON.stringify(user));
+
+        // Lưu localStorage
+        localStorage.setItem("JwtToken", token);
+        localStorage.setItem("User", JSON.stringify(user));
+
+        // Lưu cookie (7 ngày)
+        document.cookie = "JwtToken=" + token + "; path=/; max-age=604800";
+
+        // Chuyển hướng theo role
+        const role = user.Role;
+        console.log("ROLE:", role); // debug
+        if (role === "Customer")
+            window.location.href = "/Home/Index";
+        else if (role === "Staff")
+            window.location.href = "/Product/ProductList";
+        else if (role === "Admin")
+            window.location.href = "/Admin/Dashboard";
+        else
+            window.location.href = "/Home";
+    </script>
+
+}

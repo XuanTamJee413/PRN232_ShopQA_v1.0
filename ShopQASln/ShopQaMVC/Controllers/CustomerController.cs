@@ -21,6 +21,12 @@ namespace ShopQaMVC.Controllers
         {
             var token = HttpContext.Session.GetString("JwtToken");
             var userJson = HttpContext.Session.GetString("User");
+            if (!string.IsNullOrEmpty(userJson))
+            {
+                var user = JsonSerializer.Deserialize<UserDTO>(userJson);
+                Console.WriteLine("User: " + user.Username);
+                Console.WriteLine("Token: " + token);
+            }
             if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
             {
                 return RedirectToAction("Login", "Account");

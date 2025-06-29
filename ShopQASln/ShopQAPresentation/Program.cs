@@ -9,14 +9,24 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DataAccess.Repository;
 using Microsoft.AspNetCore.OData;
+using Microsoft.OData.Edm;
+using Domain.Models;
+using Microsoft.OData.ModelBuilder;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+//controller + odata
+IEdmModel GetEdmModel()
+{
+    var builder = new ODataConventionModelBuilder();
+    builder.EntitySet<ProductVariant>("ProductVariants");
+    return builder.GetEdmModel();
+};
 builder.Services.AddControllers()
     .AddOData(opt =>
     {
-        opt.Filter().Select().Expand().OrderBy();
+        opt.Filter().Select().Expand().OrderBy().Count().AddRouteComponents("odata", GetEdmModel());
     });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -27,9 +37,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin", builder =>
     {
-        builder.WithOrigins("https://localhost:7035") 
+        builder.WithOrigins("https://localhost:7035")
                .AllowAnyMethod()
-               .AllowAnyHeader(); 
+               .AllowAnyHeader();
     });
 });
 
