@@ -3,6 +3,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using ShopQaMVC.Models;
 using System.Diagnostics;
+using System.Text.Json;
 
 namespace ShopQaMVC.Controllers
 {
@@ -118,7 +119,17 @@ namespace ShopQaMVC.Controllers
         public async Task<IActionResult> SingleProduct(int id)
         {
             var client = _httpClientFactory.CreateClient();
+            var token = HttpContext.Session.GetString("JwtToken");
+            var userJson = HttpContext.Session.GetString("User");
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
+            var userDto = JsonSerializer.Deserialize<UserDTO>(userJson);
+            var userId = userDto?.Id ?? 0;
+            ViewBag.UserId = userId;
+            ViewBag.Token = token;
             try
             {
                 var response = await client.GetAsync($"https://localhost:7101/api/Home/variants?productId={id}");

@@ -5,6 +5,7 @@
 *@
 @{
     ViewData["Title"] = "Single Product";
+
 }
 <!-- Shop Details Section Begin -->
 <section class="shop-details">
@@ -59,7 +60,7 @@
     <div class="container mt-4">
         <h4>Đánh giá sản phẩm</h4>
         <form id="reviewForm">
-            <input type="hidden" id="userId" value="1" />
+            <input type="hidden" id="userId" value="@ViewBag.UserId" />
             <input type="hidden" id="productId" value="@Model.First().ProductId" />
 
             <div class="mb-3">
@@ -98,7 +99,7 @@
     </div>
 
 
-
+    <input type="hidden" id="jwtToken" value="@ViewBag.Token" />
    
 </section>
 <!-- Shop Details Section End -->
@@ -107,6 +108,10 @@
 <script>
     $(document).ready(function () {
         const currentUserId = parseInt($('#userId').val()); ///sửa UserId ở đây 
+          const token = $('#jwtToken').val();
+        console.log(token);
+
+        console.log(currentUserId);
         const productId = parseInt($('#productId').val());
         const pageSize = 3;
         let allReviews = [];
@@ -173,6 +178,9 @@
             $.ajax({
                 url: `https://localhost:7101/api/Review/product/${productId}`,
                 type: 'GET',
+                headers: {
+            'Authorization': 'Bearer ' + token
+        },
                 success: function (data) {
                     allReviews = data;
                     currentPage = 1;
@@ -193,6 +201,9 @@
                     $.ajax({
                         url: `https://localhost:7101/api/Review/${reviewId}/user/${currentUserId}`,
                         type: 'DELETE',
+                          headers: {
+            'Authorization': 'Bearer ' + token
+        },
                         success: function () {
                             loadReviews();
                         },
@@ -230,10 +241,12 @@
             rating: parsedRating,
             comment: newComment.trim()
         };
-
         $.ajax({
             url: `https://localhost:7101/api/Review/${productId}?userId=${currentUserId}`,
             type: 'PUT',
+              headers: {
+            'Authorization': 'Bearer ' + token
+        },
             contentType: 'application/json',
             data: JSON.stringify(updated),
             success: function () {
@@ -265,6 +278,9 @@
             $.ajax({
                 url: 'https://localhost:7101/api/Review',
                 type: 'POST',
+                 headers: {
+            'Authorization': 'Bearer ' + token
+        },
                 contentType: 'application/json',
                 data: JSON.stringify(review),
                 success: function () {

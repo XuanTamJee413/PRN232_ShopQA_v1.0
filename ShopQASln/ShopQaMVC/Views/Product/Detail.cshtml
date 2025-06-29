@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Product Detail";
 }
-
+<input type="hidden" id="jwtToken" value="@ViewBag.Token" />
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Product Detail</h2>
 
@@ -155,32 +155,40 @@
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
     <script>
         const productId = window.location.pathname.split('/').pop();
-
+          const token = $('#jwtToken').val();
         let currentPage = 1;
         const pageSize = 5;
         let variants = []; // Mảng lưu trữ tất cả các biến thể
         let fuse; // Fuse.js instance
 
         function loadProductDetails() {
-            $.get(`https://localhost:7101/api/Product/${productId}`, function (product) {
+                   $.ajax({
+            url: `https://localhost:7101/api/Product/${productId}`,
+            type: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+            success: function (product) {
                 $('#mainImage').attr('src', product.imageUrl || '/images/default.png');
                 $('#productName').text(product.name);
                 $('#productDescription').text(product.description);
                 $('#productCategory').text(product.categoryName);
                 $('#productBrand').text(product.brand?.name || 'N/A');
 
-                // Lưu tất cả các biến thể vào mảng
                 variants = product.variants || [];
 
-                // Cấu hình Fuse.js với các tùy chọn tìm kiếm nâng cao
                 const options = {
                     includeScore: true,
-                    keys: ['size', 'color', 'price'] // Các trường tìm kiếm
+                    keys: ['size', 'color', 'price']
                 };
                 fuse = new Fuse(variants, options);
 
                 showVariants();
-            });
+            },
+            error: function (xhr) {
+                alert('❌ Không thể tải thông tin sản phẩm. Lỗi: ' + xhr.responseText);
+            }
+        });
         }
 
         function showVariants() {
@@ -271,6 +279,9 @@
             $.ajax({
                 url: `https://localhost:7101/api/Product/variant/${variantId}`,
                 type: 'PUT',
+                 headers: {
+            'Authorization': 'Bearer ' + token
+        },
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function () {
