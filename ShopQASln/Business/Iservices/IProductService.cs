@@ -12,13 +12,16 @@ namespace Business.Iservices
     {
         IEnumerable<Product> GetVisibleProducts(string? name, int? categoryId, int? brandId);
 
-        IEnumerable<Product> GetAllProduct(string? name, int? categoryId, decimal? startPrice ,decimal? toPrice);
+        IEnumerable<ProductResponseDTO> GetAllProduct(string? name, int? categoryId, decimal? startPrice ,decimal? toPrice);
 
-        Product getProductById(int id);
-        Product AddProduct(ProductDTO productDTO);
-        Product UpdateProduct(int productId, ProductDTO productDTO);
+        ProductResponseDTO GetProductById(int id);
+        Product AddProduct(ProductCreateReqDTO productDTO);
+        Product UpdateProduct(int id, ProductCreateReqDTO productDTO);
 
         String DeleteProduct(int id);
+        ProductVariantWithInventoryResDTO UpdateVariantWithInventory(int variantId, ProductVariantWithInventoryUpdateDTO dto);
+
+        ProductVariantWithInventoryResDTO CreateVariant(ProductVariantCreateDTO dto);
 
     }
 }

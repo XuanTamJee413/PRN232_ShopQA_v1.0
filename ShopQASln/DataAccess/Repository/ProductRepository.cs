@@ -19,7 +19,7 @@ namespace DataAccess.Repository
             _context = context;
         }
 
-        public IEnumerable<Product> GetAll() => _context.Products.Include(p =>p.Category).Include(p => p.Brand).ToList();
+        public IEnumerable<Product> GetAll() => _context.Products.Include(p => p.Category).Include(p => p.Brand).ToList();
 
         public Product? GetById(int id) => _context.Products
             .Include(p => p.Category)
@@ -46,5 +46,16 @@ namespace DataAccess.Repository
                 _context.SaveChanges();
             }
         }
+
+        public Product? GetProductById(int id)
+        {
+            return _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Inventory) 
+                .FirstOrDefault(p => p.Id == id);
+        }
+
     }
 }

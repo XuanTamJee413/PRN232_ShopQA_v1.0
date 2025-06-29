@@ -1,0 +1,190 @@
+﻿@{
+    ViewData["Title"] = "Review List";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Danh sách đánh giá sản phẩm</h2>
+
+    <!-- Bộ lọc -->
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="starFilter" class="form-label">Lọc theo số sao:</label>
+            <select id="starFilter" class="form-select">
+                <option value="">Tất cả</option>
+                <option value="5">⭐⭐⭐⭐⭐</option>
+                <option value="4">⭐⭐⭐⭐</option>
+                <option value="3">⭐⭐⭐</option>
+                <option value="2">⭐⭐</option>
+                <option value="1">⭐</option>
+            </select>
+        </div>
+
+        <div class="col-md-8">
+            <label for="productFilter" class="form-label">Lọc theo sản phẩm:</label>
+            <select id="productFilter" class="form-select">
+                <option value="">Tất cả sản phẩm</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Bảng đánh giá -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Người dùng</th>
+                    <th>Sản phẩm</th>
+                    <th>Đánh giá</th>
+                    <th>Bình luận</th>
+                    <th>Ngày đánh giá</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="reviewBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Phân trang -->
+    <nav>
+        <ul class="pagination justify-content-center" id="pagination"></ul>
+    </nav>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            let allReviews = [];
+            let filteredReviews = [];
+            let currentPage = 1;
+            const pageSize = 5;
+
+            function renderStars(rating) {
+                return '⭐'.repeat(rating) + '☆'.repeat(5 - rating);
+            }
+
+            function renderReviews() {
+                const tbody = $('#reviewBody');
+                tbody.empty();
+
+                const startIndex = (currentPage - 1) * pageSize;
+                const pageItems = filteredReviews.slice(startIndex, startIndex + pageSize);
+
+                if (pageItems.length === 0) {
+                    tbody.append('<tr><td colspan="7" class="text-center">Không có đánh giá nào.</td></tr>');
+                    return;
+                }
+
+                pageItems.forEach(r => {
+                    const date = new Date(r.createdAt).toLocaleDateString('vi-VN');
+                    const row = `
+                        <tr>
+                            <td>${r.id}</td>
+                            <td>${r.username}</td>
+                            <td>${r.productName}</td>
+                            <td>${renderStars(r.rating)}</td>
+                            <td>${r.comment}</td>
+                            <td>${date}</td>
+                            <td>
+                                <button class="btn btn-sm btn-danger btn-delete" data-id="${r.id}">Xoá</button>
+                            </td>
+                        </tr>`;
+                    tbody.append(row);
+                });
+
+                $('.btn-delete').click(function () {
+                    const id = $(this).data('id');
+                    if (confirm('Bạn có chắc chắn muốn xoá đánh giá này?')) {
+                        $.ajax({
+                            url: `https://localhost:7101/api/Review/${id}`,
+                            type: 'DELETE',
+                            success: function () {
+                                allReviews = allReviews.filter(r => r.id !== id);
+                                applyFilter();
+                            },
+                            error: function () {
+                                alert('Không thể xoá đánh giá.');
+                            }
+                        });
+                    }
+                });
+            }
+
+            function renderPagination() {
+                const totalPages = Math.ceil(filteredReviews.length / pageSize);
+                const pagination = $('#pagination');
+                pagination.empty();
+
+                if (totalPages <= 1) return;
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const li = $(`
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#">${i}</a>
+                        </li>`);
+                    li.click(function (e) {
+                        e.preventDefault();
+                        currentPage = i;
+                        renderReviews();
+                        renderPagination();
+                    });
+                    pagination.append(li);
+                }
+            }
+
+            function applyFilter() {
+                const rating = $('#starFilter').val();
+                const productId = $('#productFilter').val();
+
+                filteredReviews = allReviews.filter(r => {
+                    const matchRating = !rating || r.rating == rating;
+                    const matchProduct = !productId || r.productId == productId;
+                    return matchRating && matchProduct;
+                });
+
+                currentPage = 1;
+                renderReviews();
+                renderPagination();
+            }
+
+            // Load danh sách sản phẩm
+            $.ajax({
+                url: 'https://localhost:7101/api/Product',
+                type: 'GET',
+                dataType: 'json',
+                success: function (products) {
+                    const productFilter = $('#productFilter');
+                    products.forEach(p => {
+                        productFilter.append(`<option value="${p.id}">${p.name}</option>`);
+                    });
+                    productFilter.show();
+                },
+                error: function () {
+                    alert('Không thể tải danh sách sản phẩm.');
+                }
+            });
+
+            // Load danh sách đánh giá
+            $.ajax({
+                url: 'https://localhost:7101/api/Review',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    allReviews = data;
+                    filteredReviews = data;
+                    renderReviews();
+                    renderPagination();
+                },
+                error: function () {
+                    alert('Không thể tải danh sách đánh giá.');
+                }
+            });
+
+            $('#starFilter, #productFilter').on('change', function () {
+                applyFilter();
+            });
+        });
+    </script>
+}

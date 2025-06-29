@@ -52,240 +52,243 @@
 
         </div>
     </div>
-    <div class="product__details__content">
-        <div class="container">
-            <div class="row d-flex justify-content-center">
-                <div class="col-lg-8">
-                    <div class="product__details__text">
-                        <h4>Chọn chi size và màu phù hợp với bạn</h4>
-                        <div class="rating">
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star-o"></i>
-                            <span> - 5 Reviews</span>
-                        </div>
-                        <h3>$270.00 <span>70.00</span></h3>
-                        <p>
-                            Bạn mặc Size nào cũng vừa, bạn chọn màu nào cũng đẹp, hãy chọn một màu và một size phù hợp với bạn nhất nhé.
-                        </p>
-                        <div class="product__details__option">
-                            <div class="product__details__option__size">
-                                <span>Size:</span>
-                                <label for="xxl">
-                                    xxl
-                                    <input type="radio" id="xxl">
-                                </label>
-                                <label class="active" for="xl">
-                                    xl
-                                    <input type="radio" id="xl">
-                                </label>
-                                <label for="l">
-                                    l
-                                    <input type="radio" id="l">
-                                </label>
-                                <label for="sm">
-                                    s
-                                    <input type="radio" id="sm">
-                                </label>
-                            </div>
-                            <div class="product__details__option__color">
-                                <span>Color:</span>
-                                <label class="c-1" for="sp-1">
-                                    <input type="radio" id="sp-1">
-                                </label>
-                                <label class="c-2" for="sp-2">
-                                    <input type="radio" id="sp-2">
-                                </label>
-                                <label class="c-3" for="sp-3">
-                                    <input type="radio" id="sp-3">
-                                </label>
-                                <label class="c-4" for="sp-4">
-                                    <input type="radio" id="sp-4">
-                                </label>
-                                <label class="c-9" for="sp-9">
-                                    <input type="radio" id="sp-9">
-                                </label>
-                            </div>
-                        </div>
-                        <div class="product__details__cart__option">
-                            <div class="quantity">
-                                <div class="pro-qty">
-                                    <input type="text" value="1">
-                                </div>
-                            </div>
-                            <a href="#" class="primary-btn">add to cart</a>
-                        </div>
-                        <div class="product__details__btns__option">
-                            <a href="#"><i class="fa fa-heart"></i> add to wishlist</a>
-                            <a href="#"><i class="fa fa-exchange"></i> Add To Compare</a>
-                        </div>
-                        <div class="product__details__last__option">
-                            <h5><span>Guaranteed Safe Checkout</span></h5>
-                            <img src="~/img/shop-details/details-payment.png" alt="">
-                            <ul>
-                                <li><span>SKU:</span> 3812912</li>
-                                <li><span>Categories:</span> Clothes</li>
-                                <li><span>Tag:</span> Clothes, Skin, Body</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+
+
+
+    <!-- Form đánh giá sản phẩm -->
+    <div class="container mt-4">
+        <h4>Đánh giá sản phẩm</h4>
+        <form id="reviewForm">
+            <input type="hidden" id="userId" value="1" />
+            <input type="hidden" id="productId" value="@Model.First().ProductId" />
+
+            <div class="mb-3">
+                <label for="rating" class="form-label">Số sao:</label>
+                <select id="rating" class="form-select" required>
+                    <option value="">Chọn sao</option>
+                    <option value="5">5 ⭐</option>
+                    <option value="4">4 ⭐</option>
+                    <option value="3">3 ⭐</option>
+                    <option value="2">2 ⭐</option>
+                    <option value="1">1 ⭐</option>
+                </select>
             </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="product__details__tab">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-toggle="tab" href="#tabs-5"
-                                   role="tab">Description</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tabs-6" role="tab">
-                                    Customer
-                                    Previews(5)
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tabs-7" role="tab">
-                                    Additional
-                                    information
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="tabs-5" role="tabpanel">
-                                <div class="product__details__tab__content">
-                                    <p class="note">
-                                        Nam tempus turpis at metus scelerisque placerat nulla deumantos
-                                        solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
-                                        ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
-                                        pharetras loremos.
-                                    </p>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Products Infomation</h5>
-                                        <p>
-                                            A Pocket PC is a handheld computer, which features many of the same
-                                            capabilities as a modern PC. These handy little devices allow
-                                            individuals to retrieve and store e-mail messages, create a contact
-                                            file, coordinate appointments, surf the internet, exchange text messages
-                                            and more. Every product that is labeled as a Pocket PC must be
-                                            accompanied with specific software to operate the unit and must feature
-                                            a touchscreen and touchpad.
-                                        </p>
-                                        <p>
-                                            As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
-                                            consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                            These days, customers are finding that prices have become much more
-                                            reasonable now that the newness is wearing off. For approximately
-                                            $350.00, a new Pocket PC can now be purchased.
-                                        </p>
-                                    </div>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Material used</h5>
-                                        <p>
-                                            Polyester is deemed lower quality due to its none natural quality’s. Made
-                                            from synthetic materials, not natural like wool. Polyester suits become
-                                            creased easily and are known for not being breathable. Polyester suits
-                                            tend to have a shine to them compared to wool and cotton suits, this can
-                                            make the suit look cheap. The texture of velvet is luxurious and
-                                            breathable. Velvet is a great choice for dinner party jacket and can be
-                                            worn all year round.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="tabs-6" role="tabpanel">
-                                <div class="product__details__tab__content">
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Products Infomation</h5>
-                                        <p>
-                                            A Pocket PC is a handheld computer, which features many of the same
-                                            capabilities as a modern PC. These handy little devices allow
-                                            individuals to retrieve and store e-mail messages, create a contact
-                                            file, coordinate appointments, surf the internet, exchange text messages
-                                            and more. Every product that is labeled as a Pocket PC must be
-                                            accompanied with specific software to operate the unit and must feature
-                                            a touchscreen and touchpad.
-                                        </p>
-                                        <p>
-                                            As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
-                                            consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                            These days, customers are finding that prices have become much more
-                                            reasonable now that the newness is wearing off. For approximately
-                                            $350.00, a new Pocket PC can now be purchased.
-                                        </p>
-                                    </div>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Material used</h5>
-                                        <p>
-                                            Polyester is deemed lower quality due to its none natural quality’s. Made
-                                            from synthetic materials, not natural like wool. Polyester suits become
-                                            creased easily and are known for not being breathable. Polyester suits
-                                            tend to have a shine to them compared to wool and cotton suits, this can
-                                            make the suit look cheap. The texture of velvet is luxurious and
-                                            breathable. Velvet is a great choice for dinner party jacket and can be
-                                            worn all year round.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="tabs-7" role="tabpanel">
-                                <div class="product__details__tab__content">
-                                    <p class="note">
-                                        Nam tempus turpis at metus scelerisque placerat nulla deumantos
-                                        solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
-                                        ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
-                                        pharetras loremos.
-                                    </p>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Products Infomation</h5>
-                                        <p>
-                                            A Pocket PC is a handheld computer, which features many of the same
-                                            capabilities as a modern PC. These handy little devices allow
-                                            individuals to retrieve and store e-mail messages, create a contact
-                                            file, coordinate appointments, surf the internet, exchange text messages
-                                            and more. Every product that is labeled as a Pocket PC must be
-                                            accompanied with specific software to operate the unit and must feature
-                                            a touchscreen and touchpad.
-                                        </p>
-                                        <p>
-                                            As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
-                                            consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                            These days, customers are finding that prices have become much more
-                                            reasonable now that the newness is wearing off. For approximately
-                                            $350.00, a new Pocket PC can now be purchased.
-                                        </p>
-                                    </div>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Material used</h5>
-                                        <p>
-                                            Polyester is deemed lower quality due to its none natural quality’s. Made
-                                            from synthetic materials, not natural like wool. Polyester suits become
-                                            creased easily and are known for not being breathable. Polyester suits
-                                            tend to have a shine to them compared to wool and cotton suits, this can
-                                            make the suit look cheap. The texture of velvet is luxurious and
-                                            breathable. Velvet is a great choice for dinner party jacket and can be
-                                            worn all year round.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+            <div class="mb-3">
+                <label for="comment" class="form-label">Nhận xét:</label>
+                <textarea id="comment" class="form-control" rows="3" placeholder="Viết đánh giá..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+            <div id="reviewMessage" class="mt-2 text-success d-none">Đã gửi đánh giá thành công!</div>
+        </form>
+    </div>
+
+    <!-- Danh sách đánh giá -->
+    <div class="mt-5 text-center">
+        <h4 class="mb-3">Đánh giá gần đây</h4>
+        <div class="d-flex justify-content-center">
+            <div class="w-100" style="max-width: 600px;">
+                <div id="reviewList" class="mb-3"></div>
+                <nav>
+                    <ul id="reviewPagination" class="pagination justify-content-center"></ul>
+                </nav>
             </div>
         </div>
     </div>
+
+
+
+   
 </section>
 <!-- Shop Details Section End -->
 <!-- Related Section Begin -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const currentUserId = parseInt($('#userId').val()); ///sửa UserId ở đây 
+        const productId = parseInt($('#productId').val());
+        const pageSize = 3;
+        let allReviews = [];
+        let currentPage = 1;
+
+        function renderReviewList() {
+            const reviewList = $('#reviewList');
+            reviewList.empty();
+
+            const start = (currentPage - 1) * pageSize;
+            const pageItems = allReviews.slice(start, start + pageSize);
+
+            if (pageItems.length === 0) {
+                reviewList.append('<p class="text-muted text-center">Chưa có đánh giá nào.</p>');
+                return;
+            }
+
+            pageItems.forEach(r => {
+                const date = new Date(r.createdAt).toLocaleDateString('vi-VN');
+                const stars = '⭐'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                const isCurrentUser = parseInt(r.userNameId) === currentUserId;  
+                const actions = isCurrentUser ? `
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-warning me-2 btn-edit" data-id="${r.id}" data-rating="${r.rating}" data-comment="${r.comment}">Sửa</button>
+                        <button class="btn btn-sm btn-danger btn-delete" data-id="${r.id}">Xóa</button>
+                    </div>` : '';
+
+                const reviewHtml = `
+                    <div class="border rounded p-3 mb-3 bg-light text-start">
+                        <strong>${r.username}</strong> <small class="text-muted">(${date})</small><br/>
+                        <div>${stars}</div>
+                        <p class="mb-0">${r.comment}</p>
+                        ${actions}
+                    </div>
+                `;
+                reviewList.append(reviewHtml);
+            });
+
+            attachActionHandlers();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(allReviews.length / pageSize);
+            const pagination = $('#reviewPagination');
+            pagination.empty();
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = $(`<li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link" href="#">${i}</a>
+                            </li>`);
+                li.click(function (e) {
+                    e.preventDefault();
+                    currentPage = i;
+                    renderReviewList();
+                    renderPagination();
+                });
+                pagination.append(li);
+            }
+        }
+
+        function loadReviews() {
+            $.ajax({
+                url: `https://localhost:7101/api/Review/product/${productId}`,
+                type: 'GET',
+                success: function (data) {
+                    allReviews = data;
+                    currentPage = 1;
+                    renderReviewList();
+                    renderPagination();
+                },
+                error: function () {
+                    $('#reviewList').html('<p class="text-danger">Không thể tải đánh giá.</p>');
+                }
+            });
+        }
+
+        function attachActionHandlers() {
+            // Xóa
+            $('.btn-delete').click(function () {
+                const reviewId = $(this).data('id');
+                if (confirm('Bạn có chắc muốn xóa đánh giá này?')) {
+                    $.ajax({
+                        url: `https://localhost:7101/api/Review/${reviewId}/user/${currentUserId}`,
+                        type: 'DELETE',
+                        success: function () {
+                            loadReviews();
+                        },
+                        error: function () {
+                            alert('Xóa đánh giá thất bại.');
+                        }
+                    });
+                }
+            });
+
+            // Sửa
+         $('.btn-edit').click(function () {
+        const reviewId = $(this).data('id');
+        const rating = $(this).data('rating');
+        const comment = $(this).data('comment');
+
+        const newRating = prompt("Nhập số sao mới (1-5):", rating);
+        const newComment = prompt("Nhập bình luận mới:", comment);
+
+        const parsedRating = parseInt(newRating);
+
+        // Kiểm tra hợp lệ
+        if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+            alert("Số sao phải là số nguyên từ 1 đến 5.");
+            return;
+        }
+
+        if (!newComment || !newComment.trim()) {
+            alert("Vui lòng nhập nội dung bình luận.");
+            return;
+        }
+
+        const updated = {
+            id: reviewId,
+            rating: parsedRating,
+            comment: newComment.trim()
+        };
+
+        $.ajax({
+            url: `https://localhost:7101/api/Review/${productId}?userId=${currentUserId}`,
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(updated),
+            success: function () {
+                loadReviews();
+            },
+            error: function () {
+                alert('Cập nhật đánh giá thất bại.');
+            }
+        });
+    });
+    }
+
+        // Gửi đánh giá mới
+        $('#reviewForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const review = {
+                userId: currentUserId,
+                productId: productId,
+                rating: parseInt($('#rating').val()),
+                comment: $('#comment').val()
+            };
+
+            if (!review.rating || !review.comment.trim()) {
+                alert("Vui lòng chọn số sao và nhập bình luận.");
+                return;
+            }
+
+            $.ajax({
+                url: 'https://localhost:7101/api/Review',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(review),
+                success: function () {
+                    $('#reviewMessage').removeClass('d-none');
+                    $('#reviewForm')[0].reset();
+                    loadReviews();
+                },
+                error: function () {
+                    alert("Gửi đánh giá thất bại. Vui lòng thử lại.");
+                }
+            });
+        });
+
+        // Load khi vào trang
+        loadReviews();
+    });
+</script>
+
+
+
+
 <section class="related spad">
     <div class="container">
+        <div class="row">
         <div class="row">
             <div class="col-lg-12">
                 <h3 class="related-title">Related Product</h3>
