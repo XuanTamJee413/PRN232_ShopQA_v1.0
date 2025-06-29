@@ -24,8 +24,12 @@ namespace DataAccess.Context
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Address> Addresses => Set<Address>();
 
+
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+
+
+        public DbSet<Cart> Cart => Set<Cart>();
 
         public DbSet<Review> Review { get; set; } = default!;
         public DbSet<Inventory> Inventory => Set<Inventory>();
@@ -394,10 +398,19 @@ namespace DataAccess.Context
 
             // Cart
             modelBuilder.Entity<Cart>().HasData(
-                new Cart { Id = 1, UserId = 1, CreatedAt = DateTime.Parse("2025-05-21") }
+                new Cart { Id = 1, UserId = 1, CreatedAt = DateTime.Parse("2025-05-21") },
+                new Cart { Id = 2, UserId = 1, CreatedAt = DateTime.Parse("2025-05-21") },
+                new Cart { Id = 3, UserId = 2, CreatedAt = DateTime.Parse("2025-05-21") },
+                new Cart { Id = 4, UserId = 2, CreatedAt = DateTime.Parse("2025-05-21") }
             );
             modelBuilder.Entity<CartItem>().HasData(
-                new CartItem { Id = 1, CartId = 1, ProductVariantId = 1, Quantity = 2 }
+                new CartItem { Id = 1, CartId = 1, ProductVariantId = 1, Quantity = 3 },
+                new CartItem { Id = 2, CartId = 1, ProductVariantId = 2, Quantity = 2 },
+                new CartItem { Id = 3, CartId = 1, ProductVariantId = 3, Quantity = 5 },
+                new CartItem { Id = 4, CartId = 2, ProductVariantId = 4, Quantity = 1 },
+                new CartItem { Id = 5, CartId = 2, ProductVariantId = 5, Quantity = 3 },
+                new CartItem { Id = 6, CartId = 2, ProductVariantId = 6, Quantity = 1 },
+                new CartItem { Id = 7, CartId = 3, ProductVariantId = 7, Quantity = 2 }
             );
 
             // Payment

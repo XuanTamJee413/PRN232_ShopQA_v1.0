@@ -1,6 +1,5 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model List<Business.DTO.CartDTO>
+
 @{
     ViewData["Title"] = "Cart";
 
@@ -27,105 +26,56 @@
 <section class="shopping-cart spad">
     <div class="container">
         <div class="row">
-            <div class="col-lg-8">
-                <div class="shopping__cart__table">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="product__cart__item">
-                                    <div class="product__cart__item__pic">
-                                        <img src="~/img/shopping-cart/cart-1.jpg" alt="">
-                                    </div>
-                                    <div class="product__cart__item__text">
-                                        <h6>T-shirt Contrast Pocket</h6>
-                                        <h5>$98.49</h5>
-                                    </div>
-                                </td>
-                                <td class="quantity__item">
-                                    <div class="quantity">
-                                        <div class="pro-qty-2">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="cart__price">$ 30.00</td>
-                                <td class="cart__close"><i class="fa fa-close"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="product__cart__item">
-                                    <div class="product__cart__item__pic">
-                                        <img src="~/img/shopping-cart/cart-2.jpg" alt="">
-                                    </div>
-                                    <div class="product__cart__item__text">
-                                        <h6>Diagonal Textured Cap</h6>
-                                        <h5>$98.49</h5>
-                                    </div>
-                                </td>
-                                <td class="quantity__item">
-                                    <div class="quantity">
-                                        <div class="pro-qty-2">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="cart__price">$ 32.50</td>
-                                <td class="cart__close"><i class="fa fa-close"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="product__cart__item">
-                                    <div class="product__cart__item__pic">
-                                        <img src="~/img/shopping-cart/cart-3.jpg" alt="">
-                                    </div>
-                                    <div class="product__cart__item__text">
-                                        <h6>Basic Flowing Scarf</h6>
-                                        <h5>$98.49</h5>
-                                    </div>
-                                </td>
-                                <td class="quantity__item">
-                                    <div class="quantity">
-                                        <div class="pro-qty-2">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="cart__price">$ 47.00</td>
-                                <td class="cart__close"><i class="fa fa-close"></i></td>
-                            </tr>
-                            <tr>
-                                <td class="product__cart__item">
-                                    <div class="product__cart__item__pic">
-                                        <img src="~/img/shopping-cart/cart-4.jpg" alt="">
-                                    </div>
-                                    <div class="product__cart__item__text">
-                                        <h6>Basic Flowing Scarf</h6>
-                                        <h5>$98.49</h5>
-                                    </div>
-                                </td>
-                                <td class="quantity__item">
-                                    <div class="quantity">
-                                        <div class="pro-qty-2">
-                                            <input type="text" value="1">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="cart__price">$ 30.00</td>
-                                <td class="cart__close"><i class="fa fa-close"></i></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div id="cart-content" class="col-lg-8">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var cart = Model[i];
+                    <div class="cart-group" data-index="@i" style="display:@(i == 0 ? "block" : "none")">
+                        <h4>Cart ID: @cart.Id - Created At: @cart.CreatedAt.ToString("dd/MM/yyyy")</h4>
+                        <div class="shopping__cart__table mb-4">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in cart.Items)
+                                    {
+                                        <tr>
+                                            <td class="product__cart__item">
+                                                <div class="product__cart__item__pic">
+                                                    <img src="@item.ProductVariant?.ImageUrl" width="90" />
+                                                </div>
+                                                <div class="product__cart__item__text">
+                                                    <h6>@item.ProductVariant?.Size - @item.ProductVariant?.Color</h6>
+                                                    <h5>@($"{item.ProductVariant?.Price:N0} ₫")</h5>
+                                                </div>
+                                            </td>
+                                            <td class="quantity__item">
+                                                <div class="quantity">
+                                                    <div class="pro-qty-2">
+                                                        <input type="text" value="@item.Quantity" />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="cart__price">@($"{item.ProductVariant?.Price * item.Quantity:N0} ₫")</td>
+                                            <td class="cart__close"><i class="fa fa-close"></i></td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+
                 <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <div class="continue__btn">
-                            <a href="#">Continue Shopping</a>
+                            <a href="/Home/Shop">Continue Shopping</a>
                         </div>
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6">
@@ -143,16 +93,96 @@
                         <button type="submit">Apply</button>
                     </form>
                 </div>
+                <div class="cart__discount mt-4">
+                    <h6>Your Carts</h6>
+                    <ul class="list-group">
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            var cart = Model[i];
+                            <li class="list-group-item cart-selector @(i == 0 ? "active" : "")"
+                                data-cart-id="@cart.Id">
+                                Cart @cart.Id - @cart.CreatedAt.ToString("dd/MM/yyyy")
+                            </li>
+                        }
+                    </ul>
+                </div>
                 <div class="cart__total">
                     <h6>Cart total</h6>
                     <ul>
-                        <li>Subtotal <span>$ 169.50</span></li>
-                        <li>Total <span>$ 169.50</span></li>
+                        <ul>
+                            <li>Subtotal <span id="subtotal-display">0 ₫</span></li>
+                            <li>Total <span id="total-display">0 ₫</span></li>
+                        </ul>
+
                     </ul>
-                    <a href="#" class="primary-btn">Proceed to checkout</a>
+                    <a id="checkout-btn" href="/Customer/Checkout?cartId=@Model.FirstOrDefault()?.Id&userId=@Model.FirstOrDefault()?.UserId" class="primary-btn">Proceed to checkout</a>
                 </div>
+
             </div>
         </div>
     </div>
+    @section Scripts {
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const cartGroups = document.querySelectorAll(".cart-group");
+                const cartSelectors = document.querySelectorAll(".cart-selector");
+
+                const subtotalDisplay = document.getElementById("subtotal-display");
+                const totalDisplay = document.getElementById("total-display");
+
+                function formatCurrencyVND(amount) {
+                    return new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND'
+                    }).format(amount);
+                }
+
+                function updateTotal(index) {
+                    const cartGroup = cartGroups[index];
+                    if (!cartGroup) return;
+
+                    let total = 0;
+                    const rows = cartGroup.querySelectorAll("tbody tr");
+
+                    rows.forEach(row => {
+                        const totalText = row.querySelector(".cart__price")?.innerText.replace(/[^\d]/g, "");
+                        if (totalText) {
+                            total += parseInt(totalText);
+                        }
+                    });
+
+                    subtotalDisplay.innerText = formatCurrencyVND(total);
+                    totalDisplay.innerText = formatCurrencyVND(total); // chưa có thuế hay phí thêm
+                }
+
+                // Khởi tạo: chỉ tính tổng giỏ đầu tiên
+                updateTotal(0);
+
+                cartSelectors.forEach((selector, index) => {
+                    selector.addEventListener("click", function () {
+                        cartSelectors.forEach(s => s.classList.remove("active"));
+                        selector.classList.add("active");
+
+                        cartGroups.forEach((group, i) => {
+                            group.style.display = i === index ? "block" : "none";
+                        });
+
+                        const checkoutBtn = document.getElementById("checkout-btn");
+                        const cartId = selector.getAttribute("data-cart-id");
+                        const userId = "@Model.FirstOrDefault()?.UserId";
+                        if (checkoutBtn) {
+                            checkoutBtn.href = `/Customer/Checkout?cartId=${cartId}&userId=${userId}`;
+                        }
+
+                        // Cập nhật tổng
+                        updateTotal(index);
+                    });
+                });
+            });
+        </script>
+
+    }
+
+
 </section>
 <!-- Shopping Cart Section End -->
