@@ -1,103 +1,101 @@
-﻿using Business.DTO;
-using Business.Iservices;
-using Domain.Models;
-using Microsoft.AspNetCore.Http;
+﻿using DataAccess.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Microsoft.EntityFrameworkCore;
 
-namespace ShopQAPresentation.Controllers.Category
+using BrandDomain = Domain.Models.Brand;
+
+namespace ShopQAPresentation.Controllers.Brand
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class BrandController : ControllerBase
+    
+
+    // [Authorize(Roles = "Admin")] 
+    public class BrandController : ODataController
     {
-        private readonly IBrandService _brandService;
+        private readonly ShopQADbContext _context;
 
-        public BrandController(IBrandService brandService)
+        public BrandController(ShopQADbContext context)
         {
-            _brandService = brandService;
+            _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+     
+        [EnableQuery]
+        public IQueryable<BrandDomain> Get()
         {
-            var brands = await _brandService.GetAllAsync();
-            return Ok(brands);
+            return _context.Brands;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+       
+        [EnableQuery]
+        public async Task<IActionResult> Get(int key)
         {
-            var brand = await _brandService.GetByIdAsync(id);
-            if (brand == null) return NotFound();
+            var brand = await _context.Brands.FindAsync(key);
+            if (brand == null)
+            {
+                return NotFound();
+            }
             return Ok(brand);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] BrandDTO brandDto)
+        
+        public async Task<IActionResult> Post([FromBody] BrandDomain brand)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            _context.Brands.Add(brand);
+            await _context.SaveChangesAsync();
+            return Created(brand);
+        }
+
+       
+        public async Task<IActionResult> Put(int key, [FromBody] BrandDomain updatedBrand)
+        {
+            if (key != updatedBrand.Id)
+            {
+                return BadRequest("ID không khớp.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.Entry(updatedBrand).State = EntityState.Modified;
+
             try
             {
-                var created = await _brandService.AddAsync(brandDto);
-                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+                await _context.SaveChangesAsync();
             }
-            catch (InvalidOperationException ex)
+            catch (DbUpdateConcurrencyException)
             {
-                return BadRequest(new { message = ex.Message });
+                if (!_context.Brands.Any(e => e.Id == key))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
+            return NoContent();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] BrandDTO brandDto)
+        
+        public async Task<IActionResult> Delete(int key)
         {
-            if (id != brandDto.Id) return BadRequest();
-
-            try
+            var brandToDelete = await _context.Brands.FindAsync(key);
+            if (brandToDelete == null)
             {
-                var success = await _brandService.UpdateAsync(brandDto);
-                if (!success) return NotFound();
-                return NoContent();
+                return NotFound();
             }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            try
-            {
-                var success = await _brandService.DeleteAsync(id);
-                if (!success) return NotFound();
-                return NoContent();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            _context.Brands.Remove(brandToDelete);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
-
-        [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string name)
-        {
-            var result = await _brandService.SearchByNameAsync(name);
-            return Ok(result);
-        }
-
-        [HttpGet("sort")]
-        public async Task<IActionResult> Sort([FromQuery] bool desc = false)
-        {
-            var result = await _brandService.SortByNameAsync(desc);
-            return Ok(result);
-        }
-
-        [HttpGet("paged")]
-        public async Task<IActionResult> GetPaged([FromQuery] string? search,[FromQuery] string? sort,[FromQuery] int page = 1)
-        {
-            var brands = await _brandService.GetPagedAsync(search, sort, page);
-            return Ok(brands);
-        }
-
     }
 }

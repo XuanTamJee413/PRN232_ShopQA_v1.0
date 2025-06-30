@@ -125,6 +125,7 @@ namespace ShopQaMVC.Controllers
             }
 
             ModelState.AddModelError(string.Empty, "Đã có lỗi xảy ra khi tạo danh mục.");
+            TempData["Error"] = $"Tên đã tồn tại";
             return View(category);
         }
 
@@ -162,6 +163,7 @@ namespace ShopQaMVC.Controllers
             }
 
             ModelState.AddModelError(string.Empty, "Đã có lỗi xảy ra khi cập nhật.");
+            TempData["Error"] = $"Tên đã tồn tại";
             return View(category);
         }
 
