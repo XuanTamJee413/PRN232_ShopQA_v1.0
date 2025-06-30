@@ -24,7 +24,7 @@ namespace ShopQaMVC.Controllers
         public async Task<IActionResult> Index(string searchProduct, string sortBy, int page = 1)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            var pageSize = 10;
+            var pageSize = 5;
 
             var queryParams = new List<string>
     {
