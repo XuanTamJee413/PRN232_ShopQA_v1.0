@@ -23,6 +23,7 @@ namespace DataAccess.Context
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Address> Addresses => Set<Address>();
         public DbSet<Cart> Cart => Set<Cart>();
+        public DbSet<CartItem> CartItem => Set<CartItem>();
         public DbSet<Review> Review { get; set; } = default!;
         public DbSet<Inventory> Inventory => Set<Inventory>();
 

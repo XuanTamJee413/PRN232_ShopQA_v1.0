@@ -25,7 +25,11 @@ IEdmModel GetEdmModel()
     product.HasMany(p => p.Variants);
     product.HasRequired(p => p.Category);
     product.HasRequired(p => p.Brand);
-    builder.EntitySet<ProductVariant>("ProductVariants");
+    builder.EntitySet<Cart>("Cart");
+    builder.EntitySet<CartItem>("CartItems");
+    var variant = builder.EntitySet<ProductVariant>("ProductVariants").EntityType;
+    variant.HasRequired(v => v.Product);
+
     return builder.GetEdmModel();
 }
 builder.Services.AddControllers()
@@ -64,6 +68,8 @@ builder.Services.AddScoped<IBrandService, BrandService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<ICartItemService, CartItemService>();
+
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();

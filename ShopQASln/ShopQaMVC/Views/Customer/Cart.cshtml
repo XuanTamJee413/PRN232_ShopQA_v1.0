@@ -1,4 +1,4 @@
-﻿@model List<Business.DTO.CartDTO>
+﻿@model List<ShopQaMVC.Models.CartVM>
 
 @{
     ViewData["Title"] = "Cart";
@@ -51,7 +51,8 @@
                                                     <img src="@item.ProductVariant?.ImageUrl" width="90" />
                                                 </div>
                                                 <div class="product__cart__item__text">
-                                                    <h6>@item.ProductVariant?.Size - @item.ProductVariant?.Color</h6>
+                                                    <h6>@item.ProductVariant?.Product.Name</h6>
+                                                    <h6>Size: @item.ProductVariant?.Size - Color: @item.ProductVariant?.Color</h6>
                                                     <h5>@($"{item.ProductVariant?.Price:N0} ₫")</h5>
                                                 </div>
                                             </td>

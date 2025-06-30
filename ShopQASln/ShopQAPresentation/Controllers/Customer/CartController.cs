@@ -3,12 +3,14 @@ using Domain.Models;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace ShopQAPresentation.Controllers.Customer
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CartController : ControllerBase
+
+    public class CartController : ODataController
     {
         private readonly ICartService _cartService;
 
@@ -17,40 +19,32 @@ namespace ShopQAPresentation.Controllers.Customer
             _cartService = cartService;
         }
 
-        // GET: api/cart/{userId}
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCarts(int userId)
+        [EnableQuery(MaxExpansionDepth = 5)]
+
+        public IActionResult Get()
         {
-            var carts = await _cartService.GetCartsByUserIdAsync(userId);
-            if (carts == null || carts.Count == 0)
-            {
-                return NotFound();
-            }
+            var carts = _cartService.GetCarts();
             return Ok(carts);
         }
 
-        // POST: api/cart
-        [HttpPost]
-        public async Task<IActionResult> AddToCart([FromBody] CartItem item)
+        [EnableQuery]
+        public async Task<IActionResult> Get([FromODataUri] int key)
         {
-            var result = await _cartService.AddItemToCartAsync(item);
-            if (!result)
-            {
-                return BadRequest();
-            }
-            return Ok();
+            var cart = await _cartService.GetCartByIdAsync(key);
+            if (cart == null) return NotFound();
+            return Ok(cart);
         }
 
-        // DELETE: api/cart/{cartId}/item/{itemId}
-        [HttpDelete("{cartId}/item/{itemId}")]
-        public async Task<IActionResult> RemoveFromCart(int cartId, int itemId)
+        public async Task<IActionResult> Post([FromBody] Cart cart)
         {
-            var result = await _cartService.RemoveItemFromCartAsync(cartId, itemId);
-            if (!result)
-            {
-                return BadRequest();
-            }
-            return Ok();
+            await _cartService.CreateCartAsync(cart);
+            return Created(cart);
+        }
+
+        public async Task<IActionResult> Delete([FromODataUri] int key)
+        {
+            var result = await _cartService.DeleteCartAsync(key);
+            return result ? NoContent() : NotFound();
         }
     }
 }

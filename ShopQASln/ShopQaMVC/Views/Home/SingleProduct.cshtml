@@ -1,8 +1,14 @@
 ﻿@model Business.DTO.ProductODataDTO
+@using System.Linq
+@using System.Text.Json
 
 @{
     ViewData["Title"] = "Single Product";
 
+}
+@{
+    var userId = ViewBag.UserId ?? 0;
+    var cartList = ViewBag.CartList as List<CartVM> ?? new List<CartVM>();
 }
 
 <!-- Shop Details Section Begin -->
@@ -68,53 +74,231 @@
                         <p>
                             Bạn mặc Size nào cũng vừa, bạn chọn màu nào cũng đẹp, hãy chọn một màu và một size phù hợp với bạn nhất nhé.
                         </p>
+                        @{
+                            var colors = Model.Variants.Select(i => i.Color).Distinct().ToList();
+                            var sizes = Model.Variants.Select(i => i.Size).Distinct().ToList();
+
+                            var colorSizeMap = Model.Variants
+                            .GroupBy(i => i.Color)
+                            .ToDictionary(g => g.Key, g => g.Select(i => i.Size).Distinct().ToList());
+
+                            var sizeColorMap = Model.Variants
+                            .GroupBy(i => i.Size)
+                            .ToDictionary(g => g.Key, g => g.Select(i => i.Color).Distinct().ToList());
+
+                            var variantMap = Model.Variants.ToDictionary(
+                            v => $"{v.Size}_{v.Color}", v => v.Id
+                            );
+
+                            var colorSizeMapJson = JsonSerializer.Serialize(colorSizeMap);
+                            var sizeColorMapJson = JsonSerializer.Serialize(sizeColorMap);
+                            var variantMapJson = JsonSerializer.Serialize(variantMap);
+                        }
+
+
                         <div class="product__details__option">
                             <div class="product__details__option__size">
                                 <span>Size:</span>
-                                <label for="xxl">
-                                    xxl
-                                    <input type="radio" id="xxl">
-                                </label>
-                                <label class="active" for="xl">
-                                    xl
-                                    <input type="radio" id="xl">
-                                </label>
-                                <label for="l">
-                                    l
-                                    <input type="radio" id="l">
-                                </label>
-                                <label for="sm">
-                                    s
-                                    <input type="radio" id="sm">
-                                </label>
+                                @foreach (var size in sizes)
+                                {
+                                    <label for="size-@size" class="size-label">
+                                        @size
+                                        <input type="radio" name="size" id="size-@size" value="@size" />
+                                    </label>
+                                }
                             </div>
-                            <div class="product__details__option__color">
+                            <div class="product__details__option__size">
                                 <span>Color:</span>
-                                <label class="c-1" for="sp-1">
-                                    <input type="radio" id="sp-1">
-                                </label>
-                                <label class="c-2" for="sp-2">
-                                    <input type="radio" id="sp-2">
-                                </label>
-                                <label class="c-3" for="sp-3">
-                                    <input type="radio" id="sp-3">
-                                </label>
-                                <label class="c-4" for="sp-4">
-                                    <input type="radio" id="sp-4">
-                                </label>
-                                <label class="c-9" for="sp-9">
-                                    <input type="radio" id="sp-9">
-                                </label>
+                                @foreach (var color in colors)
+                                {
+                                    <label for="color-@color" class="size-label">
+                                        @color
+                                        <input type="radio" name="color" id="color-@color" value="@color" />
+                                    </label>
+                                }
                             </div>
                         </div>
+
                         <div class="product__details__cart__option">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="createNewCart">
+                                <label class="form-check-label" for="createNewCart">
+                                    Tạo giỏ hàng mới
+                                </label>
+                            </div>
+
+                            <div class="mb-3" style="display: flex; align-items: center; gap: 10px;">
+                                <select id="cartCombobox" class="form-select" style="width: auto;">
+                                    <option value="">-- Chọn giỏ hàng cũ --</option>
+                                </select>
+                            </div>
                             <div class="quantity">
                                 <div class="pro-qty">
                                     <input type="text" value="1">
                                 </div>
                             </div>
-                            <a href="#" class="primary-btn">add to cart</a>
+                            <a href="#" class="primary-btn" id="addToCartBtn">add to cart</a>
                         </div>
+                        @section Scripts {
+                            <script>
+                                const userId = @userId;
+                                const carts = JSON.parse('@Html.Raw(JsonSerializer.Serialize(cartList).Replace("'", "\\u0027"))');
+                                const colorSizeMap = @Html.Raw(colorSizeMapJson);
+                                const sizeColorMap = @Html.Raw(sizeColorMapJson);
+                                const variantMap = @Html.Raw(variantMapJson);
+
+                                document.addEventListener("DOMContentLoaded", () => {
+                                    let selectedColor = null;
+                                    let selectedSize = null;
+
+                                    const colorInputs = document.querySelectorAll("input[name='color']");
+                                    const sizeInputs = document.querySelectorAll("input[name='size']");
+
+                                    function resetSizeFilter() {
+                                        sizeInputs.forEach(input => {
+                                            input.disabled = false;
+                                            input.closest("label").style.opacity = "1";
+                                        });
+                                    }
+
+                                    function resetColorFilter() {
+                                        colorInputs.forEach(input => {
+                                            input.disabled = false;
+                                            input.closest("label").style.opacity = "1";
+                                        });
+                                    }
+
+                                    function updateSelectionStyles() {
+                                        document.querySelectorAll(".size-label").forEach(label => label.classList.remove("selected"));
+                                        if (selectedSize) {
+                                            document.querySelector(`#size-${selectedSize}`).closest("label").classList.add("selected");
+                                        }
+                                        if (selectedColor) {
+                                            document.querySelector(`#color-${selectedColor}`).closest("label").classList.add("selected");
+                                        }
+                                    }
+
+                                    colorInputs.forEach(input => {
+                                        input.addEventListener("click", () => {
+                                            const val = input.value;
+                                            if (selectedColor === val) {
+                                                selectedColor = null;
+                                                input.checked = false;
+                                                resetSizeFilter();
+                                            } else {
+                                                selectedColor = val;
+                                                const validSizes = colorSizeMap[val] || [];
+                                                sizeInputs.forEach(si => {
+                                                    const isValid = validSizes.includes(si.value);
+                                                    si.disabled = !isValid;
+                                                    si.closest("label").style.opacity = isValid ? "1" : "0.1";
+                                                });
+                                            }
+                                            updateSelectionStyles();
+                                        });
+                                    });
+
+                                    sizeInputs.forEach(input => {
+                                        input.addEventListener("click", () => {
+                                            const val = input.value;
+                                            if (selectedSize === val) {
+                                                selectedSize = null;
+                                                input.checked = false;
+                                                resetColorFilter();
+                                            } else {
+                                                selectedSize = val;
+                                                const validColors = sizeColorMap[val] || [];
+                                                colorInputs.forEach(ci => {
+                                                    const isValid = validColors.includes(ci.value);
+                                                    ci.disabled = !isValid;
+                                                    ci.closest("label").style.opacity = isValid ? "1" : "0.1";
+                                                });
+                                            }
+                                            updateSelectionStyles();
+                                        });
+                                    });
+
+                                    document.getElementById("addToCartBtn").addEventListener("click", function (e) {
+                                        e.preventDefault();
+                                        if (!selectedSize || !selectedColor) {
+                                            alert("Vui lòng chọn size và màu!");
+                                            return;
+                                        }
+
+                                        const key = `${selectedSize}_${selectedColor}`;
+                                        const variantId = variantMap[key];
+                                        const quantity = document.querySelector(".pro-qty input").value;
+
+                                        if (!variantId) {
+                                            alert("Không tìm thấy sản phẩm phù hợp với lựa chọn.");
+                                            return;
+                                        }
+
+                                        console.log("Variant ID:", variantId);
+                                        console.log("Quantity:", quantity);
+
+                                        const createNewCart = document.getElementById("createNewCart").checked;
+                                        const selectedCartId = document.getElementById("cartCombobox").value;
+                                                                        console.log({
+                                    ProductVariantId: parseInt(variantId),
+                                    Quantity: parseInt(quantity),
+                                    CreateNewCart: createNewCart,
+                                    SelectedCartId: selectedCartId ? parseInt(selectedCartId) : 0,
+                                    UserId: parseInt(userId),
+                                    ProductId: parseInt(@(Model.Id)) 
+
+                                });
+
+                                        fetch('/Customer/AddToCart', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                ProductVariantId: parseInt(variantId),
+                                                Quantity: parseInt(quantity),
+                                                CreateNewCart: createNewCart,
+                                                SelectedCartId: selectedCartId ? parseInt(selectedCartId) : 0,
+                                                UserId: parseInt(userId),
+                                                ProductId: parseInt(@(Model.Id)) 
+                                            })
+                                        })
+                                                                        .then(async res => {
+                                    const text = await res.text(); // đọc nội dung dù thành công hay thất bại
+                                    if (!res.ok) throw new Error(text); // ném lỗi với nội dung cụ thể
+                                    return text;
+                                })
+                                .then(data => alert(data)) // hiển thị thông báo thành công
+                                .catch(err => alert(err.message));
+
+                                    });
+
+                                const select = document.getElementById("cartCombobox");
+                                const checkbox = document.getElementById("createNewCart");
+
+                                // Luôn hiển thị combobox và checkbox
+                                select.style.display = "block";
+                                checkbox.disabled = false;
+                                checkbox.checked = false;
+
+                                carts.forEach(c => {
+                                    const option = document.createElement("option");
+                                    option.value = c.Id;
+                                    option.textContent = `Giỏ ${c.Id} - ${new Date(c.CreatedAt).toLocaleDateString("vi-VN")}`;
+                                    select.appendChild(option);
+                                });
+
+                                });
+
+                            </script>
+                            <style>
+                                .size-label.selected {
+                                    font-weight: bold;
+                                    border: 2px solid #000;
+                                }
+                            </style>
+                        }
+
                         <div class="product__details__btns__option">
                             <a href="@Url.Action("FeedBack", "Customer", new { id = Model.Id })"><i class="fa fa-heart"></i> View Feedbacks</a>
                             <a href="#"><i class="fa fa-exchange"></i> Add To Compare</a>
@@ -281,7 +465,6 @@
     </div>
 </section>
 <!-- Shop Details Section End -->
-
 <!-- Related Section Begin -->
 <!-- Related Section Begin -->
 <section class="related spad">

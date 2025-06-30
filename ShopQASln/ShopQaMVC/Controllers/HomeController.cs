@@ -3,6 +3,7 @@ using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 using ShopQaMVC.Models;
 using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace ShopQaMVC.Controllers
@@ -52,7 +53,7 @@ namespace ShopQaMVC.Controllers
         }
 
         // Tamnx ViewProduct list customer side
-        public async Task<IActionResult> Shop(int? categoryId, int? brandId)
+        public async Task<IActionResult> Shop(int? categoryId, int? brandId, string? search)
         {
             var client = _httpClientFactory.CreateClient();
 
@@ -61,6 +62,8 @@ namespace ShopQaMVC.Controllers
                 filters.Add($"CategoryId eq {categoryId.Value}");
             if (brandId.HasValue)
                 filters.Add($"BrandId eq {brandId.Value}");
+            if (!string.IsNullOrWhiteSpace(search))
+                filters.Add($"contains(tolower(Name), '{search.ToLower()}')");
 
             var filterQuery = filters.Any() ? $"&$filter={string.Join(" and ", filters)}" : "";
             var productUrl = $"https://localhost:7101/odata/Product?$expand=Variants,Category,Brand{filterQuery}";
@@ -143,49 +146,75 @@ namespace ShopQaMVC.Controllers
 
         public async Task<IActionResult> SingleProduct(int id)
         {
+            Console.WriteLine($">>> ID RECEIVED: {id}");
             var client = _httpClientFactory.CreateClient();
-            //var token = HttpContext.Session.GetString("JwtToken");
-            //var userJson = HttpContext.Session.GetString("User");
-            //if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
-            //{
-            //    return RedirectToAction("Login", "Account");
-            //}
 
-            //var userDto = JsonSerializer.Deserialize<UserDTO>(userJson);
-            //var userId = userDto?.Id ?? 0;
-            //ViewBag.UserId = userId;
-            //ViewBag.Token = token;
             try
             {
-                var url = $"https://localhost:7101/odata/Product({id})?$expand=Variants,Category,Brand";
+                // Lấy user info trước
+                var token = HttpContext.Session.GetString("JwtToken");
+                var userJson = HttpContext.Session.GetString("User");
+                Console.WriteLine($"Token: {token}");
+                Console.WriteLine($"User JSON: {userJson}");
 
-                var response = await client.GetAsync(url);
-                if (response.IsSuccessStatusCode)
+                if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(userJson))
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var product = JsonSerializer.Deserialize<ProductODataDTO>(json, new JsonSerializerOptions
+                    var user = JsonSerializer.Deserialize<UserDTO>(userJson);
+                    Console.WriteLine($"User ID: {user.Id}");
+                    ViewBag.UserId = user.Id;
+
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+                    var cartRes = await client.GetAsync($"https://localhost:7101/odata/Cart?$filter=UserId eq {user.Id}");
+                    if (cartRes.IsSuccessStatusCode)
                     {
-                        PropertyNameCaseInsensitive = true
-                    });
+                        var cartJson = await cartRes.Content.ReadAsStringAsync();
+                        using var doc = JsonDocument.Parse(cartJson);
+                        var cartList = new List<CartVM>();
 
-                    if (product != null)
-                        return View(product);
+                        foreach (var c in doc.RootElement.GetProperty("value").EnumerateArray())
+                        {
+                            cartList.Add(new CartVM
+                            {
+                                Id = c.GetProperty("Id").GetInt32(),
+                                UserId = c.GetProperty("UserId").GetInt32(),
+                                CreatedAt = c.GetProperty("CreatedAt").GetDateTime(),
+                                Items = new List<CartItemVM>()
+                            });
+                        }
 
-                    ViewBag.Error = "Không thể đọc dữ liệu sản phẩm.";
-                    return View(new ProductODataDTO()); // tránh null
+                        ViewBag.CartList = cartList;
+
+
+                    }
                 }
-                else
+
+                // Gọi API product sau cùng
+                var url = $"https://localhost:7101/odata/Product({id})?$expand=Variants,Category,Brand";
+                var response = await client.GetAsync(url);
+                if (!response.IsSuccessStatusCode)
                 {
                     ViewBag.Error = "Không tìm thấy sản phẩm.";
-                    return View(new ProductODataDTO()); // tránh null
+                    return View(new ProductODataDTO());
                 }
+
+                var json = await response.Content.ReadAsStringAsync();
+                var product = JsonSerializer.Deserialize<ProductODataDTO>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                return View(product ?? new ProductODataDTO());
             }
             catch (Exception ex)
             {
                 ViewBag.Error = "Lỗi: " + ex.Message;
-                return View(new ProductODataDTO()); // tránh null
+                return View(new ProductODataDTO());
             }
         }
+
+
+
 
 
 

@@ -19,16 +19,39 @@ namespace Business.Service
             _context = context;
         }
 
-        public async Task<List<Cart>> GetCartsByUserIdAsync(int userId)
+        public IQueryable<Cart> GetCarts()
+        {
+            return _context.Cart
+                .Include(c => c.Items)
+                .ThenInclude(i => i.ProductVariant)
+                .OrderByDescending(c => c.CreatedAt);
+        }
+
+
+
+        public async Task<Cart?> GetCartByIdAsync(int id)
         {
             return await _context.Cart
                 .Include(c => c.Items)
                 .ThenInclude(i => i.ProductVariant)
-                .Where(c => c.UserId == userId)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
+        public async Task CreateCartAsync(Cart cart)
+        {
+            _context.Cart.Add(cart);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteCartAsync(int id)
+        {
+            var cart = await _context.Cart.FindAsync(id);
+            if (cart == null) return false;
+
+            _context.Cart.Remove(cart);
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
         public async Task<bool> AddItemToCartAsync(CartItem item)
         {

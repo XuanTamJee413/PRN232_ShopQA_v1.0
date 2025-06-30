@@ -31,10 +31,11 @@
             <div class="col-lg-3">
                 <div class="shop__sidebar">
                     <div class="shop__sidebar__search">
-                        <form action="#">
-                            <input type="text" placeholder="Search...">
+                        <form method="get" asp-action="Shop">
+                            <input type="text" name="search" placeholder="Search..." value="@Context.Request.Query["search"]">
                             <button type="submit"><span class="icon_search"></span></button>
                         </form>
+
                     </div>
                     <div class="shop__sidebar__accordion">
                         <div class="accordion" id="accordionExample">
@@ -49,12 +50,18 @@
                                                 @if (ViewBag.Categories != null)
                                                 {
                                                     <li>
-                                                        <a asp-action="Shop" asp-route-categoryId="">Tất cả</a>
+                                                        <a asp-action="Shop"
+                                                           asp-route-categoryId=""
+                                                           asp-route-brandId="@Context.Request.Query["brandId"]"
+                                                           asp-route-search="@Context.Request.Query["search"]">Tất cả</a>
                                                     </li>
                                                     foreach (var category in (List<CategoryDTO>)ViewBag.Categories)
                                                     {
                                                         <li>
-                                                            <a asp-action="Shop" asp-route-categoryId="@category.Id">@category.Name</a>
+                                                            <a asp-action="Shop"
+                                                               asp-route-categoryId="@category.Id"
+                                                               asp-route-brandId="@Context.Request.Query["brandId"]"
+                                                               asp-route-search="@Context.Request.Query["search"]">@category.Name</a>
                                                         </li>
                                                     }
                                                 }
@@ -63,11 +70,11 @@
                                                     <li>Không có danh mục</li>
                                                 }
                                             </ul>
-
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
                             <div class="card">
                                 <div class="card-heading">
                                     <a data-toggle="collapse" data-target="#collapseTwo">Branding</a>
@@ -79,12 +86,18 @@
                                                 @if (ViewBag.Brands != null)
                                                 {
                                                     <li>
-                                                        <a asp-action="Shop" asp-route-brandId="">Tất cả</a>
+                                                        <a asp-action="Shop"
+                                                           asp-route-brandId=""
+                                                           asp-route-categoryId="@Context.Request.Query["categoryId"]"
+                                                           asp-route-search="@Context.Request.Query["search"]">Tất cả</a>
                                                     </li>
                                                     foreach (var brand in (List<BrandDTO>)ViewBag.Brands)
                                                     {
                                                         <li>
-                                                            <a asp-action="Shop" asp-route-brandId="@brand.Id">@brand.Name</a>
+                                                            <a asp-action="Shop"
+                                                               asp-route-brandId="@brand.Id"
+                                                               asp-route-categoryId="@Context.Request.Query["categoryId"]"
+                                                               asp-route-search="@Context.Request.Query["search"]">@brand.Name</a>
                                                         </li>
                                                     }
                                                 }
@@ -97,6 +110,7 @@
                                     </div>
                                 </div>
                             </div>
+
 
                             <div>
                             @* <div class="card">
