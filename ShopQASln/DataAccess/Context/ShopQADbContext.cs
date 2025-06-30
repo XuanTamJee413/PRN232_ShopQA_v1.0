@@ -19,14 +19,25 @@ namespace DataAccess.Context
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+
+        public DbSet<Discount> Discounts { get; set; }
         public DbSet<Order> Orders => Set<Order>();
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Address> Addresses => Set<Address>();
-        public DbSet<Cart> Cart => Set<Cart>();
+
+
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+
+
+        //public DbSet<Cart> Cart => Set<Cart>();
+
         public DbSet<Review> Review { get; set; } = default!;
         public DbSet<Inventory> Inventory => Set<Inventory>();
         public DbSet<Wishlist> Wishlists => Set<Wishlist>();
         public DbSet<WishlistItem> WishlistItems => Set<WishlistItem>();
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -36,7 +47,7 @@ namespace DataAccess.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<Discount>().ToTable("Discount");
             // User
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
@@ -215,6 +226,7 @@ namespace DataAccess.Context
                 .Property(wi => wi.AddedAt)
                 .IsRequired();
             Seed(modelBuilder);
+           
         }
 
         private void Seed(ModelBuilder modelBuilder)

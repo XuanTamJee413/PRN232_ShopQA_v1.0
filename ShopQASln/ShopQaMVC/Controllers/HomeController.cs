@@ -62,8 +62,8 @@ namespace ShopQaMVC.Controllers
             if (brandId.HasValue)
                 filters.Add($"BrandId eq {brandId.Value}");
 
-            var filterQuery = filters.Any() ? $"?$filter={string.Join(" and ", filters)}" : "";
-            var productUrl = $"https://localhost:7101/api/Home/productlist{filterQuery}";
+            var filterQuery = filters.Any() ? $"&$filter={string.Join(" and ", filters)}" : "";
+            var productUrl = $"https://localhost:7101/odata/Product?$expand=Variants,Category,Brand{filterQuery}";
 
             var products = new List<ProductDTO>();
             var categories = new List<CategoryDTO>();
@@ -73,9 +73,34 @@ namespace ShopQaMVC.Controllers
             {
                 var response = await client.GetAsync(productUrl);
                 if (response.IsSuccessStatusCode)
-                    products = await response.Content.ReadFromJsonAsync<List<ProductDTO>>() ?? new();
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+
+                    var productJson = root.GetProperty("value").GetRawText();
+                    var odataProducts = JsonSerializer.Deserialize<List<ProductODataDTO>>(productJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new();
+
+                    products = odataProducts.Select(p => new ProductDTO
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        CategoryId = p.CategoryId,
+                        BrandId = p.BrandId,
+                        ImageUrl = p.ImageUrl,
+                        Category = p.Category,
+                        Brand = p.Brand,
+                        Variants = p.Variants
+                    }).ToList();
+                }
                 else
+                {
                     ViewBag.ProductError = "Không thể tải sản phẩm";
+                }
             }
             catch (Exception ex)
             {
@@ -119,34 +144,46 @@ namespace ShopQaMVC.Controllers
         public async Task<IActionResult> SingleProduct(int id)
         {
             var client = _httpClientFactory.CreateClient();
-            var token = HttpContext.Session.GetString("JwtToken");
-            var userJson = HttpContext.Session.GetString("User");
-            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            //var token = HttpContext.Session.GetString("JwtToken");
+            //var userJson = HttpContext.Session.GetString("User");
+            //if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
+            //{
+            //    return RedirectToAction("Login", "Account");
+            //}
 
-            var userDto = JsonSerializer.Deserialize<UserDTO>(userJson);
-            var userId = userDto?.Id ?? 0;
-            ViewBag.UserId = userId;
-            ViewBag.Token = token;
+            //var userDto = JsonSerializer.Deserialize<UserDTO>(userJson);
+            //var userId = userDto?.Id ?? 0;
+            //ViewBag.UserId = userId;
+            //ViewBag.Token = token;
             try
             {
-                var response = await client.GetAsync($"https://localhost:7101/api/Home/variants?productId={id}");
+                var url = $"https://localhost:7101/odata/Product({id})?$expand=Variants,Category,Brand";
+
+                var response = await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
-                    var variants = await response.Content.ReadFromJsonAsync<List<ProductVariantDTO>>() ?? new();
-                    return View(variants);
+                    var json = await response.Content.ReadAsStringAsync();
+                    var product = JsonSerializer.Deserialize<ProductODataDTO>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (product != null)
+                        return View(product);
+
+                    ViewBag.Error = "Không thể đọc dữ liệu sản phẩm.";
+                    return View(new ProductODataDTO()); // tránh null
                 }
                 else
                 {
-                    ViewBag.Error = "Không tìm thấy biến thể.";
-                    return View(new List<ProductVariantDTO>());
+                    ViewBag.Error = "Không tìm thấy sản phẩm.";
+                    return View(new ProductODataDTO()); // tránh null
                 }
             }
             catch (Exception ex)
             {
-                return RedirectToAction("NotFoundPage", "Home");
+                ViewBag.Error = "Lỗi: " + ex.Message;
+                return View(new ProductODataDTO()); // tránh null
             }
         }
 

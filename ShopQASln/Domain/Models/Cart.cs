@@ -13,6 +13,7 @@ namespace Domain.Models
         public int UserId { get; set; }
         public virtual User? User { get; set; }
         public virtual ICollection<CartItem> Items { get; set; } = new List<CartItem>();
+        public string? Status { get; set; }
         public DateTime CreatedAt { get; set; }
     }
     public class CartItem

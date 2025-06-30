@@ -1,7 +1,6 @@
-﻿using Business.Iservices;
+﻿using Business.DTO;
+using Business.Iservices;
 using Domain.Models;
-using Microsoft.AspNetCore.Cors.Infrastructure;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ShopQAPresentation.Controllers.Customer
@@ -22,11 +21,37 @@ namespace ShopQAPresentation.Controllers.Customer
         public async Task<IActionResult> GetCarts(int userId)
         {
             var carts = await _cartService.GetCartsByUserIdAsync(userId);
+
             if (carts == null || carts.Count == 0)
-            {
                 return NotFound();
-            }
-            return Ok(carts);
+
+            // Map từ Cart entity sang CartDTO
+            var cartDtos = carts.Select(c => new CartDTO
+            {
+                Id = c.Id,
+                UserId = c.UserId,
+                CreatedAt = c.CreatedAt,
+                Status = c.Status,
+                Items = c.Items.Select(i => new CartItemDTO
+                {
+                    Id = i.Id,
+                    CartId = i.CartId,
+                    ProductVariantId = i.ProductVariantId,
+                    Quantity = i.Quantity,
+                    ProductVariant = i.ProductVariant == null ? null : new ProductVariantDTO
+                    {
+                        Id = i.ProductVariant.Id,
+                        Price = i.ProductVariant.Price,
+                        Color = i.ProductVariant.Color,
+                        Size = i.ProductVariant.Size,
+                        Stock = i.ProductVariant.Stock,
+                        ImageUrl = i.ProductVariant.ImageUrl,
+                        ProductId = i.ProductVariant.ProductId
+                    }
+                }).ToList()
+            }).ToList();
+
+            return Ok(cartDtos);
         }
 
         // POST: api/cart
@@ -35,9 +60,8 @@ namespace ShopQAPresentation.Controllers.Customer
         {
             var result = await _cartService.AddItemToCartAsync(item);
             if (!result)
-            {
                 return BadRequest();
-            }
+
             return Ok();
         }
 
@@ -47,9 +71,8 @@ namespace ShopQAPresentation.Controllers.Customer
         {
             var result = await _cartService.RemoveItemFromCartAsync(cartId, itemId);
             if (!result)
-            {
                 return BadRequest();
-            }
+
             return Ok();
         }
     }
