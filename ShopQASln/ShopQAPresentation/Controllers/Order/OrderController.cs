@@ -1,5 +1,6 @@
 ﻿using Business.Iservices;
 using Business.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ namespace ShopQAPresentation.Controllers.Order
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetAllOrders()
         {
             var orders = _orderService.GetAllOrderDtos();

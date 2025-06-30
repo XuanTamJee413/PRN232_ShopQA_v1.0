@@ -37,7 +37,8 @@ namespace ShopQAPresentation.Controllers.Product
 
 
         [HttpGet]
-        //[Authorize(Roles = "Admin")]
+       
+        [Authorize(Roles = "Admin")]
         public IActionResult GetAllProduct(string? name, int? categoryId, decimal? startPrice, decimal? toPrice)
         {
                 var products = _productService.GetAllProduct(name, categoryId, startPrice, toPrice);
@@ -46,7 +47,7 @@ namespace ShopQAPresentation.Controllers.Product
         }
 
         [HttpGet("{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult GetProductById(int id)
         {
             try
@@ -62,7 +63,7 @@ namespace ShopQAPresentation.Controllers.Product
         }
 
         [HttpPost]
-        // [Authorize(Roles = "Admin")]
+         [Authorize(Roles = "Admin")]
         public IActionResult AddProduct(ProductCreateReqDTO productDTO)
         {
             try
@@ -77,7 +78,7 @@ namespace ShopQAPresentation.Controllers.Product
         }
 
         [HttpPut("{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateProduct(int id, ProductCreateReqDTO productDTO)
         {
             try
@@ -92,7 +93,7 @@ namespace ShopQAPresentation.Controllers.Product
         }
 
         [HttpDelete("{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteProduct(int id)
         {
             try
@@ -107,6 +108,7 @@ namespace ShopQAPresentation.Controllers.Product
         }
 
         [HttpPut("variant/{variantId}")]
+        [Authorize(Roles = "Admin")]
         public IActionResult UpdateVariantWithInventory(int variantId, [FromBody] ProductVariantWithInventoryUpdateDTO dto)
         {
             try
@@ -120,6 +122,7 @@ namespace ShopQAPresentation.Controllers.Product
             }
         }
         [HttpPost("variant")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult CreateVariant([FromBody] ProductVariantCreateDTO dto)
         {
             try

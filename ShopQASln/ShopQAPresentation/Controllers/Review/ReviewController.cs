@@ -1,5 +1,6 @@
 ﻿using Business.DTO;
 using Business.Iservices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ namespace ShopQAPresentation.Controllers.Review
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult Get()
         {
             var reviews = _reviewService.GetAllReviews();
@@ -24,6 +26,7 @@ namespace ShopQAPresentation.Controllers.Review
         }
 
         [HttpPost]
+        [Authorize]
         public IActionResult Post([FromBody] ReviewCreateDto reviewDto)
         {
             try
@@ -36,7 +39,9 @@ namespace ShopQAPresentation.Controllers.Review
                 return BadRequest(ex.Message);
             }
         }
+
         [HttpDelete("{id}")]
+        //[Authorize]
         public IActionResult Delete(int id)
         {
             try
@@ -51,6 +56,7 @@ namespace ShopQAPresentation.Controllers.Review
         }
 
         [HttpDelete("{id}/user/{userId}")]
+        
         public IActionResult Delete(int id, int userId)
         {
             try
@@ -68,6 +74,8 @@ namespace ShopQAPresentation.Controllers.Review
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Customer")]
+
         public IActionResult Put(int id, [FromQuery] int userId, [FromBody] ReviewUpdateDto reviewDto)
         {
             if (id != reviewDto.Id)
@@ -89,6 +97,7 @@ namespace ShopQAPresentation.Controllers.Review
         }
 
         [HttpGet("product/{productId}")]
+        //[Authorize]
         public IActionResult GetReviewsByProductId(int productId)
         {
             var reviews = _reviewService.GetReviewsByProductId(productId);
