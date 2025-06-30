@@ -14,10 +14,10 @@
         public int CartId { get; set; }
         public int ProductVariantId { get; set; }
         public int Quantity { get; set; }
-        public ProductVariantVM? ProductVariant { get; set; }
+        public PVariantVM? ProductVariant { get; set; }
     }
 
-    public class ProductVariantVM
+    public class PVariantVM
     {
         public int Id { get; set; }
         public decimal Price { get; set; }
@@ -26,7 +26,7 @@
         public int Stock { get; set; }
         public string ImageUrl { get; set; }
         public int ProductId { get; set; }
-        public ProductVM? Product { get; set; }
+        public ProductNameVM? Product { get; set; }
     }
     public class ProductNameVM
     {

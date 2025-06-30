@@ -1,7 +1,5 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    var errorMessage = ViewBag.ErrorMessage as string;
 }
 
 <div class="d-flex flex-column justify-content-center align-items-center text-center vh-100">
@@ -10,6 +8,12 @@
     <div class="text">
         <h2 class="mb-3">Looks like you're lost</h2>
         <p class="mb-4">The page you are looking for is not available.</p>
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger text-left w-75 mx-auto" role="alert">
+                <strong>Lỗi chi tiết:</strong> @errorMessage
+            </div>
+        }
         <a href="/Home" class="btn btn-primary px-4">Go To Home</a>
     </div>
     <p class="mt-5">Shop<span class="text-danger">QA</span></p>

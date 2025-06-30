@@ -22,24 +22,54 @@ namespace ShopQaMVC.Controllers
         {
             var token = HttpContext.Session.GetString("JwtToken");
             var userJson = HttpContext.Session.GetString("User");
-            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
-                return RedirectToAction("Login", "Account");
 
-            var user = JsonSerializer.Deserialize<UserDTO>(userJson);
+            UserDTO? user = null;
+            if (!string.IsNullOrEmpty(userJson))
+            {
+                try { user = JsonSerializer.Deserialize<UserDTO>(userJson); }
+                catch { user = null; }
+            }
+
             var client = _httpClientFactory.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            if (!string.IsNullOrEmpty(token))
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.GetAsync($"https://localhost:7101/odata/Cart?$filter=UserId eq {user.Id}&$expand=Items($expand=ProductVariant($expand=Product))");
+            var filter = user != null ? $"?$filter=UserId eq {user.Id}&" : "?";
+            var url = $"https://localhost:7101/odata/Cart{filter}$expand=Items($expand=ProductVariant($expand=Product))";
+
+            HttpResponseMessage response;
+            try
+            {
+                response = await client.GetAsync(url);
+            }
+            catch (HttpRequestException ex)
+            {
+                return RedirectToAction("ErrorPage", "Home", new { error = $"Không kết nối được tới server: {ex.Message}" });
+            }
+
             if (!response.IsSuccessStatusCode)
-                return View(new List<CartVM>());
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                return RedirectToAction("ErrorPage", "Home", new
+                {
+                    error = $"Lỗi khi gọi API: {(int)response.StatusCode} {response.ReasonPhrase} - {errorMessage}"
+                });
+            }
 
-            var json = await response.Content.ReadAsStringAsync();
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-            var carts = JsonSerializer.Deserialize<List<CartVM>>(root.GetProperty("value").GetRawText());
-
-            return View(carts);
+            try
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                using var doc = JsonDocument.Parse(json);
+                var carts = JsonSerializer.Deserialize<List<CartVM>>(doc.RootElement.GetProperty("value").GetRawText());
+                return View(carts);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("ErrorPage", "Home", new { error = $"Lỗi xử lý dữ liệu từ server: {ex.Message}" });
+            }
         }
+
+
         [HttpPost]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartVM model)
         {

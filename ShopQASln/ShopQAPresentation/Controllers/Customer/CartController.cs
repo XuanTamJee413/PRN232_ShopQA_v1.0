@@ -1,6 +1,7 @@
 ﻿using Business.DTO;
 using Business.Iservices;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace ShopQAPresentation.Controllers.Customer
 {
-
+    [Authorize(Roles = "Customer")]
     public class CartController : ODataController
     {
         private readonly ICartService _cartService;

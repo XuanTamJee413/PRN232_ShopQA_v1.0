@@ -112,11 +112,21 @@ namespace ShopQaMVC.Controllers
 
             try
             {
-                var response = await client.GetAsync("https://localhost:7101/api/Category");
-                if (response.IsSuccessStatusCode)
-                    categories = await response.Content.ReadFromJsonAsync<List<CategoryDTO>>() ?? new();
+                var categoryRes = await client.GetAsync("https://localhost:7101/odata/Category");
+                if (categoryRes.IsSuccessStatusCode)
+                {
+                    var json = await categoryRes.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+                    var valueJson = doc.RootElement.GetProperty("value").GetRawText();
+                    categories = JsonSerializer.Deserialize<List<CategoryDTO>>(valueJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new();
+                }
                 else
+                {
                     ViewBag.CategoryError = "Không thể tải danh mục";
+                }
             }
             catch (Exception ex)
             {
@@ -125,11 +135,21 @@ namespace ShopQaMVC.Controllers
 
             try
             {
-                var response = await client.GetAsync("https://localhost:7101/api/Brand");
-                if (response.IsSuccessStatusCode)
-                    brands = await response.Content.ReadFromJsonAsync<List<BrandDTO>>() ?? new();
+                var brandRes = await client.GetAsync("https://localhost:7101/odata/Brand");
+                if (brandRes.IsSuccessStatusCode)
+                {
+                    var json = await brandRes.Content.ReadAsStringAsync();
+                    using var doc = JsonDocument.Parse(json);
+                    var valueJson = doc.RootElement.GetProperty("value").GetRawText();
+                    brands = JsonSerializer.Deserialize<List<BrandDTO>>(valueJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    }) ?? new();
+                }
                 else
+                {
                     ViewBag.BrandError = "Không thể tải nhãn hiệu";
+                }
             }
             catch (Exception ex)
             {
@@ -230,6 +250,11 @@ namespace ShopQaMVC.Controllers
         }
         public IActionResult NotFoundPage()
         {
+            return View("404NotFound");
+        }
+        public IActionResult ErrorPage(string error)
+        {
+            ViewBag.ErrorMessage = error;
             return View("404NotFound");
         }
 

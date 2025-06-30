@@ -21,7 +21,7 @@ namespace Business.Service
 
         public IQueryable<Cart> GetCarts()
         {
-            return _context.Cart
+            return _context.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.ProductVariant)
                 .OrderByDescending(c => c.CreatedAt);
@@ -39,16 +39,16 @@ namespace Business.Service
 
         public async Task CreateCartAsync(Cart cart)
         {
-            _context.Cart.Add(cart);
+            _context.Carts.Add(cart);
             await _context.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteCartAsync(int id)
         {
-            var cart = await _context.Cart.FindAsync(id);
+            var cart = await _context.Carts.FindAsync(id);
             if (cart == null) return false;
 
-            _context.Cart.Remove(cart);
+            _context.Carts.Remove(cart);
             await _context.SaveChangesAsync();
             return true;
         }

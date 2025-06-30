@@ -22,24 +22,24 @@ namespace Business.Service
         public IQueryable<CartItem> GetCartItems()
         {
             // Load luôn ProductVariant nếu cần
-            return _context.CartItem.Include(i => i.ProductVariant);
+            return _context.CartItems.Include(i => i.ProductVariant);
         }
 
         public async Task<CartItem?> GetCartItemByIdAsync(int id)
         {
-            return await _context.CartItem
+            return await _context.CartItems
                 .Include(i => i.ProductVariant)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task CreateCartItemAsync(CartItem item)
         {
-            _context.CartItem.Add(item);
+            _context.CartItems.Add(item);
             await _context.SaveChangesAsync();
         }
         public async Task<CartItem> UpdateCartItemAsync(CartItem item)
         {
-            _context.CartItem.Update(item);
+            _context.CartItems.Update(item);
             await _context.SaveChangesAsync();
             return item;
         }
@@ -47,10 +47,10 @@ namespace Business.Service
 
         public async Task<bool> DeleteCartItemAsync(int id)
         {
-            var item = await _context.CartItem.FindAsync(id);
+            var item = await _context.CartItems.FindAsync(id);
             if (item == null) return false;
 
-            _context.CartItem.Remove(item);
+            _context.CartItems.Remove(item);
             await _context.SaveChangesAsync();
             return true;
         }
