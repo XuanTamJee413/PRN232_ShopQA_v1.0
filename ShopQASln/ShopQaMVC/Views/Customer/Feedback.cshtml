@@ -1,0 +1,449 @@
+﻿@model Business.DTO.ProductODataDTO
+
+@{
+    ViewData["Title"] = "Single Product";
+
+}
+
+<!-- Shop Details Section Begin -->
+<section class="shop-details">
+    <div class="product__details__pic">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="product__details__breadcrumb">
+                        <a href="/Home">Home</a>
+                        <a href="/Home/Shop">Shop</a>
+                        <span>Single Product</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-3">
+                    <ul class="nav nav-tabs" role="tablist">
+                        @for (int i = 0; i < Model.Variants.Count; i++)
+                        {
+                            var variant = Model.Variants[i];
+                            <li class="nav-item">
+                                <a class="nav-link @(i == 0 ? "active" : "")" data-toggle="tab" href="#tabs-@i" role="tab">
+                                    <div class="product__thumb__pic set-bg">
+                                        <img src="@variant.ImageUrl" onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';" alt="Product Image" />
+                                    </div>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div class="col-lg-6 col-md-9">
+                    <div class="tab-content">
+                        @for (int i = 0; i < Model.Variants.Count; i++)
+                        {
+                            var variant = Model.Variants[i];
+                            <div class="tab-pane @(i == 0 ? "active" : "")" id="tabs-@i" role="tabpanel">
+                                <div class="product__details__pic__item">
+                                    <img src="@variant.ImageUrl" onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';" alt="variant image" class="img-fluid">
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form đánh giá sản phẩm -->
+    <div class="container mt-4">
+        <h4>Đánh giá sản phẩm</h4>
+        <form id="reviewForm">
+            <input type="hidden" id="userId" value="@ViewBag.UserId" />
+            <input type="hidden" id="productId" value="@Model.Id" />
+
+            <div class="mb-3">
+                <label for="rating" class="form-label">Số sao:</label>
+                <select id="rating" class="form-select" required>
+                    <option value="">Chọn sao</option>
+                    <option value="5">5 ⭐</option>
+                    <option value="4">4 ⭐</option>
+                    <option value="3">3 ⭐</option>
+                    <option value="2">2 ⭐</option>
+                    <option value="1">1 ⭐</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="comment" class="form-label">Nhận xét:</label>
+                <textarea id="comment" class="form-control" rows="3" placeholder="Viết đánh giá..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+            <div id="reviewMessage" class="mt-2 text-success d-none">Đã gửi đánh giá thành công!</div>
+        </form>
+    </div>
+
+    <!-- Danh sách đánh giá -->
+    <div class="mt-5 text-center">
+        <h4 class="mb-3">Đánh giá gần đây</h4>
+        <div class="d-flex justify-content-center">
+            <div class="w-100" style="max-width: 600px;">
+                <div id="reviewList" class="mb-3"></div>
+                <nav>
+                    <ul id="reviewPagination" class="pagination justify-content-center"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+
+    <input type="hidden" id="jwtToken" value="@ViewBag.Token" />
+
+</section>
+
+<!-- Shop Details Section End -->
+<!-- Related Section Begin -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    ///hieult
+    $(document).ready(function () {
+        const currentUserId = parseInt($('#userId').val()); ///sửa UserId ở đây
+          const token = $('#jwtToken').val();
+        console.log(token);
+
+        console.log(currentUserId);
+        const productId = parseInt($('#productId').val());
+        const pageSize = 3;
+        let allReviews = [];
+        let currentPage = 1;
+
+        function renderReviewList() {
+            const reviewList = $('#reviewList');
+            reviewList.empty();
+
+            const start = (currentPage - 1) * pageSize;
+            const pageItems = allReviews.slice(start, start + pageSize);
+
+            if (pageItems.length === 0) {
+                reviewList.append('<p class="text-muted text-center">Chưa có đánh giá nào.</p>');
+                return;
+            }
+
+            pageItems.forEach(r => {
+                const date = new Date(r.createdAt).toLocaleDateString('vi-VN');
+                const stars = '⭐'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+                const isCurrentUser = parseInt(r.userNameId) === currentUserId;
+                const actions = isCurrentUser ? `
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-warning me-2 btn-edit" data-id="${r.id}" data-rating="${r.rating}" data-comment="${r.comment}">Sửa</button>
+                        <button class="btn btn-sm btn-danger btn-delete" data-id="${r.id}">Xóa</button>
+                    </div>` : '';
+
+                const reviewHtml = `
+                    <div class="border rounded p-3 mb-3 bg-light text-start">
+                        <strong>${r.username}</strong> <small class="text-muted">(${date})</small><br/>
+                        <div>${stars}</div>
+                        <p class="mb-0">${r.comment}</p>
+                        ${actions}
+                    </div>
+                `;
+                reviewList.append(reviewHtml);
+            });
+
+            attachActionHandlers();
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(allReviews.length / pageSize);
+            const pagination = $('#reviewPagination');
+            pagination.empty();
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const li = $(`<li class="page-item ${i === currentPage ? 'active' : ''}">
+                                <a class="page-link" href="#">${i}</a>
+                            </li>`);
+                li.click(function (e) {
+                    e.preventDefault();
+                    currentPage = i;
+                    renderReviewList();
+                    renderPagination();
+                });
+                pagination.append(li);
+            }
+        }
+
+        function loadReviews() {
+            $.ajax({
+                url: `https://localhost:7101/api/Review/product/${productId}`,
+                type: 'GET',
+                headers: {
+            'Authorization': 'Bearer ' + token
+        },
+                success: function (data) {
+                    allReviews = data;
+                    currentPage = 1;
+                    renderReviewList();
+                    renderPagination();
+                },
+                error: function () {
+                    $('#reviewList').html('<p class="text-danger">Không thể tải đánh giá.</p>');
+                }
+            });
+        }
+
+        function attachActionHandlers() {
+            // Xóa
+            $('.btn-delete').click(function () {
+                const reviewId = $(this).data('id');
+                if (confirm('Bạn có chắc muốn xóa đánh giá này?')) {
+                    $.ajax({
+                        url: `https://localhost:7101/api/Review/${reviewId}/user/${currentUserId}`,
+                        type: 'DELETE',
+                          headers: {
+            'Authorization': 'Bearer ' + token
+        },
+                        success: function () {
+                            loadReviews();
+                        },
+                        error: function () {
+                            alert('Xóa đánh giá thất bại.');
+                        }
+                    });
+                }
+            });
+
+            // Sửa
+         $('.btn-edit').click(function () {
+        const reviewId = $(this).data('id');
+        const rating = $(this).data('rating');
+        const comment = $(this).data('comment');
+
+        const newRating = prompt("Nhập số sao mới (1-5):", rating);
+        const newComment = prompt("Nhập bình luận mới:", comment);
+
+        const parsedRating = parseInt(newRating);
+
+        // Kiểm tra hợp lệ
+        if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+            alert("Số sao phải là số nguyên từ 1 đến 5.");
+            return;
+        }
+
+        if (!newComment || !newComment.trim()) {
+            alert("Vui lòng nhập nội dung bình luận.");
+            return;
+        }
+
+        const updated = {
+            id: reviewId,
+            rating: parsedRating,
+            comment: newComment.trim()
+        };
+        $.ajax({
+            url: `https://localhost:7101/api/Review/${productId}?userId=${currentUserId}`,
+            type: 'PUT',
+              headers: {
+            'Authorization': 'Bearer ' + token
+        },
+            contentType: 'application/json',
+            data: JSON.stringify(updated),
+            success: function () {
+                loadReviews();
+            },
+            error: function () {
+                alert('Cập nhật đánh giá thất bại.');
+            }
+        });
+    });
+    }
+
+        // Gửi đánh giá mới
+        $('#reviewForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const review = {
+                userId: currentUserId,
+                productId: productId,
+                rating: parseInt($('#rating').val()),
+                comment: $('#comment').val()
+            };
+
+            if (!review.rating || !review.comment.trim()) {
+                alert("Vui lòng chọn số sao và nhập bình luận.");
+                return;
+            }
+
+            $.ajax({
+                url: 'https://localhost:7101/api/Review',
+                type: 'POST',
+                 headers: {
+            'Authorization': 'Bearer ' + token
+        },
+                contentType: 'application/json',
+                data: JSON.stringify(review),
+                success: function () {
+                    $('#reviewMessage').removeClass('d-none');
+                    $('#reviewForm')[0].reset();
+                    loadReviews();
+                },
+                error: function () {
+                    alert("Gửi đánh giá thất bại. Vui lòng thử lại.");
+                }
+            });
+        });
+
+        // Load khi vào trang
+        loadReviews();
+    });
+</script>
+
+<section class="related spad">
+    <div class="container">
+        <div class="row">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h3 class="related-title">Related Product</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
+                    <div class="product__item">
+                        <div class="product__item__pic set-bg" data-setbg="/img/product/product-1.jpg">
+                            <span class="label">New</span>
+                            <ul class="product__hover">
+                                <li><a href="#"><img src="~/img/icon/heart.png" alt=""></a></li>
+                                <li><a href="#"><img src="~/img/icon/compare.png" alt=""> <span>Compare</span></a></li>
+                                <li><a href="#"><img src="~/img/icon/search.png" alt=""></a></li>
+                            </ul>
+                        </div>
+                        <div class="product__item__text">
+                            <h6>Piqué Biker Jacket</h6>
+                            <a href="#" class="add-cart">+ Add To Cart</a>
+                            <div class="rating">
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                            </div>
+                            <h5>$67.24</h5>
+                            <div class="product__color__select">
+                                <label for="pc-1">
+                                    <input type="radio" id="pc-1">
+                                </label>
+                                <label class="active black" for="pc-2">
+                                    <input type="radio" id="pc-2">
+                                </label>
+                                <label class="grey" for="pc-3">
+                                    <input type="radio" id="pc-3">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
+                    <div class="product__item">
+                        <div class="product__item__pic set-bg" data-setbg="/img/product/product-2.jpg">
+                            <ul class="product__hover">
+                                <li><a href="#"><img src="~/img/icon/heart.png" alt=""></a></li>
+                                <li><a href="#"><img src="~/img/icon/compare.png" alt=""> <span>Compare</span></a></li>
+                                <li><a href="#"><img src="~/img/icon/search.png" alt=""></a></li>
+                            </ul>
+                        </div>
+                        <div class="product__item__text">
+                            <h6>Piqué Biker Jacket</h6>
+                            <a href="#" class="add-cart">+ Add To Cart</a>
+                            <div class="rating">
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                            </div>
+                            <h5>$67.24</h5>
+                            <div class="product__color__select">
+                                <label for="pc-4">
+                                    <input type="radio" id="pc-4">
+                                </label>
+                                <label class="active black" for="pc-5">
+                                    <input type="radio" id="pc-5">
+                                </label>
+                                <label class="grey" for="pc-6">
+                                    <input type="radio" id="pc-6">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
+                    <div class="product__item sale">
+                        <div class="product__item__pic set-bg" data-setbg="/img/product/product-3.jpg">
+                            <span class="label">Sale</span>
+                            <ul class="product__hover">
+                                <li><a href="#"><img src="~/img/icon/heart.png" alt=""></a></li>
+                                <li><a href="#"><img src="~/img/icon/compare.png" alt=""> <span>Compare</span></a></li>
+                                <li><a href="#"><img src="~/img/icon/search.png" alt=""></a></li>
+                            </ul>
+                        </div>
+                        <div class="product__item__text">
+                            <h6>Multi-pocket Chest Bag</h6>
+                            <a href="#" class="add-cart">+ Add To Cart</a>
+                            <div class="rating">
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star"></i>
+                                <i class="fa fa-star-o"></i>
+                            </div>
+                            <h5>$43.48</h5>
+                            <div class="product__color__select">
+                                <label for="pc-7">
+                                    <input type="radio" id="pc-7">
+                                </label>
+                                <label class="active black" for="pc-8">
+                                    <input type="radio" id="pc-8">
+                                </label>
+                                <label class="grey" for="pc-9">
+                                    <input type="radio" id="pc-9">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 col-sm-6 col-sm-6">
+                    <div class="product__item">
+                        <div class="product__item__pic set-bg" data-setbg="/img/product/product-4.jpg">
+                            <ul class="product__hover">
+                                <li><a href="#"><img src="~/img/icon/heart.png" alt=""></a></li>
+                                <li><a href="#"><img src="~/img/icon/compare.png" alt=""> <span>Compare</span></a></li>
+                                <li><a href="#"><img src="~/img/icon/search.png" alt=""></a></li>
+                            </ul>
+                        </div>
+                        <div class="product__item__text">
+                            <h6>Diagonal Textured Cap</h6>
+                            <a href="#" class="add-cart">+ Add To Cart</a>
+                            <div class="rating">
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                                <i class="fa fa-star-o"></i>
+                            </div>
+                            <h5>$60.9</h5>
+                            <div class="product__color__select">
+                                <label for="pc-10">
+                                    <input type="radio" id="pc-10">
+                                </label>
+                                <label class="active black" for="pc-11">
+                                    <input type="radio" id="pc-11">
+                                </label>
+                                <label class="grey" for="pc-12">
+                                    <input type="radio" id="pc-12">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+<!-- Related Section End -->

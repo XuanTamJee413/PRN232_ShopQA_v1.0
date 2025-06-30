@@ -144,17 +144,17 @@ namespace ShopQaMVC.Controllers
         public async Task<IActionResult> SingleProduct(int id)
         {
             var client = _httpClientFactory.CreateClient();
-            var token = HttpContext.Session.GetString("JwtToken");
-            var userJson = HttpContext.Session.GetString("User");
-            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
-            {
-                return RedirectToAction("Login", "Account");
-            }
+            //var token = HttpContext.Session.GetString("JwtToken");
+            //var userJson = HttpContext.Session.GetString("User");
+            //if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
+            //{
+            //    return RedirectToAction("Login", "Account");
+            //}
 
-            var userDto = JsonSerializer.Deserialize<UserDTO>(userJson);
-            var userId = userDto?.Id ?? 0;
-            ViewBag.UserId = userId;
-            ViewBag.Token = token;
+            //var userDto = JsonSerializer.Deserialize<UserDTO>(userJson);
+            //var userId = userDto?.Id ?? 0;
+            //ViewBag.UserId = userId;
+            //ViewBag.Token = token;
             try
             {
                 var url = $"https://localhost:7101/odata/Product({id})?$expand=Variants,Category,Brand";

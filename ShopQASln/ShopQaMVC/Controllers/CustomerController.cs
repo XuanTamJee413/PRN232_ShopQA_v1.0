@@ -51,5 +51,50 @@ namespace ShopQaMVC.Controllers
         {
             return View();
         }
+        public async Task<IActionResult> FeedBack(int id)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var token = HttpContext.Session.GetString("JwtToken");
+            var userJson = HttpContext.Session.GetString("User");
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(userJson))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var userDto = JsonSerializer.Deserialize<UserDTO>(userJson);
+            var userId = userDto?.Id ?? 0;
+            ViewBag.UserId = userId;
+            ViewBag.Token = token;
+            try
+            {
+                var url = $"https://localhost:7101/odata/Product({id})?$expand=Variants,Category,Brand";
+
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var product = JsonSerializer.Deserialize<ProductODataDTO>(json, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    if (product != null)
+                        return View(product);
+
+                    ViewBag.Error = "Không thể đọc dữ liệu sản phẩm.";
+                    return View(new ProductODataDTO()); // tránh null
+                }
+                else
+                {
+                    ViewBag.Error = "Không tìm thấy sản phẩm.";
+                    return View(new ProductODataDTO()); // tránh null
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Lỗi: " + ex.Message;
+                return View(new ProductODataDTO()); // tránh null
+            }
+        }
     }
 }
