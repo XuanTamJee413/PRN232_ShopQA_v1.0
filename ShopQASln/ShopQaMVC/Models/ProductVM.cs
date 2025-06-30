@@ -8,5 +8,6 @@
         public decimal Price { get; set; }
         public string? CategoryName { get; set; }
         public string? ImageUrl { get; set; }
+        public List<ProductVariantVM>? Variants { get; set; } = new List<ProductVariantVM>();
     }
 }

@@ -247,34 +247,60 @@ namespace ShopQaMVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
+
         private async Task PopulateProductVariantsDropdown(DiscountCreateVM model)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-           
-            var response = await client.GetAsync($"{_productVariantApiUrl}?$expand=Product");
-            var variants = new List<ProductVariantVM>();
+            var selectListItems = new List<SelectListItem>();
+
+          
+            var productApiUrl = "https://localhost:7101/odata/Product";
+            var apiEndpoint = $"{productApiUrl}?$expand=Variants&$orderby=Name";
+
+            var response = await client.GetAsync(apiEndpoint);
 
             if (response.IsSuccessStatusCode)
             {
-                var jsonString = await response.Content.ReadAsStringAsync();
-                using (JsonDocument doc = JsonDocument.Parse(jsonString))
+                try
                 {
-                    JsonElement root = doc.RootElement;
-                    if (root.TryGetProperty("value", out JsonElement valueElement))
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    using (JsonDocument doc = JsonDocument.Parse(jsonString))
                     {
-                        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                        var variantList = JsonSerializer.Deserialize<List<ProductVariantVM>>(valueElement.GetRawText(), options);
-                        if (variantList != null) variants = variantList;
+                        JsonElement root = doc.RootElement;
+                        if (root.TryGetProperty("value", out JsonElement valueElement))
+                        {
+                            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+                           
+                            var productList = JsonSerializer.Deserialize<List<ProductVM>>(valueElement.GetRawText(), options);
+
+                            if (productList != null)
+                            {
+                               
+                                selectListItems = productList
+                                    .Where(p => p.Variants != null) // Chỉ lấy các sản phẩm có biến thể
+                                    .SelectMany(p => p.Variants.Select(v => new SelectListItem
+                                    {
+                                        Value = v.Id.ToString(),
+                                        Text = $"{p.Name} | Màu: {v.Color} | Cỡ: {v.Size}"
+                                    }))
+                                    .ToList();
+                            }
+                        }
                     }
                 }
+                catch (JsonException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"JSON Deserialization Error: {ex.Message}");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"API Call Failed: {response.StatusCode}");
             }
 
-            model.ProductVariants = variants.Select(v => new SelectListItem
-            {
-                Value = v.Id.ToString(),
-                Text = $"{v.Product?.Name} - {v.Color} - {v.Size}"
-            });
+           
+            model.ProductVariants = selectListItems;
         }
     }
 }
