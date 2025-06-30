@@ -1,7 +1,19 @@
 ﻿@model IEnumerable<ShopQaMVC.Models.UserVM>
-
 @{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "User List";
+    var userJson = Context.Session.GetString("User");
+    string? role = null;
+    if (!string.IsNullOrEmpty(userJson))
+    {
+        var user = Newtonsoft.Json.JsonConvert.DeserializeObject<Business.DTO.UserDTO>(userJson);
+        role = user?.Role;
+    }
+    if (role != "Admin")
+    {
+        <div class="alert alert-danger mt-5 text-center">Access denied. Only admin can access this page.</div>
+        return;
+    }
 }
 
 <div class="container mt-5">
@@ -18,8 +30,8 @@
                     <select id="roleSelect" class="custom-select" style="max-width: 200px;">
                         <option value="">All Roles</option>
                         <option value="Customer">Customer</option>
-                        <option value="Support">Support</option>
-                        <option value="Moderator">Moderator</option>
+                        <option value="Staff">Staff</option>
+                        <option value="Admin">Admin</option>
                     </select>
                     <div class="input-group-append">
                         <button class="btn btn-outline-primary" type="submit">
@@ -53,6 +65,7 @@
                             <th>Email</th>
                             <th>Role</th>
                             <th>Actions</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="userTableBody">
@@ -66,6 +79,7 @@
                                     <td>@user.Username</td>
                                     <td>@user.Email</td>
                                     <td>@user.Role</td>
+                                    <td>@user.Status</td>
                                     <td>
                                         <a class="btn btn-warning btn-sm mr-1" data-toggle="modal" data-target="#editUserModal"
                                            onclick="loadUserData(@user.Id, '@user.Username', '@user.Email', '@user.Role')">
@@ -74,6 +88,22 @@
                                         <a href="@Url.Action("Delete", "User", new { id = user.Id })"
                                            onclick="return confirm('Are you sure you want to delete this user?');"
                                            class="btn btn-danger btn-sm">Delete</a>
+                                        @if (user.Status == "Active")
+                                        {
+                                            <form asp-action="UpdateUserStatus" asp-controller="User" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to ban this user?');">
+                                                <input type="hidden" name="id" value="@user.Id" />
+                                                <input type="hidden" name="status" value="Deactive" />
+                                                <button type="submit" class="btn btn-secondary btn-sm ml-1">Ban</button>
+                                            </form>
+                                        }
+                                        else if (user.Status == "Deactive")
+                                        {
+                                            <form asp-action="UpdateUserStatus" asp-controller="User" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to unban this user?');">
+                                                <input type="hidden" name="id" value="@user.Id" />
+                                                <input type="hidden" name="status" value="Active" />
+                                                <button type="submit" class="btn btn-success btn-sm ml-1">Unban</button>
+                                            </form>
+                                        }
                                     </td>
                                 </tr>
                                 index++;

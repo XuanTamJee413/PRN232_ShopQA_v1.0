@@ -1,96 +1,127 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ShopQaMVC.Models;
-using System.Net;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Net.Http.Headers; 
 using System.Text.Json;
-using System.Net.Http.Json; 
+using System.Threading.Tasks;
+using System.Web;
 
 namespace ShopQaMVC.Controllers
 {
+    // [Authorize(Roles = "Admin")] 
     public class BrandController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _apiBaseUrl = "https://localhost:7101/api/Brand"; 
+       
+        private readonly string _apiBaseUrl = "https://localhost:7101/odata/Brand";
 
         public BrandController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IActionResult> Index(string searchQuery, string sortBy, int page = 1)
+        
+        public async Task<IActionResult> Index(string searchKeyword, string sortBy, int page = 1)
         {
+          
+
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            List<BrandVM> brands = new();
-            HttpResponseMessage response;
+            // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-           
-            var query = $"?page={page}";
+            var pageSize = 5;
 
-            if (!string.IsNullOrWhiteSpace(searchQuery))
+            var queryParams = new List<string>
             {
-                query += $"&search={Uri.EscapeDataString(searchQuery)}";
+                "$count=true",
+                $"$top={pageSize}",
+                $"$skip={(page - 1) * pageSize}"
+            };
+
+            if (!string.IsNullOrWhiteSpace(searchKeyword))
+            {
+                var encodedKeyword = HttpUtility.UrlEncode(searchKeyword.ToLower().Trim());
+                queryParams.Add($"$filter=contains(tolower(Name), '{encodedKeyword}')");
             }
 
             if (!string.IsNullOrWhiteSpace(sortBy))
             {
-                var desc = sortBy.EndsWith("Desc") ? "desc" : "asc";
-                query += $"&sort={desc}";
+                if (sortBy.Equals("name_asc", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    queryParams.Add("$orderby=Name asc");
+                }
+                else if (sortBy.Equals("name_desc", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    queryParams.Add("$orderby=Name desc");
+                }
             }
 
-            response = await client.GetAsync($"{_apiBaseUrl}/paged{query}");
+            var apiEndpoint = $"{_apiBaseUrl}?{string.Join("&", queryParams)}";
+
+            List<BrandVM> brands = new List<BrandVM>();
+            int totalRecords = 0;
+
+            var response = await client.GetAsync(apiEndpoint);
 
             if (response.IsSuccessStatusCode)
             {
-                brands = await response.Content.ReadFromJsonAsync<List<BrandVM>>() ?? new();
+                var jsonString = await response.Content.ReadAsStringAsync();
+                using (JsonDocument doc = JsonDocument.Parse(jsonString))
+                {
+                    JsonElement root = doc.RootElement;
+                    if (root.TryGetProperty("@odata.count", out JsonElement countElement))
+                    {
+                        totalRecords = countElement.GetInt32();
+                    }
+                    if (root.TryGetProperty("value", out JsonElement valueElement))
+                    {
+                        var brandsList = JsonSerializer.Deserialize<List<BrandVM>>(valueElement.GetRawText());
+                        if (brandsList != null)
+                        {
+                            brands = brandsList;
+                        }
+                    }
+                }
             }
             else
             {
-                TempData["Error"] = $"Lỗi khi gọi API: {response.StatusCode}. Server trả: {await response.Content.ReadAsStringAsync()}";
+                TempData["Error"] = $"Lỗi API: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}";
             }
 
-            ViewBag.CurrentSearchQuery = searchQuery;
+            ViewBag.CurrentSearchKeyword = searchKeyword;
             ViewBag.CurrentSort = sortBy;
             ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)System.Math.Ceiling((double)totalRecords / pageSize);
 
             return View(brands);
         }
 
+      
 
         [HttpGet]
         public IActionResult Create() => View();
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(BrandVM brand)
         {
             if (!ModelState.IsValid) return View(brand);
 
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
+           
+            // var token = HttpContext.Session.GetString("JWToken");
+            // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
             var response = await client.PostAsJsonAsync(_apiBaseUrl, brand);
 
             if (response.IsSuccessStatusCode)
             {
                 TempData["Message"] = "Tạo thương hiệu thành công.";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                try
-                {
-                    using var doc = JsonDocument.Parse(errorContent);
-                    var errorMessage = doc.RootElement.GetProperty("message").GetString();
-                    ModelState.AddModelError("Name", errorMessage ?? "Tên thương hiệu đã tồn tại.");
-                }
-                catch
-                {
-                    ModelState.AddModelError("Name", "Tên thương hiệu đã tồn tại.");
-                }
-            }
-            else
-            {
-                ModelState.AddModelError("", "Đã có lỗi xảy ra khi tạo thương hiệu.");
-            }
-
+            ModelState.AddModelError(string.Empty, "Đã có lỗi xảy ra khi tạo thương hiệu.");
             return View(brand);
         }
 
@@ -98,56 +129,56 @@ namespace ShopQaMVC.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            var response = await client.GetAsync($"{_apiBaseUrl}/{id}");
+         
+            // var token = HttpContext.Session.GetString("JWToken");
+            // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.GetAsync($"{_apiBaseUrl}({id})");
 
             if (!response.IsSuccessStatusCode)
-                return RedirectToAction("Index");
+            {
+                TempData["Error"] = "Không tìm thấy thương hiệu.";
+                return RedirectToAction(nameof(Index));
+            }
 
             var brand = await response.Content.ReadFromJsonAsync<BrandVM>();
             return View(brand);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(BrandVM brand)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, BrandVM brand)
         {
+            if (id != brand.Id) return BadRequest();
             if (!ModelState.IsValid) return View(brand);
 
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            var response = await client.PutAsJsonAsync($"{_apiBaseUrl}/{brand.Id}", brand);
+           
+            // var token = HttpContext.Session.GetString("JWToken");
+            // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.PutAsJsonAsync($"{_apiBaseUrl}({id})", brand);
 
             if (response.IsSuccessStatusCode)
             {
                 TempData["Message"] = "Cập nhật thương hiệu thành công.";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                try
-                {
-                    using var doc = JsonDocument.Parse(errorContent);
-                    var errorMessage = doc.RootElement.GetProperty("message").GetString();
-                    ModelState.AddModelError("Name", errorMessage ?? "Tên thương hiệu đã tồn tại.");
-                }
-                catch
-                {
-                    ModelState.AddModelError("Name", "Tên thương hiệu đã tồn tại.");
-                }
-            }
-            else
-            {
-                ModelState.AddModelError("", "Đã có lỗi xảy ra khi cập nhật thương hiệu.");
-            }
-
+            ModelState.AddModelError(string.Empty, "Đã có lỗi xảy ra khi cập nhật thương hiệu.");
             return View(brand);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            var response = await client.DeleteAsync($"{_apiBaseUrl}/{id}");
+            
+            // var token = HttpContext.Session.GetString("JWToken");
+            // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await client.DeleteAsync($"{_apiBaseUrl}({id})");
 
             if (response.IsSuccessStatusCode)
             {
@@ -155,21 +186,9 @@ namespace ShopQaMVC.Controllers
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-
-                try
-                {
-                    using var doc = JsonDocument.Parse(errorContent);
-                    var errorMessage = doc.RootElement.GetProperty("message").GetString();
-                    TempData["Error"] = errorMessage ?? "Không thể xóa thương hiệu.";
-                }
-                catch
-                {
-                    TempData["Error"] = "Không thể xóa thương hiệu.";
-                }
+                TempData["Error"] = $"Không thể xóa thương hiệu. Lỗi: {response.StatusCode}";
             }
-
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

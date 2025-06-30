@@ -1,147 +1,106 @@
 ﻿using Business.DTO;
 using Business.Iservices;
+using DataAccess.Context;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Microsoft.EntityFrameworkCore;
+using CategoryDomain = Domain.Models.Category;
 
 namespace ShopQAPresentation.Controllers.Category
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CategoryController : ControllerBase
+    //[Route("odata/Category")]
+   // [Authorize(Roles = "Admin")]
+    public class CategoryController : ODataController 
     {
-        private readonly ICategoryService _categoryService;
+        private readonly ShopQADbContext _context;
 
-        public CategoryController(ICategoryService categoryService)
+        public CategoryController(ShopQADbContext context)
         {
-            this._categoryService = categoryService;
+            _context = context;
         }
 
-        [HttpGet]
-        public IActionResult getAllCategory()
+      
+
+        //[HttpGet]
+        [EnableQuery]
+        public IQueryable<CategoryDomain> Get()
         {
-            try
-            {
-                return Ok(_categoryService.getAll());
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return _context.Categories;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        
+       // [HttpGet("{key}")]
+        [EnableQuery]
+        public async Task<IActionResult> Get(int key)
         {
-            var category = await _categoryService.GetCategoryByIdAsync(id);
-            if (category == null) return NotFound();
+            var category = await _context.Categories.FindAsync(key);
+            if (category == null)
+            {
+                return NotFound();
+            }
             return Ok(category);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CategoryDTO category)
+       
+        public async Task<IActionResult> Post([FromBody] CategoryDomain category)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                await _categoryService.AddCategoryAsync(category);
-                return Ok(new { message = "Thêm danh mục thành công." });
+                return BadRequest(ModelState);
             }
-            catch (InvalidOperationException ex) 
-            {
-                return Conflict(new { message = ex.Message }); 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+            return Created(category);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] CategoryDTO category)
+      
+        public async Task<IActionResult> Put(int key, [FromBody] CategoryDomain updatedCategory)
         {
+            if (key != updatedCategory.Id)
+            {
+                return BadRequest("ID không khớp.");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.Entry(updatedCategory).State = EntityState.Modified;
+
             try
             {
-                await _categoryService.UpdateCategoryAsync(id, category);
-                return Ok(new { message = "Cập nhật danh mục thành công." });
+                await _context.SaveChangesAsync();
             }
-            catch (InvalidOperationException ex) 
+            catch (DbUpdateConcurrencyException)
             {
-                return Conflict(new { message = ex.Message }); 
-            }
-            catch (KeyNotFoundException ex) 
-            {
-                return NotFound(new { message = ex.Message }); 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            try
-            {
-                bool deleted = await _categoryService.DeleteCategoryAsync(id);
-
-                if (!deleted)
+                if (!_context.Categories.Any(e => e.Id == key))
                 {
-                    
-                    return BadRequest("Không thể xóa danh mục vì còn sản phẩm liên quan.");
+                    return NotFound();
                 }
-
-                return Ok("Xóa danh mục thành công.");
+                else
+                {
+                    throw;
+                }
             }
-            catch (Exception ex)
-            {
-                
-                return NotFound(ex.Message);
-            }
+            return NoContent();
         }
 
-        // Search
-        [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string keyword)
+        
+        public async Task<IActionResult> Delete(int key)
         {
-            try
+            var categoryToDelete = await _context.Categories.FindAsync(key);
+            if (categoryToDelete == null)
             {
-                var result = await _categoryService.SearchCategoriesByNameAsync(keyword);
-                return Ok(result);
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
 
-        // Sort
-        [HttpGet("sort")]
-        public async Task<IActionResult> Sort([FromQuery] bool sortAsc = true)
-        {
-            try
-            {
-                var result = await _categoryService.SortCategoriesByNameAsync(sortAsc);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+            _context.Categories.Remove(categoryToDelete);
+            await _context.SaveChangesAsync();
 
-        [HttpGet("paged")]
-        public async Task<IActionResult> SearchSortPaged( [FromQuery] string? keyword,[FromQuery] bool? sortAsc, [FromQuery] int page = 1,[FromQuery] int pageSize = 5)
-        {
-            try
-            {
-                var result = await _categoryService.SearchSortPagedCategoriesAsync(keyword, sortAsc, page, pageSize);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return NoContent();
         }
-
     }
 }

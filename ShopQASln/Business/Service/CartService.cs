@@ -31,7 +31,7 @@ namespace Business.Service
 
         public async Task<Cart?> GetCartByIdAsync(int id)
         {
-            return await _context.Cart
+            return await _context.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.ProductVariant)
                 .FirstOrDefaultAsync(c => c.Id == id);
@@ -55,7 +55,7 @@ namespace Business.Service
 
         public async Task<bool> AddItemToCartAsync(CartItem item)
         {
-            var cart = await _context.Cart
+            var cart = await _context.Carts
                 .Include(c => c.Items)
                 .FirstOrDefaultAsync(c => c.Id == item.CartId);
 
@@ -77,7 +77,7 @@ namespace Business.Service
 
         public async Task<bool> RemoveItemFromCartAsync(int cartId, int itemId)
         {
-            var cart = await _context.Cart
+            var cart = await _context.Carts
                 .Include(c => c.Items)
                 .FirstOrDefaultAsync(c => c.Id == cartId);
 

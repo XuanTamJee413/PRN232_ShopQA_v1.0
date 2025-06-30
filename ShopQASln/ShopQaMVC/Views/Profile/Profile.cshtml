@@ -1,0 +1,156 @@
+﻿@model Business.DTO.UserDTO
+@{
+    ViewBag.Title = "Profile";
+}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<style>
+    .profile-bg {
+        background: #f6fafd;
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+    .profile-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+        padding: 32px 24px;
+        margin-bottom: 24px;
+    }
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 16px;
+        background: #eee;
+    }
+    .profile-label {
+        font-weight: 600;
+        color: #222;
+    }
+    .profile-value {
+        color: #444;
+    }
+    .profile-card h5, .profile-card h4, .profile-card h2 {
+        color: #4fd1c5;
+        font-weight: 700;
+    }
+    .btn-primary {
+        background-color: #4fd1c5;
+        border-color: #4fd1c5;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+        background-color: #38b2ac;
+        border-color: #38b2ac;
+    }
+    .btn-outline-primary {
+        color: #63b3ed;
+        border-color: #63b3ed;
+    }
+    .btn-outline-primary:hover, .btn-outline-primary:focus {
+        background-color: #63b3ed;
+        color: #fff;
+        border-color: #63b3ed;
+    }
+    .alert-danger {
+        background: #ffe5e5;
+        color: #d90429;
+        border: none;
+    }
+</style>
+@if (TempData["ChangePasswordError"] != null)
+{
+    <div class="alert alert-danger auto-dismiss">@TempData["ChangePasswordError"]</div>
+}
+@if (TempData["ChangePasswordSuccess"] != null)
+{
+    <div class="alert alert-success auto-dismiss">@TempData["ChangePasswordSuccess"]</div>
+}
+@if (TempData["EditProfileSuccess"] != null)
+{
+    <div class="alert alert-success auto-dismiss">@TempData["EditProfileSuccess"]</div>
+}
+@if (TempData["EditProfileError"] != null)
+{
+    <div class="alert alert-danger auto-dismiss">@TempData["EditProfileError"]</div>
+}
+<div class="profile-bg">
+    <div class="container">
+        <h2 class="text-center mb-4" style="color: #6c63ff;">User Profile Page</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="profile-card text-center">
+                    <img src="/img/icon/default-avatar.png" alt="Avatar" class="profile-avatar" />
+                    <h4>@Model.Username</h4>
+                    <p class="mb-1"><span class="profile-label">Email:</span> <span class="profile-value">@Model.Email</span></p>
+                     <p class="mb-1"><span class="profile-label">Address:</span> <span class="profile-value">@Model.Address </span></p>
+                      <p class="mb-1"><span class="profile-label">City:</span> <span class="profile-value">@Model.City </span></p>
+                       <p class="mb-1"><span class="profile-label">Country:</span> <span class="profile-value">@Model.Country </span></p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="profile-card">
+                    <h5><i class="bi bi-info-circle"></i> General Information</h5>
+                    <form asp-action="Edit" method="post">
+                        <table class="table table-borderless mt-3">
+                            <tr>
+                                <td class="profile-label">Username</td><td>:</td>
+                                <td><input type="text" class="form-control" name="Username" value="@Model.Username" required /></td>
+                            </tr>
+                            <tr>
+                                <td class="profile-label">Email</td><td>:</td>
+                                <td><input type="email" class="form-control" name="Email" value="@Model.Email" required /></td>
+                            </tr>
+                            <tr>
+                                <td class="profile-label">Address</td><td>:</td>
+                                <td><input type="text" class="form-control" name="Address" value="@Model.Address" /></td>
+                            </tr>
+                            <tr>
+                                <td class="profile-label">City</td><td>:</td>
+                                <td><input type="text" class="form-control" name="City" value="@Model.City" /></td>
+                            </tr>
+                            <tr>
+                                <td class="profile-label">Country</td><td>:</td>
+                                <td><input type="text" class="form-control" name="Country" value="@Model.Country" /></td>
+                            </tr>
+                          
+                        </table>
+                         <input type="hidden" name="Id" value="@Model.Id" />
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="profile-card mt-4">
+                    <h5><i class="bi bi-key"></i> Change Password</h5>
+                    <form asp-action="ChangePassword" method="post">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="mb-3">
+                            <label class="form-label">Old Password</label>
+                            <input type="password" class="form-control" name="oldPassword" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" class="form-control" name="newPassword" required />
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-outline-primary">Change Password</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Ẩn alert sau 3 giây
+    setTimeout(function() {
+        var alerts = document.querySelectorAll('.auto-dismiss');
+        alerts.forEach(function(alert) {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = 0;
+            setTimeout(function() { alert.remove(); }, 500);
+        });
+    }, 3000);
+</script>

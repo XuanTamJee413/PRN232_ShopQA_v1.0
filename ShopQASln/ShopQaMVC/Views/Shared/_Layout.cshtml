@@ -27,6 +27,8 @@
     <link rel="stylesheet" href="~/css/owl.carousel.min.css" type="text/css" />
     <link rel="stylesheet" href="~/css/slicknav.min.css" type="text/css" />
     <link rel="stylesheet" href="~/css/style.css" type="text/css" />
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -51,7 +53,7 @@
                 {
                     <span>Settings <i class="arrow_carrot-down"></i></span>
                     <ul>
-                        <li>Profile</li>
+                        <li><a href="/Profile/Profile">Profile</a></li>
                         <li>My Cart</li>
                         <li>My Orders</li>
                         <li><form id="logoutForm" asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
@@ -99,7 +101,7 @@
                                 {
                                     <span>Settings <i class="arrow_carrot-down"></i></span>
                                     <ul>
-                                        <li>Profile</li>
+                                        <li><a href="/Profile/Profile">Profile</a></li>
                                         <li>My Cart</li>
                                         <li>My Orders</li>
                                         <form id="logoutForm" asp-controller="Account" asp-action="Logout" method="post">
@@ -146,7 +148,7 @@
                 <div class="col-lg-3 col-md-3">
                     <div class="header__nav__option">
                         <a href="#" class="search-switch"><img src="~/img/icon/search.png" alt="" /></a>
-                        <a href="#"><img src="~/img/icon/heart.png" alt="" /></a>
+                        <a href="/Wishlist/Wishlist"><img src="~/img/icon/heart.png" alt="" /></a>
                         <a href="/Customer/Cart"><img src="~/img/icon/cart.png" alt="" /> <span>0</span></a>
                         <div class="price">$0.00</div>
                     </div>
