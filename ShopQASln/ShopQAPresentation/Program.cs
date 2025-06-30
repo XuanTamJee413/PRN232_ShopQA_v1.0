@@ -16,6 +16,7 @@ using Domain.Models;
 using Microsoft.OData.Edm;
 
 using Microsoft.OData.ModelBuilder;
+using System.Reflection.Emit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,8 @@ IEdmModel GetEdmModel()
     builder.EntitySet<Category>("Category");
 
     builder.EntitySet<Brand>("Brand");
+
+    builder.EntitySet<Discount>("Discount");
 
     return builder.GetEdmModel();
 }
