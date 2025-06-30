@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(ShopQADbContext))]
-    [Migration("20250628113451_AddOrderStatusToOrder")]
-    partial class AddOrderStatusToOrder
+    [Migration("20250630164128_database")]
+    partial class database
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -175,7 +175,6 @@ namespace DataAccess.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
@@ -192,8 +191,25 @@ namespace DataAccess.Migrations
                         {
                             Id = 1,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Pending",
                             UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = 2
                         });
                 });
 
@@ -228,6 +244,48 @@ namespace DataAccess.Migrations
                             Id = 1,
                             CartId = 1,
                             ProductVariantId = 1,
+                            Quantity = 3
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CartId = 1,
+                            ProductVariantId = 2,
+                            Quantity = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CartId = 1,
+                            ProductVariantId = 3,
+                            Quantity = 5
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CartId = 2,
+                            ProductVariantId = 4,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CartId = 2,
+                            ProductVariantId = 5,
+                            Quantity = 3
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CartId = 2,
+                            ProductVariantId = 6,
+                            Quantity = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CartId = 3,
+                            ProductVariantId = 7,
                             Quantity = 2
                         });
                 });
@@ -332,7 +390,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("Discount");
+                    b.ToTable("Discount", (string)null);
 
                     b.HasData(
                         new
@@ -383,7 +441,8 @@ namespace DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductVariantId");
+                    b.HasIndex("ProductVariantId")
+                        .IsUnique();
 
                     b.ToTable("Inventory");
 
@@ -408,10 +467,6 @@ namespace DataAccess.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
@@ -429,7 +484,6 @@ namespace DataAccess.Migrations
                         {
                             Id = 1,
                             OrderDate = new DateTime(2025, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Status = "Pending",
                             TotalAmount = 770000m,
                             UserId = 1
                         });
@@ -1455,6 +1509,10 @@ namespace DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1474,6 +1532,7 @@ namespace DataAccess.Migrations
                             Email = "tranb@gmail.com",
                             PasswordHash = "123",
                             Role = "Customer",
+                            Status = "Active",
                             Username = "tranthib"
                         },
                         new
@@ -1482,6 +1541,7 @@ namespace DataAccess.Migrations
                             Email = "minhc@yahoo.com",
                             PasswordHash = "123",
                             Role = "Customer",
+                            Status = "Active",
                             Username = "leminhc"
                         },
                         new
@@ -1490,6 +1550,7 @@ namespace DataAccess.Migrations
                             Email = "staff@shopqa.vn",
                             PasswordHash = "123",
                             Role = "Staff",
+                            Status = "Active",
                             Username = "staff"
                         },
                         new
@@ -1498,6 +1559,7 @@ namespace DataAccess.Migrations
                             Email = "thanhp@gmail.com",
                             PasswordHash = "123",
                             Role = "Customer",
+                            Status = "Active",
                             Username = "phamthanh"
                         },
                         new
@@ -1506,6 +1568,7 @@ namespace DataAccess.Migrations
                             Email = "hoa.nguyen@gmail.com",
                             PasswordHash = "123",
                             Role = "Customer",
+                            Status = "Active",
                             Username = "nguyenhoa"
                         },
                         new
@@ -1514,8 +1577,56 @@ namespace DataAccess.Migrations
                             Email = "admin@shopqa.vn",
                             PasswordHash = "123",
                             Role = "Admin",
+                            Status = "Active",
                             Username = "admin"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Models.Wishlist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Wishlists");
+                });
+
+            modelBuilder.Entity("Domain.Models.WishlistItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WishlistId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("WishlistId");
+
+                    b.ToTable("WishlistItems");
                 });
 
             modelBuilder.Entity("Domain.Models.Address", b =>
@@ -1573,8 +1684,8 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("Domain.Models.Inventory", b =>
                 {
                     b.HasOne("Domain.Models.ProductVariant", "ProductVariant")
-                        .WithMany()
-                        .HasForeignKey("ProductVariantId")
+                        .WithOne("Inventory")
+                        .HasForeignKey("Domain.Models.Inventory", "ProductVariantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1671,6 +1782,36 @@ namespace DataAccess.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Domain.Models.Wishlist", b =>
+                {
+                    b.HasOne("Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Models.WishlistItem", b =>
+                {
+                    b.HasOne("Domain.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Models.Wishlist", "Wishlist")
+                        .WithMany("Items")
+                        .HasForeignKey("WishlistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Wishlist");
+                });
+
             modelBuilder.Entity("Domain.Models.Brand", b =>
                 {
                     b.Navigation("Products");
@@ -1696,11 +1837,21 @@ namespace DataAccess.Migrations
                     b.Navigation("Variants");
                 });
 
+            modelBuilder.Entity("Domain.Models.ProductVariant", b =>
+                {
+                    b.Navigation("Inventory");
+                });
+
             modelBuilder.Entity("Domain.Models.User", b =>
                 {
                     b.Navigation("Addresses");
 
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("Domain.Models.Wishlist", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

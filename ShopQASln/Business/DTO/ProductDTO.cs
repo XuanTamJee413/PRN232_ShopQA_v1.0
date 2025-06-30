@@ -16,6 +16,7 @@ namespace Business.DTO
         public int BrandId { get; set; }
         public string? CategoryName { get; set; }
         public string? ImageUrl { get; set; }
+        
 
         public CategoryDTO? Category { get; set; }
         public BrandDTO? Brand { get; set; }

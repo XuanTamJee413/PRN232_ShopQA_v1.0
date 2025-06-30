@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddPaymentToDb : Migration
+    public partial class database : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,7 +48,8 @@ namespace DataAccess.Migrations
                     Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -107,19 +108,20 @@ namespace DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cart",
+                name: "Carts",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cart", x => x.Id);
+                    table.PrimaryKey("PK_Carts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Cart_Users_UserId",
+                        name: "FK_Carts_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -141,6 +143,26 @@ namespace DataAccess.Migrations
                     table.PrimaryKey("PK_Orders", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Orders_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Wishlists",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Wishlists", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Wishlists_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -224,7 +246,34 @@ namespace DataAccess.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CartItem",
+                name: "WishlistItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    WishlistId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    AddedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WishlistItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_WishlistItems_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_WishlistItems_Wishlists_WishlistId",
+                        column: x => x.WishlistId,
+                        principalTable: "Wishlists",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CartItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -235,15 +284,15 @@ namespace DataAccess.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CartItem", x => x.Id);
+                    table.PrimaryKey("PK_CartItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CartItem_Cart_CartId",
+                        name: "FK_CartItems_Carts_CartId",
                         column: x => x.CartId,
-                        principalTable: "Cart",
+                        principalTable: "Carts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CartItem_ProductVariants_ProductVariantId",
+                        name: "FK_CartItems_ProductVariants_ProductVariantId",
                         column: x => x.ProductVariantId,
                         principalTable: "ProductVariants",
                         principalColumn: "Id",
@@ -354,15 +403,15 @@ namespace DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "Email", "PasswordHash", "Role", "Username" },
+                columns: new[] { "Id", "Email", "PasswordHash", "Role", "Status", "Username" },
                 values: new object[,]
                 {
-                    { 1, "tranb@gmail.com", "123", "Customer", "tranthib" },
-                    { 2, "minhc@yahoo.com", "123", "Customer", "leminhc" },
-                    { 3, "staff@shopqa.vn", "123", "Staff", "staff" },
-                    { 4, "thanhp@gmail.com", "123", "Customer", "phamthanh" },
-                    { 5, "hoa.nguyen@gmail.com", "123", "Customer", "nguyenhoa" },
-                    { 6, "admin@shopqa.vn", "123", "Admin", "admin" }
+                    { 1, "tranb@gmail.com", "123", "Customer", "Active", "tranthib" },
+                    { 2, "minhc@yahoo.com", "123", "Customer", "Active", "leminhc" },
+                    { 3, "staff@shopqa.vn", "123", "Staff", "Active", "staff" },
+                    { 4, "thanhp@gmail.com", "123", "Customer", "Active", "phamthanh" },
+                    { 5, "hoa.nguyen@gmail.com", "123", "Customer", "Active", "nguyenhoa" },
+                    { 6, "admin@shopqa.vn", "123", "Admin", "Active", "admin" }
                 });
 
             migrationBuilder.InsertData(
@@ -380,9 +429,15 @@ namespace DataAccess.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Cart",
-                columns: new[] { "Id", "CreatedAt", "UserId" },
-                values: new object[] { 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), 1 });
+                table: "Carts",
+                columns: new[] { "Id", "CreatedAt", "Status", "UserId" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), null, 1 },
+                    { 2, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), null, 1 },
+                    { 3, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), null, 2 },
+                    { 4, new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified), null, 2 }
+                });
 
             migrationBuilder.InsertData(
                 table: "Orders",
@@ -495,9 +550,18 @@ namespace DataAccess.Migrations
                 values: new object[] { 1, "Sản phẩm rất tốt!", new DateTime(2025, 5, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), 1, 5, 1 });
 
             migrationBuilder.InsertData(
-                table: "CartItem",
+                table: "CartItems",
                 columns: new[] { "Id", "CartId", "ProductVariantId", "Quantity" },
-                values: new object[] { 1, 1, 1, 2 });
+                values: new object[,]
+                {
+                    { 1, 1, 1, 3 },
+                    { 2, 1, 2, 2 },
+                    { 3, 1, 3, 5 },
+                    { 4, 2, 4, 1 },
+                    { 5, 2, 5, 3 },
+                    { 6, 2, 6, 1 },
+                    { 7, 3, 7, 2 }
+                });
 
             migrationBuilder.InsertData(
                 table: "Discount",
@@ -529,19 +593,19 @@ namespace DataAccess.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cart_UserId",
-                table: "Cart",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CartItem_CartId",
-                table: "CartItem",
+                name: "IX_CartItems_CartId",
+                table: "CartItems",
                 column: "CartId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CartItem_ProductVariantId",
-                table: "CartItem",
+                name: "IX_CartItems_ProductVariantId",
+                table: "CartItems",
                 column: "ProductVariantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Carts_UserId",
+                table: "Carts",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_Name",
@@ -557,7 +621,8 @@ namespace DataAccess.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Inventory_ProductVariantId",
                 table: "Inventory",
-                column: "ProductVariantId");
+                column: "ProductVariantId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
@@ -609,6 +674,21 @@ namespace DataAccess.Migrations
                 table: "Users",
                 column: "Email",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WishlistItems_ProductId",
+                table: "WishlistItems",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WishlistItems_WishlistId",
+                table: "WishlistItems",
+                column: "WishlistId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wishlists_UserId",
+                table: "Wishlists",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -618,7 +698,7 @@ namespace DataAccess.Migrations
                 name: "Addresses");
 
             migrationBuilder.DropTable(
-                name: "CartItem");
+                name: "CartItems");
 
             migrationBuilder.DropTable(
                 name: "Discount");
@@ -636,13 +716,19 @@ namespace DataAccess.Migrations
                 name: "Review");
 
             migrationBuilder.DropTable(
-                name: "Cart");
+                name: "WishlistItems");
+
+            migrationBuilder.DropTable(
+                name: "Carts");
 
             migrationBuilder.DropTable(
                 name: "ProductVariants");
 
             migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "Wishlists");
 
             migrationBuilder.DropTable(
                 name: "Products");
