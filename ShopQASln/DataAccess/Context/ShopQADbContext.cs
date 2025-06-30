@@ -19,6 +19,8 @@ namespace DataAccess.Context
         public DbSet<Product> Products => Set<Product>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
+
+        public DbSet<Discount> Discounts { get; set; }
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<Payment> Payments { get; set; }
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
@@ -43,7 +45,7 @@ namespace DataAccess.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<Discount>().ToTable("Discount");
             // User
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
