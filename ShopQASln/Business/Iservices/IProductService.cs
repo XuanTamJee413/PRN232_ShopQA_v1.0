@@ -10,6 +10,7 @@ namespace Business.Iservices
 {
     public interface IProductService
     {
+        IQueryable<Product> GetQueryableVisibleProducts();
         IEnumerable<Product> GetVisibleProducts(string? name, int? categoryId, int? brandId);
 
         IEnumerable<ProductResponseDTO> GetAllProduct(string? name, int? categoryId, decimal? startPrice ,decimal? toPrice);

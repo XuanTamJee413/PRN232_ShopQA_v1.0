@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(ShopQADbContext))]
-    [Migration("20250630143800_addWishlistTable")]
-    partial class addWishlistTable
+    [Migration("20250630164128_database")]
+    partial class database
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -174,6 +174,9 @@ namespace DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -181,7 +184,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Cart");
+                    b.ToTable("Carts");
 
                     b.HasData(
                         new
@@ -233,7 +236,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItems");
 
                     b.HasData(
                         new
@@ -387,7 +390,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("Discount");
+                    b.ToTable("Discount", (string)null);
 
                     b.HasData(
                         new
@@ -564,7 +567,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payments");
 
                     b.HasData(
                         new

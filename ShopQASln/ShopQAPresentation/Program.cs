@@ -9,26 +9,45 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using DataAccess.Repository;
 using Microsoft.AspNetCore.OData;
-using Microsoft.OData.Edm;
+
+using Business.Services;
+using Business.DTO;
 using Domain.Models;
+using Microsoft.OData.Edm;
+
 using Microsoft.OData.ModelBuilder;
+using System.Reflection.Emit;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
 //controller + odata
+
 IEdmModel GetEdmModel()
 {
     var builder = new ODataConventionModelBuilder();
+    var product = builder.EntitySet<Product>("Product").EntityType;
+    product.HasKey(p => p.Id);
+    product.HasMany(p => p.Variants);
+    product.HasRequired(p => p.Category);
+    product.HasRequired(p => p.Brand);
     builder.EntitySet<ProductVariant>("ProductVariants");
+
+
+    builder.EntitySet<Category>("Category");
+
+    builder.EntitySet<Brand>("Brand");
+
+    builder.EntitySet<Discount>("Discount");
+
     return builder.GetEdmModel();
-};
+}
 builder.Services.AddControllers()
     .AddOData(opt =>
     {
-        opt.Filter().Select().Expand().OrderBy().Count().AddRouteComponents("odata", GetEdmModel());
+        opt.Filter().Select().Expand().OrderBy().Count().SetMaxTop(100).AddRouteComponents("odata", GetEdmModel());
     });
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -70,15 +89,25 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+
 builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
 
 
+
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+
+//builder.Services.Configure<VnPayConfig>(builder.Configuration.GetSection("VnPayConfig"));
+builder.Services.Configure<VnPayConfig>(builder.Configuration.GetSection("VnPay"));
 
 
 //jwt
 var jwtKey = builder.Configuration["Jwt:Key"];
 if (string.IsNullOrEmpty(jwtKey))
     throw new Exception("JWT Key is missing in configuration");
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -104,7 +133,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseRouting();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

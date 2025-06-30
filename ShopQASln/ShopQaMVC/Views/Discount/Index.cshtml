@@ -1,0 +1,140 @@
+﻿@model List<ShopQaMVC.Models.DiscountVM>
+
+@{
+    ViewData["Title"] = "Discount List";
+
+   
+    var currentSearchProduct = ViewBag.CurrentSearchProduct as string;
+    var currentSort = ViewBag.CurrentSort as string;
+    var currentPage = (int)(ViewBag.CurrentPage ?? 1);
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
+}
+
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="mb-3">
+    <a asp-action="Dashboard" asp-controller="Admin" class="btn btn-secondary">
+        &larr; Quay lại trang chính
+    </a>
+</div>
+
+<h2>@ViewData["Title"]</h2>
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <a asp-action="Create" class="btn btn-success">+ Thêm Khuyến mãi</a>
+    </div>
+    <div>
+        <form asp-action="Index" method="get" class="d-flex">
+            <input type="text" name="searchProduct" class="form-control me-2" placeholder="Tìm theo tên sản phẩm..." value="@currentSearchProduct" />
+            <input type="hidden" name="sortBy" value="@currentSort" />
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        </form>
+    </div>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>
+                Sản phẩm áp dụng
+                <div class="d-inline-block ms-2">
+                    <a asp-action="Index" asp-route-searchProduct="@currentSearchProduct" asp-route-sortBy="product_asc" asp-route-page="1" class="btn btn-sm btn-outline-secondary py-0 px-1" title="Sắp xếp A-Z">▲</a>
+                    <a asp-action="Index" asp-route-searchProduct="@currentSearchProduct" asp-route-sortBy="product_desc" asp-route-page="1" class="btn btn-sm btn-outline-secondary py-0 px-1" title="Sắp xếp Z-A">▼</a>
+                </div>
+            </th>
+            <th>
+                Mức giảm giá (%)
+                <div class="d-inline-block ms-2">
+                    <a asp-action="Index" asp-route-searchProduct="@currentSearchProduct" asp-route-sortBy="amount_asc" asp-route-page="1" class="btn btn-sm btn-outline-secondary py-0 px-1" title="Sắp xếp tăng dần">▲</a>
+                    <a asp-action="Index" asp-route-searchProduct="@currentSearchProduct" asp-route-sortBy="amount_desc" asp-route-page="1" class="btn btn-sm btn-outline-secondary py-0 px-1" title="Sắp xếp giảm dần">▼</a>
+                </div>
+            </th>
+            <th>Ngày bắt đầu</th>
+            <th>Ngày kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @item.ProductVariant?.Product?.Name - @item.ProductVariant?.Color - @item.ProductVariant?.Size
+                    </td>
+                    <td>@item.Amount</td>
+                    <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
+                    <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
+                    <td>@(item.Status ? "Kích hoạt" : "Vô hiệu")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a>
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa khuyến mãi này?');">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">Không tìm thấy khuyến mãi nào.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@if (totalPages > 1)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            
+            @if (currentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-page="@(currentPage - 1)"
+                       asp-route-searchProduct="@currentSearchProduct"
+                       asp-route-sortBy="@currentSort">Previous</a>
+                </li>
+            }
+
+           
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-searchProduct="@currentSearchProduct"
+                       asp-route-sortBy="@currentSort">@i</a>
+                </li>
+            }
+
+           
+            @if (currentPage < totalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-page="@(currentPage + 1)"
+                       asp-route-searchProduct="@currentSearchProduct"
+                       asp-route-sortBy="@currentSort">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+

@@ -13,9 +13,15 @@ namespace Business.DTO
         public string Name { get; set; } = default!;
         public string Description { get; set; } = default!;
         public int CategoryId { get; set; }
+        public int BrandId { get; set; }
         public string? CategoryName { get; set; }
         public string? ImageUrl { get; set; }
         
+
+        public CategoryDTO? Category { get; set; }
+        public BrandDTO? Brand { get; set; }
+        public List<ProductVariantDTO>? Variants { get; set; } = new();
+
     }
     public class ProductCreateReqDTO
     {
