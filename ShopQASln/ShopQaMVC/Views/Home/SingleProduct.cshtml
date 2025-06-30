@@ -1,11 +1,9 @@
-﻿@model List<Business.DTO.ProductVariantDTO>
+﻿@model Business.DTO.ProductODataDTO
 
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
 @{
     ViewData["Title"] = "Single Product";
 }
+
 <!-- Shop Details Section Begin -->
 <section class="shop-details">
     <div class="product__details__pic">
@@ -22,9 +20,9 @@
             <div class="row">
                 <div class="col-lg-3 col-md-3">
                     <ul class="nav nav-tabs" role="tablist">
-                        @for (int i = 0; i < Model.Count; i++)
+                        @for (int i = 0; i < Model.Variants.Count; i++)
                         {
-                            var variant = Model[i];
+                            var variant = Model.Variants[i];
                             <li class="nav-item">
                                 <a class="nav-link @(i == 0 ? "active" : "")" data-toggle="tab" href="#tabs-@i" role="tab">
                                     <div class="product__thumb__pic set-bg">
@@ -37,9 +35,9 @@
                 </div>
                 <div class="col-lg-6 col-md-9">
                     <div class="tab-content">
-                        @for (int i = 0; i < Model.Count; i++)
+                        @for (int i = 0; i < Model.Variants.Count; i++)
                         {
-                            var variant = Model[i];
+                            var variant = Model.Variants[i];
                             <div class="tab-pane @(i == 0 ? "active" : "")" id="tabs-@i" role="tabpanel">
                                 <div class="product__details__pic__item">
                                     <img src="@variant.ImageUrl" onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';" alt="variant image" class="img-fluid">
@@ -49,18 +47,15 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
-
-
 
     <!-- Form đánh giá sản phẩm -->
     <div class="container mt-4">
         <h4>Đánh giá sản phẩm</h4>
         <form id="reviewForm">
             <input type="hidden" id="userId" value="1" />
-            <input type="hidden" id="productId" value="@Model.First().ProductId" />
+            <input type="hidden" id="productId" value="@Model.Id" />
 
             <div class="mb-3">
                 <label for="rating" class="form-label">Số sao:</label>
@@ -96,15 +91,13 @@
             </div>
         </div>
     </div>
-
-
-
-   
 </section>
+
 <!-- Shop Details Section End -->
 <!-- Related Section Begin -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    ///hieult
     $(document).ready(function () {
         const currentUserId = parseInt($('#userId').val()); ///sửa UserId ở đây 
         const productId = parseInt($('#productId').val());
@@ -282,9 +275,6 @@
         loadReviews();
     });
 </script>
-
-
-
 
 <section class="related spad">
     <div class="container">

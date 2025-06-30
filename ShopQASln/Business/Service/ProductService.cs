@@ -8,6 +8,7 @@ using Business.DTO;
 using Business.Iservices;
 using DataAccess;
 using DataAccess.IRepositories;
+using DataAccess.Repository;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -29,7 +30,10 @@ namespace Business.Service
             this.brandRepository = brandRepository;
             _variantRepo = variantRepo;
         }
-
+        public IQueryable<Product> GetQueryableVisibleProducts()
+        {
+            return productRepository.GetAllQueryable();
+        }
         // Tamnx lay product hien thi cho Shop.html
         public IEnumerable<Product> GetVisibleProducts(string? name, int? categoryId, int? brandId)
         {

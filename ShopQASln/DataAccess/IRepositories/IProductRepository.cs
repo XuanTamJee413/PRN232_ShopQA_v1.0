@@ -10,6 +10,7 @@ namespace DataAccess.IRepositories
     public interface IProductRepository
     {
         IEnumerable<Product> GetAll();
+        IQueryable<Product> GetAllQueryable();
         Product? GetById(int id);
         Product? GetProductById(int id);
         void Add(Product product);

@@ -20,13 +20,18 @@ var builder = WebApplication.CreateBuilder(args);
 IEdmModel GetEdmModel()
 {
     var builder = new ODataConventionModelBuilder();
+    var product = builder.EntitySet<Product>("Product").EntityType;
+    product.HasKey(p => p.Id);
+    product.HasMany(p => p.Variants);
+    product.HasRequired(p => p.Category);
+    product.HasRequired(p => p.Brand);
     builder.EntitySet<ProductVariant>("ProductVariants");
     return builder.GetEdmModel();
-};
+}
 builder.Services.AddControllers()
     .AddOData(opt =>
     {
-        opt.Filter().Select().Expand().OrderBy().Count().AddRouteComponents("odata", GetEdmModel());
+        opt.Filter().Select().Expand().OrderBy().Count().SetMaxTop(100).AddRouteComponents("odata", GetEdmModel());
     });
 
 builder.Services.AddEndpointsApiExplorer();

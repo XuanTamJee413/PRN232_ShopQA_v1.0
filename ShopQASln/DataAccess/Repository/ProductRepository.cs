@@ -21,6 +21,14 @@ namespace DataAccess.Repository
 
         public IEnumerable<Product> GetAll() => _context.Products.Include(p => p.Category).Include(p => p.Brand).ToList();
 
+        //tamnx get all queryable
+        public IQueryable<Product> GetAllQueryable()
+        {
+            return _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Brand)
+                .Include(p => p.Variants);
+        }
         public Product? GetById(int id) => _context.Products
             .Include(p => p.Category)
             .FirstOrDefault(p => p.Id == id);

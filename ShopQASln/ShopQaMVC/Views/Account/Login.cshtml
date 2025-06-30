@@ -70,13 +70,13 @@
         const role = user.Role;
         console.log("ROLE:", role); // debug
         if (role === "Customer")
-            window.location.href = "/Home/Index";
+            window.location.href = "/Home";
         else if (role === "Staff")
             window.location.href = "/Product/ProductList";
         else if (role === "Admin")
             window.location.href = "/Admin/Dashboard";
         else
-            window.location.href = "/Home";
+            window.location.href = "/Home/NotFoundPage";
     </script>
 
 }

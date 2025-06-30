@@ -3,18 +3,39 @@ using Business.Iservices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.AspNetCore.OData.Query;
+using Microsoft.AspNetCore.OData.Results;
+using Microsoft.AspNetCore.OData.Routing.Controllers;
 
 namespace ShopQAPresentation.Controllers.Product
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductController : ControllerBase
+    //[Route("api/[controller]")]
+    //[ApiController]
+    public class ProductController : ODataController
     {
         private readonly IProductService _productService;
         public ProductController(IProductService productService)
         {
             _productService = productService ;
         }
+        // tamnx test get bang odata https://localhost:7101/odata/Product?$expand=Variants,Category,Brand
+        [EnableQuery]
+        public IActionResult Get()
+        {
+            var products = _productService.GetQueryableVisibleProducts();
+            return Ok(products);
+        }
+        // tamnx test get by id bang odata https://localhost:7101/odata/Product(id)?$expand=Variants,Category,Brand
+        [EnableQuery]
+        public IActionResult Get([FromODataUri] int key)
+        {
+            var product = _productService.GetQueryableVisibleProducts()
+                                         .Where(p => p.Id == key);
+            return Ok(SingleResult.Create(product));
+        }
+
+
         [HttpGet]
         //[Authorize(Roles = "Admin")]
         public IActionResult GetAllProduct(string? name, int? categoryId, decimal? startPrice, decimal? toPrice)
