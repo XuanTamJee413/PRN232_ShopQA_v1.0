@@ -9,11 +9,11 @@ using System.Web;
 
 namespace ShopQaMVC.Controllers
 {
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class CategoryController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        // Quan trọng: URL đã trỏ đến endpoint "odata"
+        
         private readonly string _apiBaseUrl = "https://localhost:7101/odata/Category";
 
         public CategoryController(IHttpClientFactory httpClientFactory)
@@ -21,13 +21,13 @@ namespace ShopQaMVC.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
-        // Action Index xây dựng truy vấn OData
+       
         public async Task<IActionResult> Index(string searchKeyword, string sortBy, int page = 1)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
             var pageSize = 5;
 
-            // Phần xây dựng queryParams giữ nguyên, không thay đổi
+           
             var queryParams = new List<string>
             {
                 "$count=true",
@@ -62,27 +62,25 @@ namespace ShopQaMVC.Controllers
 
             if (response.IsSuccessStatusCode)
             {
-                // --- BẮT ĐẦU PHẦN THAY ĐỔI ---
-
-                // 1. Đọc nội dung JSON vào một chuỗi
+               
                 var jsonString = await response.Content.ReadAsStringAsync();
 
-                // 2. Dùng JsonDocument để phân tích (parse) chuỗi JSON
+            
                 using (JsonDocument doc = JsonDocument.Parse(jsonString))
                 {
-                    // 3. Lấy ra phần tử gốc của tài liệu JSON
+                   
                     JsonElement root = doc.RootElement;
 
-                    // 4. Lấy giá trị của @odata.count (nếu có)
+                   
                     if (root.TryGetProperty("@odata.count", out JsonElement countElement))
                     {
                         totalRecords = countElement.GetInt32();
                     }
 
-                    // 5. Lấy mảng 'value' và deserialize nó thành List<CategoryVM>
+                    
                     if (root.TryGetProperty("value", out JsonElement valueElement))
                     {
-                        // Lấy chuỗi JSON của riêng mảng 'value' và deserialize
+                        
                         var categoriesList = JsonSerializer.Deserialize<List<CategoryVM>>(valueElement.GetRawText());
                         if (categoriesList != null)
                         {
@@ -90,7 +88,7 @@ namespace ShopQaMVC.Controllers
                         }
                     }
                 }
-                // --- KẾT THÚC PHẦN THAY ĐỔI ---
+             
             }
             else
             {
@@ -105,7 +103,7 @@ namespace ShopQaMVC.Controllers
             return View(categories);
         }
 
-        // --- CÁC HÀNH ĐỘNG CRUD ---
+     
 
         [HttpGet]
         public IActionResult Create() => View();
@@ -117,7 +115,7 @@ namespace ShopQaMVC.Controllers
             if (!ModelState.IsValid) return View(category);
 
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            // URL cho POST là URL của collection
+           
             var response = await client.PostAsJsonAsync(_apiBaseUrl, category);
 
             if (response.IsSuccessStatusCode)
@@ -134,7 +132,7 @@ namespace ShopQaMVC.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            // OData dùng cú pháp dấu ngoặc đơn cho key: /odata/Category(1)
+            
             var response = await client.GetAsync($"{_apiBaseUrl}({id})");
 
             if (!response.IsSuccessStatusCode)
