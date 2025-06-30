@@ -99,6 +99,13 @@ namespace ShopQAPresentation.Controllers.User
         }
       
 
+        [HttpPut("status/{id}")]
+        public async Task<IActionResult> UpdateUserStatus(int id, [FromQuery] string status)
+        {
+            await _userService.UpdateAccountStatusAsync(id, status);
+            return NoContent();
+        }
+
     }
 }
 

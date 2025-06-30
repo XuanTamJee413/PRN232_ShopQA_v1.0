@@ -33,6 +33,8 @@ namespace Business.Service
                 Email = userDto.Email,
                 Role = userDto.Role,
                 PasswordHash = HashPassword(userDto.Password)
+                
+
             };
 
             var createdUser = await _userRepository.AddAsync(user);
@@ -60,7 +62,8 @@ namespace Business.Service
                 Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                Role = user.Role
+                Role = user.Role,
+                Status = user.Status 
             };
         }
 
@@ -72,7 +75,8 @@ namespace Business.Service
                 Id = u.Id,
                 Username = u.Username,
                 Email = u.Email,
-                Role = u.Role
+                Role = u.Role,
+                Status = u.Status 
             });
         }
 
@@ -87,6 +91,7 @@ namespace Business.Service
             user.Username = userDto.Username;
             user.Email = userDto.Email;
             user.Role = userDto.Role;
+
 
             if (!string.IsNullOrWhiteSpace(userDto.Password))
             {
@@ -135,6 +140,62 @@ namespace Business.Service
                 Email = u.Email,
                 Role = u.Role
             });
+        }
+
+        public async Task ChangePasswordAsync(int userId, string newPassword)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+            // Không hash, lưu trực tiếp mật khẩu mới
+            await _userRepository.ChangePasswordAsync(userId, newPassword);
+        }
+
+        public async Task<UserDTO?> GetProfileAsync(int userId)
+        {
+            var user = await _userRepository.GetProfileAsync(userId);
+            if (user == null) return null;
+            // Lấy address đầu tiên (hoặc có thể lấy nhiều address nếu muốn)
+            var address = user.Addresses.FirstOrDefault();
+            return new UserDTO
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                // Không trả về Role khi view profile
+                // Thông tin địa chỉ
+                Address = address?.Street,
+                City = address?.City,
+                Country = address?.Country
+            };
+        }
+
+        public async Task UpdatePersonalInfoAsync(UserDTO userDto)
+        {
+            var user = await _userRepository.GetByIdAsync(userDto.Id);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+            user.Username = userDto.Username;
+            user.Email = userDto.Email;
+            // Không cập nhật Role
+            await _userRepository.UpdatePersonalInfoAsync(user);
+            // Cập nhật địa chỉ
+            await _userRepository.UpdateAddressAsync(user.Id, userDto.Address, userDto.City, userDto.Country);
+        }
+
+        public async Task<bool> ValidatePasswordAsync(int userId, string oldPassword)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) return false;
+            // So sánh trực tiếp với mật khẩu thuần
+            return user.PasswordHash == oldPassword;
+        }
+
+     
+
+        public async Task UpdateAccountStatusAsync(int userId, string status)
+        {
+            await _userRepository.UpdateAccountStatusAsync(userId, status);
         }
     }
 }

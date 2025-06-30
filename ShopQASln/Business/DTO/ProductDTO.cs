@@ -20,6 +20,7 @@ namespace Business.DTO
         public CategoryDTO? Category { get; set; }
         public BrandDTO? Brand { get; set; }
         public List<ProductVariantDTO>? Variants { get; set; } = new();
+
     }
     public class ProductCreateReqDTO
     {

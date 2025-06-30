@@ -78,6 +78,7 @@ builder.Services.AddScoped<IBrandService, BrandService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IWishlistService, WishlistService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();
@@ -89,6 +90,9 @@ builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 
+builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
+
+
 
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
@@ -97,6 +101,7 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 //builder.Services.Configure<VnPayConfig>(builder.Configuration.GetSection("VnPayConfig"));
 builder.Services.Configure<VnPayConfig>(builder.Configuration.GetSection("VnPay"));
+
 
 //jwt
 var jwtKey = builder.Configuration["Jwt:Key"];

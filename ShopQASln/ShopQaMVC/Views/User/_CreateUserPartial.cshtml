@@ -42,18 +42,18 @@
                         <div>
                             <select asp-for="Role" class="form-control" style="border-radius:1rem; font-size:1.2rem; height:48px;">
                                 <option value="Customer">Customer</option>
-                                <option value="Support">Support</option>
-                                <option value="Moderator">Moderator</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Admin">Admin</option>
                             </select>
                         </div>
                         <span asp-validation-for="Role" class="text-danger"></span>
                     </div>
                 </div>
+                <div class="modal-footer bg-light" style="border-top:1px solid #eee;">
+                    <button type="submit" class="btn btn-primary px-5 py-2" style="border-radius:2rem; font-weight:600; font-size:1.1rem;">Create</button>
+                    <button type="button" class="btn btn-secondary px-5 py-2" style="border-radius:2rem; font-weight:600; font-size:1.1rem;" data-dismiss="modal">Cancel</button>
+                </div>
             </form>
-            <div class="modal-footer bg-light" style="border-top:1px solid #eee;">
-                <button type="submit" class="btn btn-primary px-5 py-2" style="border-radius:2rem; font-weight:600; font-size:1.1rem;">Create</button>
-                <button type="button" class="btn btn-secondary px-5 py-2" style="border-radius:2rem; font-weight:600; font-size:1.1rem;" data-dismiss="modal">Cancel</button>
-            </div>
         </div>
     </div>
 </div>
