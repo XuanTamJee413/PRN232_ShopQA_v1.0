@@ -11,8 +11,8 @@ using CategoryDomain = Domain.Models.Category;
 
 namespace ShopQAPresentation.Controllers.Category
 {
-    [Route("odata/Category")]
-    [Authorize(Roles = "Admin")]
+    //[Route("odata/Category")]
+   // [Authorize(Roles = "Admin")]
     public class CategoryController : ODataController 
     {
         private readonly ShopQADbContext _context;
@@ -22,14 +22,17 @@ namespace ShopQAPresentation.Controllers.Category
             _context = context;
         }
 
-        // Phương thức Get() để lấy danh sách
+      
+
+        //[HttpGet]
         [EnableQuery]
         public IQueryable<CategoryDomain> Get()
         {
             return _context.Categories;
         }
 
-        // Phương thức Get(key) để lấy một đối tượng
+        
+       // [HttpGet("{key}")]
         [EnableQuery]
         public async Task<IActionResult> Get(int key)
         {
@@ -41,7 +44,7 @@ namespace ShopQAPresentation.Controllers.Category
             return Ok(category);
         }
 
-        // Phương thức Post() để tạo mới
+       
         public async Task<IActionResult> Post([FromBody] CategoryDomain category)
         {
             if (!ModelState.IsValid)
@@ -53,7 +56,7 @@ namespace ShopQAPresentation.Controllers.Category
             return Created(category);
         }
 
-        // Phương thức Put() để cập nhật toàn bộ
+      
         public async Task<IActionResult> Put(int key, [FromBody] CategoryDomain updatedCategory)
         {
             if (key != updatedCategory.Id)
