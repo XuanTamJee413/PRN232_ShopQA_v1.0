@@ -28,6 +28,7 @@ IEdmModel GetEdmModel()
     product.HasRequired(p => p.Brand);
     builder.EntitySet<ProductVariant>("ProductVariants");
     builder.EntitySet<Category>("Category");
+    builder.EntitySet<Brand>("Brand");
     return builder.GetEdmModel();
 }
 builder.Services.AddControllers()
