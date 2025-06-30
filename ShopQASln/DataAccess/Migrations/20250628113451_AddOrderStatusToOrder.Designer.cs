@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(ShopQADbContext))]
-    [Migration("20250607102151_UpdateTableProduct")]
-    partial class UpdateTableProduct
+    [Migration("20250628113451_AddOrderStatusToOrder")]
+    partial class AddOrderStatusToOrder
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -174,6 +174,10 @@ namespace DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -181,13 +185,14 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Cart");
+                    b.ToTable("Carts");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             CreatedAt = new DateTime(2025, 5, 21, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Pending",
                             UserId = 1
                         });
                 });
@@ -215,7 +220,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProductVariantId");
 
-                    b.ToTable("CartItem");
+                    b.ToTable("CartItems");
 
                     b.HasData(
                         new
@@ -403,6 +408,10 @@ namespace DataAccess.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
@@ -420,6 +429,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 1,
                             OrderDate = new DateTime(2025, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Pending",
                             TotalAmount = 770000m,
                             UserId = 1
                         });
@@ -503,7 +513,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payments");
 
                     b.HasData(
                         new
@@ -1479,7 +1489,7 @@ namespace DataAccess.Migrations
                             Id = 3,
                             Email = "staff@shopqa.vn",
                             PasswordHash = "123",
-                            Role = "Support",
+                            Role = "Staff",
                             Username = "staff"
                         },
                         new
@@ -1503,7 +1513,7 @@ namespace DataAccess.Migrations
                             Id = 6,
                             Email = "admin@shopqa.vn",
                             PasswordHash = "123",
-                            Role = "Moderator",
+                            Role = "Admin",
                             Username = "admin"
                         });
                 });

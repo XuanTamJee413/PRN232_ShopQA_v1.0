@@ -12,7 +12,9 @@ namespace Business.DTO
         public int Id { get; set; } 
         public int UserId { get; set; }
         public virtual User? User { get; set; }
-        public virtual ICollection<CartItem> Items { get; set; } = new List<CartItem>();
+        public virtual ICollection<CartItemDTO> Items { get; set; } = new List<CartItemDTO>();
+
         public DateTime CreatedAt { get; set; }
+        public string? Status { get; set; }
     }
 }
