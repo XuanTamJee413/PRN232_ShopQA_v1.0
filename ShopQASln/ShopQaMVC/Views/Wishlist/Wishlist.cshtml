@@ -1,0 +1,81 @@
+﻿@model Business.DTO.WishlistDTO
+@{
+    ViewData["Title"] = "Wishlist";
+}
+<!-- Breadcrumb Section Begin -->
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>Wishlist</h4>
+                    <div class="breadcrumb__links">
+                        <a href="/Home">Home</a>
+                        <a href="/Home/Shop">Shop</a>
+                        <span>Wishlist</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Breadcrumb Section End -->
+<!-- Wishlist Section Begin -->
+<section class="shopping-cart spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <div class="shopping__cart__table mb-4">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Description</th>
+                                <th>Added At</th>
+                                <th style="width:120px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model?.Items != null && Model.Items.Count > 0)
+                            {
+                                foreach (var item in Model.Items)
+                                {
+                                    <tr>
+                                        <td class="product__cart__item">
+                                            <div class="product__cart__item__pic">
+                                                <img src="@item.ProductImageUrl" width="90" />
+                                            </div>
+                                            <div class="product__cart__item__text">
+                                                <h6>@item.ProductName</h6>
+                                            </div>
+                                        </td>
+                                        <td>@item.ProductDescription</td>
+                                        <td>@item.AddedAt.ToString("dd/MM/yyyy")</td>
+                                        <td class="text-end" style="vertical-align:middle;">
+                                            <form asp-action="RemoveFromWishlist" method="post" style="display:inline;">
+                                                <input type="hidden" name="productId" value="@item.ProductId" />
+                                                <button type="submit" class="btn btn-sm btn-danger" style="min-width:80px;margin-left:16px;">Remove</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="4" class="text-center">No items in wishlist.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-6">
+                        <div class="continue__btn">
+                            <a href="/Home/Shop">Continue Shopping</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Wishlist Section End -->

@@ -270,6 +270,14 @@
                                             <li>
                                                 <a href="#"><img src="~/img/icon/search.png" alt=""></a><span>Search</span>
                                             </li>
+                                            <li>
+                                                <form asp-controller="Wishlist" asp-action="AddToWishlist" method="post" style="display:inline;">
+                                                    <input type="hidden" name="productId" value="@product.Id" />
+                                                    <button type="submit" style="background:none;border:none;padding:0;">
+                                                        <img src="~/img/icon/heart.png" alt="" /> <span>Wishlist</span>
+                                                    </button>
+                                                </form>
+                                            </li>
                                         </ul>
                                     </div>
                                     <div class="product__item__text">

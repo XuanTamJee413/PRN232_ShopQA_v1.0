@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using ShopQaMVC.Models;
@@ -22,6 +22,19 @@ namespace ShopQaMVC.Controllers
         // GET: User
         public async Task<IActionResult> UserList()
         {
+            var userJson = HttpContext.Session.GetString("User");
+            if (string.IsNullOrEmpty(userJson))
+            {
+               
+                return RedirectToAction("Login", "Account");
+            }
+            var user = Newtonsoft.Json.JsonConvert.DeserializeObject<Business.DTO.UserDTO>(userJson);
+            if (user == null || user.Role != "Admin")
+            {
+                TempData["Error"] = "Access denied. Only admin can access this page.";
+                return RedirectToAction("Index", "Home");
+            }
+
             var client = _httpClientFactory.CreateClient();
             var response = await client.GetAsync($"{_apiBaseUrl}");
 
@@ -176,6 +189,30 @@ namespace ShopQaMVC.Controllers
             return RedirectToAction(nameof(UserList));
         }
 
-
+        // POST: User/UpdateUserStatus
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserStatus(int id, string status)
+        {
+            try
+            {
+                var client = _httpClientFactory.CreateClient();
+                // Gọi API bằng phương thức PUT, đúng endpoint và truyền status qua query string
+                var response = await client.PutAsync($"{_apiBaseUrl}/status/{id}?status={status}", null);
+                if (response.IsSuccessStatusCode)
+                {
+                    TempData["Success"] = status == "Deactive" ? "User has been banned." : "User has been unbanned.";
+                }
+                else
+                {
+                    TempData["Error"] = "Failed to update user status.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error: {ex.Message}";
+            }
+          
+           return RedirectToAction(nameof(UserList));
+        }
     }
 }

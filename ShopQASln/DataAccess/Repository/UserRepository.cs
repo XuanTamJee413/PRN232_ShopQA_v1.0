@@ -61,5 +61,70 @@ namespace DataAccess.Repository
                 .Where(u => u.Role == role)
                 .ToListAsync();
         }
+        public async Task ChangePasswordAsync(int userId, string newPasswordHash)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null)
+            {
+                user.PasswordHash = newPasswordHash;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task<User?> GetProfileAsync(int userId)
+        {
+            return await _context.Users
+                .Include(u => u.Addresses)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+        public async Task UpdatePersonalInfoAsync(User user)
+        {
+            var existingUser = await _context.Users.FindAsync(user.Id);
+            if (existingUser != null)
+            {
+                existingUser.Username = user.Username;
+                existingUser.Email = user.Email;
+                // Không cập nhật Role
+                existingUser.Status = user.Status;
+                // Không cập nhật PasswordHash ở đây
+                _context.Users.Update(existingUser);
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task UpdateAddressAsync(int userId, string? address, string? city, string? country)
+        {
+            var user = await _context.Users.Include(u => u.Addresses).FirstOrDefaultAsync(u => u.Id == userId);
+            var addr = user?.Addresses.FirstOrDefault();
+            if (addr != null)
+            {
+                addr.Street = address ?? addr.Street;
+                addr.City = city ?? addr.City;
+                addr.Country = country ?? addr.Country;
+                _context.Addresses.Update(addr);
+            }
+            else if (user != null)
+            {
+                // Nếu chưa có address thì tạo mới
+                var newAddr = new Domain.Models.Address
+                {
+                    Street = address ?? string.Empty,
+                    City = city ?? string.Empty,
+                    Country = country ?? string.Empty,
+                    UserId = user.Id
+                };
+                _context.Addresses.Add(newAddr);
+            }
+            await _context.SaveChangesAsync();
+        }
+        public async Task UpdateAccountStatusAsync(int userId, string status)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null && user.Status != status)
+            {
+                user.Status = status;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

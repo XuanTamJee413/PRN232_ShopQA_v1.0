@@ -21,6 +21,7 @@ namespace ShopQaMVC.Models
 
         [Required(ErrorMessage = "Role is required.")]
         public string Role { get; set; }
+          public string Status { get; set; } = "Active"; 
     }
     public class EditUserVM
     {

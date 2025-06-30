@@ -15,6 +15,7 @@ namespace Business.DTO
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }
         public string? ImageUrl { get; set; }
+        public List<ProductVariantDTO> ProductVariants { get; set; } = new List<ProductVariantDTO>();
     }
     public class ProductCreateReqDTO
     {

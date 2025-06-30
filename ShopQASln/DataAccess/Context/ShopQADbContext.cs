@@ -25,6 +25,8 @@ namespace DataAccess.Context
         public DbSet<Cart> Cart => Set<Cart>();
         public DbSet<Review> Review { get; set; } = default!;
         public DbSet<Inventory> Inventory => Set<Inventory>();
+        public DbSet<Wishlist> Wishlists => Set<Wishlist>();
+        public DbSet<WishlistItem> WishlistItems => Set<WishlistItem>();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -188,6 +190,29 @@ namespace DataAccess.Context
             // Discount
             modelBuilder.Entity<Discount>()
                 .Property(d => d.Amount)
+                .IsRequired();
+            // Wishlist
+            modelBuilder.Entity<Wishlist>()
+                .HasOne(w => w.User)
+                .WithMany()
+                .HasForeignKey(w => w.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Wishlist>()
+                .Property(w => w.CreatedAt)
+                .IsRequired();
+            modelBuilder.Entity<WishlistItem>()
+                .HasOne(wi => wi.Wishlist)
+                .WithMany(w => w.Items)
+                .HasForeignKey(wi => wi.WishlistId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            modelBuilder.Entity<WishlistItem>()
+                .HasOne(wi => wi.Product)
+                .WithMany()
+                .HasForeignKey(wi => wi.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<WishlistItem>()
+                .Property(wi => wi.AddedAt)
                 .IsRequired();
             Seed(modelBuilder);
         }
