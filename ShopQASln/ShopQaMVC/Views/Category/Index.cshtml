@@ -1,13 +1,17 @@
 ﻿@model List<ShopQaMVC.Models.CategoryVM>
 
 @{
-    ViewData["Title"] = "Category List";
+    ViewData["Title"] = "Danh sách Danh mục";
+
+    // Khai báo các biến để sử dụng trong View
     var currentSearch = ViewBag.CurrentSearchKeyword as string;
     var currentSort = ViewBag.CurrentSort as string;
     var currentPage = (int)(ViewBag.CurrentPage ?? 1);
-    var hasMoreCategories = (bool)(ViewBag.HasMoreCategories ?? false);
+    // Thay đổi: Dùng TotalPages thay vì HasMoreCategories
+    var totalPages = (int)(ViewBag.TotalPages ?? 1);
 }
 
+@* Phần hiển thị thông báo giữ nguyên *@
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-success">@TempData["Message"]</div>
@@ -16,41 +20,37 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
-@if (ViewBag.ErrorMessage != null)
-{
-    <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
-}
 
-<h2>Category List</h2>
+<h2>Danh sách Danh mục</h2>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="/Category/Create" class="btn btn-success">+ Add Category</a>
+    @* Sửa đổi: Dùng Tag Helper cho liên kết *@
+    <a asp-action="Create" asp-controller="Category" class="btn btn-success">+ Thêm Danh mục</a>
 
     <form asp-action="Index" method="get" class="d-flex">
-        <input type="text" name="searchKeyword" class="form-control me-2" placeholder="Search by name..." value="@currentSearch" />
-       
+        <input type="text" name="searchKeyword" class="form-control me-2" placeholder="Tìm theo tên..." value="@currentSearch" />
         <input type="hidden" name="sortBy" value="@currentSort" />
-        <button type="submit" class="btn btn-primary">Search</button>
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
     </form>
 </div>
 
-<table class="table table-bordered mt-3">
-    <thead>
+<table class="table table-bordered table-hover mt-3">
+    <thead class="table-light">
         <tr>
             <th>ID</th>
             <th>
-                Name
+                Tên
                 <div class="d-inline-block ms-2">
-                  
-                    <a href="@Url.Action("Index", new { searchKeyword = currentSearch, sortBy = "name_asc", page = currentPage })" class="btn btn-sm btn-outline-secondary py-0 px-1">▲</a>
-                    <a href="@Url.Action("Index", new { searchKeyword = currentSearch, sortBy = "name_desc", page = currentPage })" class="btn btn-sm btn-outline-secondary py-0 px-1">▼</a>
+                    @* Sửa đổi: Dùng Tag Helper cho sắp xếp. Khi sắp xếp, quay về trang 1. *@
+                    <a asp-action="Index" asp-route-searchKeyword="@currentSearch" asp-route-sortBy="name_asc" asp-route-page="1" class="btn btn-sm btn-outline-secondary py-0 px-1">▲</a>
+                    <a asp-action="Index" asp-route-searchKeyword="@currentSearch" asp-route-sortBy="name_desc" asp-route-page="1" class="btn btn-sm btn-outline-secondary py-0 px-1">▼</a>
                 </div>
             </th>
-            <th>Actions</th>
+            <th>Hành động</th>
         </tr>
     </thead>
     <tbody>
-        @if (Model.Any())
+        @if (Model != null && Model.Any())
         {
             foreach (var item in Model)
             {
@@ -58,8 +58,16 @@
                     <td>@item.Id</td>
                     <td>@item.Name</td>
                     <td>
-                        <a href="/Category/Edit/@item.Id" class="btn btn-warning">Edit</a>
-                        <a href="/Category/Delete/@item.Id" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa?');">Delete</a>
+                        @* Sửa đổi: Dùng Tag Helper cho nút Sửa *@
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Sửa</a>
+
+                        @* Sửa đổi QUAN TRỌNG: Chuyển nút Xóa thành form POST *@
+                        <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa danh mục này không?');">
+                                Xóa
+                            </button>
+                        </form>
                     </td>
                 </tr>
             }
@@ -67,23 +75,49 @@
         else
         {
             <tr>
-                <td colspan="3" class="text-center">No categories found.</td>
+                <td colspan="3" class="text-center">Không tìm thấy danh mục nào.</td>
             </tr>
         }
     </tbody>
 </table>
 
-<div class="d-flex justify-content-center">
-    @if (currentPage > 1)
-    {
-        <a class="btn btn-outline-primary me-2"
-           href="@Url.Action("Index", new { searchKeyword = currentSearch, sortBy = currentSort, page = currentPage - 1 })">Previous</a>
-    }
-    <span class="align-self-center">Page @currentPage</span>
-   
-    @if (hasMoreCategories)
-    {
-        <a class="btn btn-outline-primary ms-2"
-           href="@Url.Action("Index", new { searchKeyword = currentSearch, sortBy = currentSort, page = currentPage + 1 })">Next</a>
-    }
-</div>
+@* Sửa đổi QUAN TRỌNG: Thay thế hoàn toàn hệ thống phân trang cũ *@
+@if (totalPages > 1)
+{
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            @* Nút Previous (Về trang trước) *@
+            @if (currentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-page="@(currentPage - 1)"
+                       asp-route-searchKeyword="@currentSearch"
+                       asp-route-sortBy="@currentSort">Previous</a>
+                </li>
+            }
+
+            @* Vòng lặp để hiển thị các số trang *@
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-page="@i"
+                       asp-route-searchKeyword="@currentSearch"
+                       asp-route-sortBy="@currentSort">@i</a>
+                </li>
+            }
+
+            @* Nút Next (Tới trang sau) *@
+            @if (currentPage < totalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" asp-action="Index"
+                       asp-route-page="@(currentPage + 1)"
+                       asp-route-searchKeyword="@currentSearch"
+                       asp-route-sortBy="@currentSort">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

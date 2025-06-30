@@ -50,7 +50,8 @@ namespace ShopQAPresentation.Controllers
                 }
 
                 // Trả về URL thanh toán cho client
-                return Ok(new { PaymentUrl = paymentUrl });
+                Console.WriteLine($"paymentUrl trả về: {paymentUrl}");
+                return Ok(new { paymentUrl = paymentUrl });
             }
             catch (Exception ex)
             {
