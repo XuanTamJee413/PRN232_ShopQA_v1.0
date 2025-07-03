@@ -158,16 +158,21 @@
             }
 
             // Load categories for filter dropdown
-            function loadCategories() {
-                $.getJSON('https://localhost:7101/api/Category', function (categories) {
-                    const categorySelect = $('#category');
-                    categorySelect.empty().append('<option value="">-- Select Category --</option>');
-                    categories.forEach(c => {
-                        categorySelect.append(`<option value="${c.id}">${c.name}</option>`);
-                    });
-                    categorySelect.show();
+               function loadCategories() {
+            $.getJSON('https://localhost:7101/odata/Category', function (data) {
+                const categories = data.value; // Lấy danh sách categories từ 'value'
+
+                const categorySelect = $('#category');
+                categorySelect.empty().append('<option value="">-- Chọn danh mục --</option>');
+
+                categories.forEach(c => {
+                    categorySelect.append(`<option value="${c.Id}">${c.Name}</option>`); // Sửa thành c.Id và c.Name
                 });
-            }
+
+                categorySelect.show();
+            });
+        }
+
 
             // Initialize categories dropdown
             loadCategories();
@@ -196,26 +201,30 @@
                         $('#updateDescription').val(product.description);
 
                         // Load categories for update form
-                        $.getJSON('https://localhost:7101/api/Category', function (categories) {
-                            const categorySelect = $('#updateCategory');
-                            categorySelect.empty();
-                            categories.forEach(c => {
-                                const selected = c.id === product.categoryId ? 'selected' : '';
-                                categorySelect.append(`<option value="${c.id}" ${selected}>${c.name}</option>`);
-                                categorySelect.show();
-                            });
-                        });
+                              // Load categories for update form
+        $.getJSON('https://localhost:7101/odata/Category', function (data) {
+            const categories = data.value;
+            const categorySelect = $('#updateCategory');
+            categorySelect.empty();
+            categories.forEach(c => {
+                const selected = c.Id === product.CategoryId ? 'selected' : '';
+                categorySelect.append(`<option value="${c.Id}" ${selected}>${c.Name}</option>`);
+            });
+            categorySelect.show();
+        });
 
-                        // Load brands for update form
-                        $.getJSON('https://localhost:7101/api/Brand', function (brands) {
-                            const brandSelect = $('#updateBrand');
-                            brandSelect.empty();
-                            brands.forEach(b => {
-                                const selected = b.id === product.brand.id ? 'selected' : '';
-                                brandSelect.append(`<option value="${b.id}" ${selected}>${b.name}</option>`);
-                                brandSelect.show();
-                            });
-                        });
+        // Load brands for update form
+        $.getJSON('https://localhost:7101/odata/Brand', function (data) {
+            const brands = data.value;
+            const brandSelect = $('#updateBrand');
+            brandSelect.empty();
+            brands.forEach(b => {
+                const selected = b.Id === product.BrandId ? 'selected' : '';
+                brandSelect.append(`<option value="${b.Id}" ${selected}>${b.Name}</option>`);
+            });
+            brandSelect.show();
+        });
+
 
                         $('#updateProductModal').modal('show');
                     },

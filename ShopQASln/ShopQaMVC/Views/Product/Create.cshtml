@@ -42,42 +42,50 @@
                const token = $('#jwtToken').val();
                console.log(token);
             // Load Categories
-            $.ajax({
-                url: 'https://localhost:7101/api/Category',
-                method: 'GET',
-                    headers: {
-            'Authorization': 'Bearer ' + token
-        },
-                dataType: 'json',
-                success: function (categories) {
-                    const categorySelect = $('#categoryId');
-                    categories.forEach(function (cat) {
-                        categorySelect.append(`<option value="${cat.id}">${cat.name}</option>`);
-                    });
-                    categorySelect.show();
+                  // Load Categories
+        $.ajax({
+            url: 'https://localhost:7101/odata/Category',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+            dataType: 'json',
+            success: function (data) {
+                const categories = data.value;
+                const categorySelect = $('#categoryId');
+                categorySelect.empty().append('<option value="">-- Chọn danh mục --</option>');
+                categories.forEach(function (cat) {
+                    categorySelect.append(`<option value="${cat.Id}">${cat.Name}</option>`);
+                });
+                categorySelect.show();
+            },
+            error: function () {
+                alert("❌ Failed to load categories");
+            }
+        });
 
-                },
-                error: function () {
-                    alert("❌ Failed to load categories");
-                }
-            });
+        // Load Brands
+        $.ajax({
+            url: 'https://localhost:7101/odata/Brand',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+            dataType: 'json',
+            success: function (data) {
+                const brands = data.value;
+                const brandSelect = $('#brandId');
+                brandSelect.empty().append('<option value="">-- Chọn thương hiệu --</option>');
+                brands.forEach(function (brand) {
+                    brandSelect.append(`<option value="${brand.Id}">${brand.Name}</option>`);
+                });
+                brandSelect.show();
+            },
+            error: function () {
+                alert("❌ Failed to load brands");
+            }
+        });
 
-            // Load Brands
-            $.ajax({
-                url: 'https://localhost:7101/api/Brand',
-                method: 'GET',
-                dataType: 'json',
-                success: function (brands) {
-                    const brandSelect = $('#brandId');
-                    brands.forEach(function (brand) {
-                        brandSelect.append(`<option value="${brand.id}">${brand.name}</option>`);
-                    });
-                     brandSelect.show();
-                },
-                error: function () {
-                    alert("❌ Failed to load brands");
-                }
-            });
 
             // Submit form
             $('#createProductForm').on('submit', function (e) {

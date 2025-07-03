@@ -19,7 +19,7 @@ namespace ShopQAPresentation.Controllers.Product
         {
             _productService = productService ;
         }
-        // tamnx test get bang odata https://localhost:7101/odata/Product?$expand=Variants,Category,Brand
+        //// tamnx test get bang odata https://localhost:7101/odata/Product?$expand=Variants,Category,Brand
         [EnableQuery]
         public IActionResult Get()
         {
