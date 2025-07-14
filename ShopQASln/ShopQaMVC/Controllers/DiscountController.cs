@@ -125,6 +125,11 @@ namespace ShopQaMVC.Controllers
                 ModelState.AddModelError("EndDate", "Ngày kết thúc phải sau ngày bắt đầu.");
             }
 
+            if (model.Amount > 40)
+            {
+                ModelState.AddModelError("Amount", "Phần trăm giảm giá không được vượt quá 40%.");
+            }
+
             if (!ModelState.IsValid)
             {
                 await PopulateProductVariantsDropdown(model);
@@ -195,6 +200,10 @@ namespace ShopQaMVC.Controllers
             if (model.StartDate >= model.EndDate)
             {
                 ModelState.AddModelError("EndDate", "Ngày kết thúc phải sau ngày bắt đầu.");
+            }
+            if (model.Amount > 40)
+            {
+                ModelState.AddModelError("Amount", "Phần trăm giảm giá không được vượt quá 40%.");
             }
 
             if (!ModelState.IsValid)

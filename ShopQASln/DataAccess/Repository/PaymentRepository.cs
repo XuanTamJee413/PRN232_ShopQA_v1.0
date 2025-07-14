@@ -35,5 +35,11 @@ namespace DataAccess.Repository
             _context.Entry(payment).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Payment?> GetByOrderId(int orderId)
+        {
+            return await _context.Payments
+                                 .FirstOrDefaultAsync(p => p.OrderId == orderId);
+        }
     }
 }

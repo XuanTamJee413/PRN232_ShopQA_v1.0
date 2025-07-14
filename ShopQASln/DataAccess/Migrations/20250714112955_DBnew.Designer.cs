@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(ShopQADbContext))]
-    [Migration("20250630164128_database")]
-    partial class database
+    [Migration("20250714112955_DBnew")]
+    partial class DBnew
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
