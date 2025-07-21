@@ -58,4 +58,20 @@ public class PaymentService : IPaymentService
         //...
         return response;
     }
+
+    public async Task<string> CreateCodPayment(decimal amount, int orderId)
+    {
+        var payment = new Payment
+        {
+            OrderId = orderId,
+            Method = "COD",
+            Amount = amount,
+            Status = "Pending"
+        };
+
+        await _paymentRepository.AddPayment(payment);
+
+        return "Thanh toán khi nhận hàng đã được ghi nhận thành công.";
+    }
+
 }
