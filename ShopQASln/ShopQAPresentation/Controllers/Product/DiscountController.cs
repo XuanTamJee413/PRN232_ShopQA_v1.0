@@ -48,7 +48,11 @@ namespace ShopQAPresentation.Controllers.Product
                 return BadRequest(ModelState);
             }
 
-            
+            if (discountDto.Amount > 40)
+            {
+                return BadRequest(new { message = "Phần trăm giảm giá không được vượt quá 40%." });
+            }
+
             if (discountDto.StartDate >= discountDto.EndDate)
             {
                 return BadRequest(new { message = "Ngày bắt đầu phải trước ngày kết thúc." });
@@ -101,6 +105,11 @@ namespace ShopQAPresentation.Controllers.Product
             existingDiscount.EndDate = discountDto.EndDate;
             existingDiscount.Status = discountDto.Status;
             existingDiscount.ProductVariantId = discountDto.ProductVariantId;
+
+            if (discountDto.Amount > 40)
+            {
+                return BadRequest(new { message = "Phần trăm giảm giá không được vượt quá 40%." });
+            }
 
             try
             {

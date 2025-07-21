@@ -92,5 +92,8 @@ namespace ShopQAPresentation.Controllers
                 return Content($"<h1>Lỗi xử lý thanh toán</h1><p>Đã xảy ra lỗi khi xử lý kết quả giao dịch: {ex.Message}</p>", "text/html", System.Text.Encoding.UTF8);
             }
         }
+
+
+       
     }
 }
