@@ -3,17 +3,18 @@
 }
 
 <div class="d-flex flex-column justify-content-center align-items-center text-center vh-100">
-    <h1 class="display-4 text-danger">Page Not Found</h1>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <h1 class="display-4 text-danger">@errorMessage</h1>
+    }
+    else
+    {
+        <h1 class="display-4 text-danger">Page Not Found</h1>
+    }
     <img src="/img/error.gif" alt="Error Image" class="img-fluid my-4" style="max-width: 600px;" />
     <div class="text">
         <h2 class="mb-3">Looks like you're lost</h2>
         <p class="mb-4">The page you are looking for is not available.</p>
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="alert alert-danger text-left w-75 mx-auto" role="alert">
-                <strong>Lỗi chi tiết:</strong> @errorMessage
-            </div>
-        }
         <a href="/Home" class="btn btn-primary px-4">Go To Home</a>
     </div>
     <p class="mt-5">Shop<span class="text-danger">QA</span></p>

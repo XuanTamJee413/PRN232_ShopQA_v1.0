@@ -58,80 +58,11 @@ namespace ShopQaMVC.Controllers
             return View();
         }
 
-
         public async Task<IActionResult> SingleProduct(int id)
         {
-            Console.WriteLine($">>> ID RECEIVED: {id}");
-            var client = _httpClientFactory.CreateClient();
-
-            try
-            {
-                // Lấy user info trước
-                var token = HttpContext.Session.GetString("JwtToken");
-                var userJson = HttpContext.Session.GetString("User");
-                Console.WriteLine($"Token: {token}");
-                Console.WriteLine($"User JSON: {userJson}");
-
-                if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(userJson))
-                {
-                    var user = JsonSerializer.Deserialize<UserDTO>(userJson);
-                    Console.WriteLine($"User ID: {user.Id}");
-                    ViewBag.UserId = user.Id;
-
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-
-                    var cartRes = await client.GetAsync($"https://localhost:7101/odata/Cart?$filter=UserId eq {user.Id}");
-                    if (cartRes.IsSuccessStatusCode)
-                    {
-                        var cartJson = await cartRes.Content.ReadAsStringAsync();
-                        using var doc = JsonDocument.Parse(cartJson);
-                        var cartList = new List<CartVM>();
-
-                        foreach (var c in doc.RootElement.GetProperty("value").EnumerateArray())
-                        {
-                            cartList.Add(new CartVM
-                            {
-                                Id = c.GetProperty("Id").GetInt32(),
-                                UserId = c.GetProperty("UserId").GetInt32(),
-                                CreatedAt = c.GetProperty("CreatedAt").GetDateTime(),
-                                Items = new List<CartItemVM>()
-                            });
-                        }
-
-                        ViewBag.CartList = cartList;
-
-
-                    }
-                }
-
-                // Gọi API product sau cùng
-                var url = $"https://localhost:7101/odata/Product({id})?$expand=Variants,Category,Brand";
-                var response = await client.GetAsync(url);
-                if (!response.IsSuccessStatusCode)
-                {
-                    ViewBag.Error = "Không tìm thấy sản phẩm.";
-                    return View(new ProductODataDTO());
-                }
-
-                var json = await response.Content.ReadAsStringAsync();
-                var product = JsonSerializer.Deserialize<ProductODataDTO>(json, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                return View(product ?? new ProductODataDTO());
-            }
-            catch (Exception ex)
-            {
-                ViewBag.Error = "Lỗi: " + ex.Message;
-                return View(new ProductODataDTO());
-            }
+            ViewBag.ProductId = id;
+            return View();
         }
-
-
-
-
-
 
         public IActionResult Privacy()
         {

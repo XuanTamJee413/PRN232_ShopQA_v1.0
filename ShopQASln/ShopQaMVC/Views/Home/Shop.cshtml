@@ -112,7 +112,7 @@
     function renderCategories() {
         const list = document.getElementById("categoryList");
         list.innerHTML =
-            `<li><a href="#" onclick="setCategory(''); return false;" style="${selectedCategory === '' ? 'color:#000;background:#f2f2f2;font-weight:bold;border-radius:4px;' : ''}">Tất cả</a></li>` +
+            `<li><a href="#" onclick="setCategory(''); return false;" style="${selectedCategory === '' ? 'color:#fff;background:#007bff;font-weight:bold;border-radius:4px;' : ''}">Tất cả</a></li>` +
             cachedCategories.map(c =>
                 `<li><a href="#" onclick="setCategory(${c.Id}); return false;" style="${selectedCategory === c.Id ? 'color:#000;background:#f2f2f2;font-weight:bold;border-radius:4px;' : ''}">${c.Name}</a></li>`
             ).join('');
@@ -122,7 +122,7 @@
     function renderBrands() {
         const list = document.getElementById("brandList");
         list.innerHTML =
-            `<li><a href="#" onclick="setBrand(''); return false;" style="${selectedBrand === '' ? 'color:#000;background:#f2f2f2;font-weight:bold;border-radius:4px;' : ''}">Tất cả</a></li>` +
+            `<li><a href="#" onclick="setBrand(''); return false;" style="${selectedBrand === '' ? 'color:#fff;background:#007bff;font-weight:bold;border-radius:4px;' : ''}">Tất cả</a></li>` +
             cachedBrands.map(b =>
                 `<li><a href="#" onclick="setBrand(${b.Id}); return false;" style="${selectedBrand === b.Id ? 'color:#000;background:#f2f2f2;font-weight:bold;border-radius:4px;' : ''}">${b.Name}</a></li>`
             ).join('');
@@ -131,13 +131,13 @@
 
     function setCategory(id) {
         selectedCategory = id;
-        renderCategories(); // chỉ render lại highlight
-        loadProducts();     // load lại sản phẩm
+        renderCategories();
+        loadProducts();   
     }
 
     function setBrand(id) {
         selectedBrand = id;
-        renderBrands(); // chỉ render lại highlight
+        renderBrands(); 
         loadProducts();
     }
 
@@ -168,7 +168,6 @@
                             <img src="${p.ImageUrl || '/img/product/Default_product.jpg'}"
                                  onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';"
                                  alt="Product Image">
-                            <span class="label">Sale</span>
                             <ul class="product__hover">
                                 <li><a href="#"><img src="/img/icon/cart.png"> <span>+ Cart</span></a></li>
                                 <li><a href="#"><img src="/img/icon/compare.png"> <span>Compare</span></a></li>

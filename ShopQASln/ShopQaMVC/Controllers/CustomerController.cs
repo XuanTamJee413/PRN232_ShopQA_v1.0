@@ -50,10 +50,11 @@ namespace ShopQaMVC.Controllers
             if (!response.IsSuccessStatusCode)
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
-                return RedirectToAction("ErrorPage", "Home", new
-                {
-                    error = $"Lỗi khi gọi API: {(int)response.StatusCode} {response.ReasonPhrase} - {errorMessage}"
-                });
+                var message = !string.IsNullOrWhiteSpace(errorMessage)
+                    ? $" - {errorMessage}"
+                    : "";
+
+                return RedirectToAction("Login", "Account");
             }
 
             try

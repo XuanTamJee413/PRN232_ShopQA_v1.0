@@ -1,469 +1,294 @@
-﻿@model Business.DTO.ProductODataDTO
-@using System.Linq
-@using System.Text.Json
-
-@{
+﻿@{
     ViewData["Title"] = "Single Product";
-
+    var productId = ViewBag.ProductId;
 }
-@{
-    var userId = ViewBag.UserId ?? 0;
-    var cartList = ViewBag.CartList as List<CartVM> ?? new List<CartVM>();
+<div id="product-container"></div>
+
+@section Scripts {
+    <script>
+        let selectedVariantId = null;
+        let currentVariant = null;
+        let cachedVariants = [];
+
+        const productId = @productId;
+        const token = sessionStorage.getItem("JwtToken");
+
+        async function fetchProductDetails(id) {
+            try {
+                const res = await fetch(`https://localhost:7101/odata/Product(${id})?$expand=Variants,Category,Brand`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error("Không tìm thấy sản phẩm");
+                const json = await res.json();
+                renderProduct(json);
+            } catch (err) {
+                document.getElementById("product-container").innerHTML = `<div class='alert alert-danger'>${err.message}</div>`;
+            }
+        }
+
+        function renderProduct(data) {
+            const variants = data.Variants || [];
+            if (variants.length === 0) return;
+
+            cachedVariants = variants;
+            currentVariant = variants[0];
+
+            const uniqueSizes = [...new Set(variants.map(v => v.Size))];
+            const uniqueColors = [...new Set(variants.map(v => v.Color))];
+
+            const sizeOptions = `<option value="">Chưa chọn</option>` + uniqueSizes.map(s =>
+                `<option value="${s}" ${s === currentVariant.Size ? 'selected' : ''}>${s}</option>`
+            ).join("");
+
+            const colorOptions = `<option value="">Chưa chọn</option>` + uniqueColors.map(c =>
+                `<option value="${c}" ${c === currentVariant.Color ? 'selected' : ''}>${c}</option>`
+            ).join("");
+
+            const images = variants.map((v, i) => `
+                <li class="nav-item">
+                    <a class="nav-link ${i === 0 ? 'active' : ''}" data-toggle="tab" href="#tabs-${i}" onclick="selectImageVariant(${v.Id})">
+                        <div class="product__thumb__pic set-bg">
+                            <img src="${v.ImageUrl}" onerror="this.src='/img/product/Default_product.jpg';">
+                        </div>
+                    </a>
+                </li>`).join("");
+
+            const tabContent = variants.map((v, i) => `
+                <div class="tab-pane ${i === 0 ? 'active' : ''}" id="tabs-${i}">
+                    <div class="product__details__pic__item">
+                        <img src="${v.ImageUrl}" onerror="this.src='/img/product/Default_product.jpg';" class="img-fluid">
+                    </div>
+                </div>`).join("");
+
+            document.getElementById("product-container").innerHTML = `
+            <div class="product__details__pic">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3"><ul class="nav nav-tabs">${images}</ul></div>
+                        <div class="col-lg-6 col-md-9"><div class="tab-content">${tabContent}</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="product__details__content">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="product__details__text">
+                                <h3>${data.Name}</h3>
+                                <p>${data.Description || ''}</p>
+                                <h5>${data.Brand?.Name || ''}</h5>
+                                <h4 id="variantPrice">${currentVariant.Price}₫</h4>
+                                <p id="variantStock">Còn hàng: ${currentVariant.Stock} sản phẩm</p>
+                                <div class="form-group">
+                                    <label for="sizeSelect">Kích thước:</label>
+                                    <select id="sizeSelect" class="form-control" onchange="onSizeChange()">${sizeOptions}</select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="colorSelect">Màu sắc:</label>
+                                    <select id="colorSelect" class="form-control" onchange="onColorChange()">${colorOptions}</select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="quantity">Số lượng:</label>
+                                    <div class="input-group" style="max-width:150px;">
+                                        <div class="input-group-prepend"><button class="btn btn-outline-secondary" onclick="adjustQuantity(-1)">-</button></div>
+                                        <input type="number" class="form-control text-center" id="quantity" value="1" min="1" onchange="onQuantityInput()" />
+                                        <div class="input-group-append"><button class="btn btn-outline-secondary" onclick="adjustQuantity(1)">+</button></div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" onclick="addToCart(${data.Id})">Thêm vào giỏ hàng</button>
+                                <div id="cartMessage" class="mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }
+
+        function onSizeChange() {
+            const selectedSize = sizeSelect.value;
+            const currentColor = colorSelect.value;
+            const filteredColors = selectedSize === "" ? [...new Set(cachedVariants.map(v => v.Color))] :
+                [...new Set(cachedVariants.filter(v => v.Size === selectedSize).map(v => v.Color))];
+
+            colorSelect.innerHTML = `<option value="">Chưa chọn</option>` +
+                filteredColors.map(c => `<option value="${c}">${c}</option>`).join("");
+            if (!filteredColors.includes(currentColor)) colorSelect.value = "";
+            else colorSelect.value = currentColor;
+
+            updateVariantFromSelect();
+        }
+
+        function onColorChange() {
+            const selectedColor = colorSelect.value;
+            const currentSize = sizeSelect.value;
+            const filteredSizes = selectedColor === "" ? [...new Set(cachedVariants.map(v => v.Size))] :
+                [...new Set(cachedVariants.filter(v => v.Color === selectedColor).map(v => v.Size))];
+
+            sizeSelect.innerHTML = `<option value="">Chưa chọn</option>` +
+                filteredSizes.map(s => `<option value="${s}">${s}</option>`).join("");
+            if (!filteredSizes.includes(currentSize)) sizeSelect.value = "";
+            else sizeSelect.value = currentSize;
+
+            updateVariantFromSelect();
+        }
+
+        function updateVariantFromSelect() {
+            const size = sizeSelect.value;
+            const color = colorSelect.value;
+            const variant = cachedVariants.find(v =>
+                (size === "" || v.Size === size) &&
+                (color === "" || v.Color === color)
+            );
+            if (!variant) {
+                variantPrice.innerText = "Không tìm thấy biến thể";
+                variantStock.innerText = "";
+                currentVariant = null;
+                return;
+            }
+            currentVariant = variant;
+            selectedVariantId = variant.Id;
+            variantPrice.innerText = `${variant.Price}₫`;
+            variantStock.innerText = `Kho: ${variant.Stock} sản phẩm`;
+            updateQuantityMax();
+        }
+
+        function adjustQuantity(change) {
+            const input = document.getElementById("quantity");
+            let qty = parseInt(input.value || 1);
+            qty += change;
+            const max = currentVariant?.Stock || 1;
+            if (qty < 1) qty = 1;
+            if (qty > max) qty = max;
+            input.value = qty;
+        }
+
+        function onQuantityInput() {
+            const input = document.getElementById("quantity");
+            const max = currentVariant?.Stock || 1;
+            let qty = parseInt(input.value || 1);
+            if (qty < 1) qty = 1;
+            if (qty > max) qty = max;
+            input.value = qty;
+        }
+
+        function updateQuantityMax() {
+            const input = document.getElementById("quantity");
+            const max = currentVariant?.Stock || 1;
+            if (parseInt(input.value) > max) input.value = max;
+        }
+
+        function selectImageVariant(variantId) {
+            const variant = cachedVariants.find(v => v.Id === variantId);
+            if (!variant) return;
+            currentVariant = variant;
+            selectedVariantId = variant.Id;
+            sizeSelect.value = variant.Size;
+            onSizeChange();
+            colorSelect.value = variant.Color;
+            variantPrice.innerText = `${variant.Price}₫`;
+            variantStock.innerText = `Kho: ${variant.Stock} sản phẩm`;
+            updateQuantityMax();
+        }
+
+        function addToCart(productId) {
+            if (!currentVariant) return showCartMessage("Vui lòng chọn biến thể hợp lệ", true);
+            const qty = parseInt(document.getElementById("quantity").value);
+            if (qty < 1) return showCartMessage("Số lượng không hợp lệ", true);
+            addToCartToApi(currentVariant.Id, qty);
+        }
+
+        function showCartMessage(msg, isError = false) {
+            const div = document.getElementById("cartMessage");
+            div.innerText = msg;
+            div.className = `mt-2 alert alert-${isError ? 'danger' : 'success'}`;
+            div.style.display = "block";
+            setTimeout(() => {
+                div.style.display = "none"; 
+                div.innerText = "";
+            }, 3000);
+        }
+
+
+        async function addToCartToApi(variantId, quantity) {
+            const token = sessionStorage.getItem("JwtToken");
+            const userJson = sessionStorage.getItem("User");
+            const userId = userJson ? JSON.parse(userJson).Id : null;
+
+            if (!userId || !token) return location.replace("/Account/Login");
+
+            const headers = {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            };
+
+            try {
+                const cartsRes = await fetch(`https://localhost:7101/odata/Cart?$filter=UserId eq ${userId} and Status eq 'Open'`, { headers });
+                let cartId = null;
+                if (!cartsRes.ok) throw new Error("Không thể lấy giỏ hàng");
+
+                const openCart = (await cartsRes.json()).value[0];
+                if (!openCart) {
+                    const res = await fetch("https://localhost:7101/odata/Cart", {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({ UserId: userId, CreatedAt: new Date().toISOString(), Status: "Open" })
+                    });
+                    if (!res.ok) throw new Error("Không tạo được giỏ hàng");
+                    cartId = (await res.json()).Id;
+                } else cartId = openCart.Id;
+
+                const cartDetailRes = await fetch(`https://localhost:7101/odata/Cart(${cartId})?$expand=Items`, { headers });
+                const cartDetail = await cartDetailRes.json();
+                const items = cartDetail.Items || [];
+
+                const existingItem = items.find(i => i.ProductVariantId === variantId);
+                const currentQty = existingItem ? existingItem.Quantity : 0;
+
+                const productRes = await fetch(`https://localhost:7101/odata/Product(${productId})?$expand=Variants`, { headers });
+                const variant = (await productRes.json()).Variants.find(v => v.Id === variantId);
+                if (!variant) return showCartMessage("Không tìm thấy biến thể", true);
+
+                const newQty = currentQty + quantity;
+                if (newQty > variant.Stock) return showCartMessage("Số lượng trong giỏ hàng vượt quá tồn kho", true);
+
+                if (existingItem) {
+                    const res = await fetch(`https://localhost:7101/odata/CartItems(${existingItem.Id})`, {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify({ Quantity: newQty })
+                    });
+                    if (!res.ok) throw new Error("Cập nhật giỏ hàng thất bại");
+                    showCartMessage("Đã cập nhật giỏ hàng");
+                } else {
+                    const res = await fetch("https://localhost:7101/odata/CartItems", {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({
+                            CartId: cartId,
+                            ProductVariantId: variantId,
+                            Quantity: quantity
+                        })
+                    });
+                    if (!res.ok) throw new Error("Không thể thêm sản phẩm");
+                    showCartMessage("Đã thêm vào giỏ hàng");
+                }
+            } catch (err) {
+                console.error(err);
+                showCartMessage("Lỗi: " + err.message, true);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!productId || isNaN(productId)) {
+                document.getElementById("product-container").innerHTML = '<div class="alert alert-danger">Invalid Product ID</div>';
+                return;
+            }
+            fetchProductDetails(productId);
+        });
+    </script>
 }
 
-<!-- Shop Details Section Begin -->
-<section class="shop-details">
-    <div class="product__details__pic">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="product__details__breadcrumb">
-                        <a href="/Home">Home</a>
-                        <a href="/Home/Shop">Shop</a>
-                        <span>Single Product</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-md-3">
-                    <ul class="nav nav-tabs" role="tablist">
-                        @for (int i = 0; i < Model.Variants.Count; i++)
-                        {
-                            var variant = Model.Variants[i];
-                            <li class="nav-item">
-                                <a class="nav-link @(i == 0 ? "active" : "")" data-toggle="tab" href="#tabs-@i" role="tab">
-                                    <div class="product__thumb__pic set-bg">
-                                        <img src="@variant.ImageUrl" onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';" alt="Product Image" />
-                                    </div>
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-                <div class="col-lg-6 col-md-9">
-                    <div class="tab-content">
-                        @for (int i = 0; i < Model.Variants.Count; i++)
-                        {
-                            var variant = Model.Variants[i];
-                            <div class="tab-pane @(i == 0 ? "active" : "")" id="tabs-@i" role="tabpanel">
-                                <div class="product__details__pic__item">
-                                    <img src="@variant.ImageUrl" onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';" alt="variant image" class="img-fluid">
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="product__details__content">
-        <div class="container">
-            <div class="row d-flex justify-content-center">
-                <div class="col-lg-8">
-                    <div class="product__details__text">
-                        <h4>Chọn chi size và màu phù hợp với bạn</h4>
-                        <div class="rating">
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star-o"></i>
-                            <span> - 5 Reviews</span>
-                        </div>
-                        <h3>$270.00 <span>70.00</span></h3>
-                        <p>
-                            Bạn mặc Size nào cũng vừa, bạn chọn màu nào cũng đẹp, hãy chọn một màu và một size phù hợp với bạn nhất nhé.
-                        </p>
-                        @{
-                            var colors = Model.Variants.Select(i => i.Color).Distinct().ToList();
-                            var sizes = Model.Variants.Select(i => i.Size).Distinct().ToList();
 
-                            var colorSizeMap = Model.Variants
-                            .GroupBy(i => i.Color)
-                            .ToDictionary(g => g.Key, g => g.Select(i => i.Size).Distinct().ToList());
-
-                            var sizeColorMap = Model.Variants
-                            .GroupBy(i => i.Size)
-                            .ToDictionary(g => g.Key, g => g.Select(i => i.Color).Distinct().ToList());
-
-                            var variantMap = Model.Variants.ToDictionary(
-                            v => $"{v.Size}_{v.Color}", v => v.Id
-                            );
-
-                            var colorSizeMapJson = JsonSerializer.Serialize(colorSizeMap);
-                            var sizeColorMapJson = JsonSerializer.Serialize(sizeColorMap);
-                            var variantMapJson = JsonSerializer.Serialize(variantMap);
-                        }
-
-
-                        <div class="product__details__option">
-                            <div class="product__details__option__size">
-                                <span>Size:</span>
-                                @foreach (var size in sizes)
-                                {
-                                    <label for="size-@size" class="size-label">
-                                        @size
-                                        <input type="radio" name="size" id="size-@size" value="@size" />
-                                    </label>
-                                }
-                            </div>
-                            <div class="product__details__option__size">
-                                <span>Color:</span>
-                                @foreach (var color in colors)
-                                {
-                                    <label for="color-@color" class="size-label">
-                                        @color
-                                        <input type="radio" name="color" id="color-@color" value="@color" />
-                                    </label>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="product__details__cart__option">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" id="createNewCart">
-                                <label class="form-check-label" for="createNewCart">
-                                    Tạo giỏ hàng mới
-                                </label>
-                            </div>
-
-                            <div class="mb-3" style="display: flex; align-items: center; gap: 10px;">
-                                <select id="cartCombobox" class="form-select" style="width: auto;">
-                                    <option value="">-- Chọn giỏ hàng cũ --</option>
-                                </select>
-                            </div>
-                            <div class="quantity">
-                                <div class="pro-qty">
-                                    <input type="text" value="1">
-                                </div>
-                            </div>
-                            <a href="#" class="primary-btn" id="addToCartBtn">add to cart</a>
-                        </div>
-                        @section Scripts {
-                            <script>
-                                const userId = @userId;
-                                const carts = JSON.parse('@Html.Raw(JsonSerializer.Serialize(cartList).Replace("'", "\\u0027"))');
-                                const colorSizeMap = @Html.Raw(colorSizeMapJson);
-                                const sizeColorMap = @Html.Raw(sizeColorMapJson);
-                                const variantMap = @Html.Raw(variantMapJson);
-
-                                document.addEventListener("DOMContentLoaded", () => {
-                                    let selectedColor = null;
-                                    let selectedSize = null;
-
-                                    const colorInputs = document.querySelectorAll("input[name='color']");
-                                    const sizeInputs = document.querySelectorAll("input[name='size']");
-
-                                    function resetSizeFilter() {
-                                        sizeInputs.forEach(input => {
-                                            input.disabled = false;
-                                            input.closest("label").style.opacity = "1";
-                                        });
-                                    }
-
-                                    function resetColorFilter() {
-                                        colorInputs.forEach(input => {
-                                            input.disabled = false;
-                                            input.closest("label").style.opacity = "1";
-                                        });
-                                    }
-
-                                    function updateSelectionStyles() {
-                                        document.querySelectorAll(".size-label").forEach(label => label.classList.remove("selected"));
-                                        if (selectedSize) {
-                                            document.querySelector(`#size-${selectedSize}`).closest("label").classList.add("selected");
-                                        }
-                                        if (selectedColor) {
-                                            document.querySelector(`#color-${selectedColor}`).closest("label").classList.add("selected");
-                                        }
-                                    }
-
-                                    colorInputs.forEach(input => {
-                                        input.addEventListener("click", () => {
-                                            const val = input.value;
-                                            if (selectedColor === val) {
-                                                selectedColor = null;
-                                                input.checked = false;
-                                                resetSizeFilter();
-                                            } else {
-                                                selectedColor = val;
-                                                const validSizes = colorSizeMap[val] || [];
-                                                sizeInputs.forEach(si => {
-                                                    const isValid = validSizes.includes(si.value);
-                                                    si.disabled = !isValid;
-                                                    si.closest("label").style.opacity = isValid ? "1" : "0.1";
-                                                });
-                                            }
-                                            updateSelectionStyles();
-                                        });
-                                    });
-
-                                    sizeInputs.forEach(input => {
-                                        input.addEventListener("click", () => {
-                                            const val = input.value;
-                                            if (selectedSize === val) {
-                                                selectedSize = null;
-                                                input.checked = false;
-                                                resetColorFilter();
-                                            } else {
-                                                selectedSize = val;
-                                                const validColors = sizeColorMap[val] || [];
-                                                colorInputs.forEach(ci => {
-                                                    const isValid = validColors.includes(ci.value);
-                                                    ci.disabled = !isValid;
-                                                    ci.closest("label").style.opacity = isValid ? "1" : "0.1";
-                                                });
-                                            }
-                                            updateSelectionStyles();
-                                        });
-                                    });
-
-                                    document.getElementById("addToCartBtn").addEventListener("click", function (e) {
-                                        e.preventDefault();
-                                        if (!selectedSize || !selectedColor) {
-                                            alert("Vui lòng chọn size và màu!");
-                                            return;
-                                        }
-
-                                        const key = `${selectedSize}_${selectedColor}`;
-                                        const variantId = variantMap[key];
-                                        const quantity = document.querySelector(".pro-qty input").value;
-
-                                        if (!variantId) {
-                                            alert("Không tìm thấy sản phẩm phù hợp với lựa chọn.");
-                                            return;
-                                        }
-
-                                        console.log("Variant ID:", variantId);
-                                        console.log("Quantity:", quantity);
-
-                                        const createNewCart = document.getElementById("createNewCart").checked;
-                                        const selectedCartId = document.getElementById("cartCombobox").value;
-                                                                        console.log({
-                                    ProductVariantId: parseInt(variantId),
-                                    Quantity: parseInt(quantity),
-                                    CreateNewCart: createNewCart,
-                                    SelectedCartId: selectedCartId ? parseInt(selectedCartId) : 0,
-                                    UserId: parseInt(userId),
-                                    ProductId: parseInt(@(Model.Id)) 
-
-                                });
-
-                                        fetch('/Customer/AddToCart', {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json'
-                                            },
-                                            body: JSON.stringify({
-                                                ProductVariantId: parseInt(variantId),
-                                                Quantity: parseInt(quantity),
-                                                CreateNewCart: createNewCart,
-                                                SelectedCartId: selectedCartId ? parseInt(selectedCartId) : 0,
-                                                UserId: parseInt(userId),
-                                                ProductId: parseInt(@(Model.Id)) 
-                                            })
-                                        })
-                                                                        .then(async res => {
-                                    const text = await res.text(); // đọc nội dung dù thành công hay thất bại
-                                    if (!res.ok) throw new Error(text); // ném lỗi với nội dung cụ thể
-                                    return text;
-                                })
-                                .then(data => alert(data)) // hiển thị thông báo thành công
-                                .catch(err => alert(err.message));
-
-                                    });
-
-                                const select = document.getElementById("cartCombobox");
-                                const checkbox = document.getElementById("createNewCart");
-
-                                // Luôn hiển thị combobox và checkbox
-                                select.style.display = "block";
-                                checkbox.disabled = false;
-                                checkbox.checked = false;
-
-                                carts.forEach(c => {
-                                    const option = document.createElement("option");
-                                    option.value = c.Id;
-                                    option.textContent = `Giỏ ${c.Id} - ${new Date(c.CreatedAt).toLocaleDateString("vi-VN")}`;
-                                    select.appendChild(option);
-                                });
-
-                                });
-
-                            </script>
-                            <style>
-                                .size-label.selected {
-                                    font-weight: bold;
-                                    border: 2px solid #000;
-                                }
-                            </style>
-                        }
-
-                        <div class="product__details__btns__option">
-                            <a href="@Url.Action("FeedBack", "Customer", new { id = Model.Id })"><i class="fa fa-heart"></i> View Feedbacks</a>
-                            <a href="#"><i class="fa fa-exchange"></i> Add To Compare</a>
-                        </div>
-                        <div class="product__details__last__option">
-                            <h5><span>Guaranteed Safe Checkout</span></h5>
-                            <img src="~/img/shop-details/details-payment.png" alt="">
-                            <ul>
-                                <li><span>SKU:</span> 3812912</li>
-                                <li><span>Categories:</span> Clothes</li>
-                                <li><span>Tag:</span> Clothes, Skin, Body</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="product__details__tab">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-toggle="tab" href="#tabs-5"
-                                   role="tab">Description</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tabs-6" role="tab">
-                                    Customer
-                                    Previews(5)
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tabs-7" role="tab">
-                                    Additional
-                                    information
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="tabs-5" role="tabpanel">
-                                <div class="product__details__tab__content">
-                                    <p class="note">
-                                        Nam tempus turpis at metus scelerisque placerat nulla deumantos
-                                        solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
-                                        ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
-                                        pharetras loremos.
-                                    </p>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Products Infomation</h5>
-                                        <p>
-                                            A Pocket PC is a handheld computer, which features many of the same
-                                            capabilities as a modern PC. These handy little devices allow
-                                            individuals to retrieve and store e-mail messages, create a contact
-                                            file, coordinate appointments, surf the internet, exchange text messages
-                                            and more. Every product that is labeled as a Pocket PC must be
-                                            accompanied with specific software to operate the unit and must feature
-                                            a touchscreen and touchpad.
-                                        </p>
-                                        <p>
-                                            As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
-                                            consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                            These days, customers are finding that prices have become much more
-                                            reasonable now that the newness is wearing off. For approximately
-                                            $350.00, a new Pocket PC can now be purchased.
-                                        </p>
-                                    </div>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Material used</h5>
-                                        <p>
-                                            Polyester is deemed lower quality due to its none natural quality’s. Made
-                                            from synthetic materials, not natural like wool. Polyester suits become
-                                            creased easily and are known for not being breathable. Polyester suits
-                                            tend to have a shine to them compared to wool and cotton suits, this can
-                                            make the suit look cheap. The texture of velvet is luxurious and
-                                            breathable. Velvet is a great choice for dinner party jacket and can be
-                                            worn all year round.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="tabs-6" role="tabpanel">
-                                <div class="product__details__tab__content">
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Products Infomation</h5>
-                                        <p>
-                                            A Pocket PC is a handheld computer, which features many of the same
-                                            capabilities as a modern PC. These handy little devices allow
-                                            individuals to retrieve and store e-mail messages, create a contact
-                                            file, coordinate appointments, surf the internet, exchange text messages
-                                            and more. Every product that is labeled as a Pocket PC must be
-                                            accompanied with specific software to operate the unit and must feature
-                                            a touchscreen and touchpad.
-                                        </p>
-                                        <p>
-                                            As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
-                                            consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                            These days, customers are finding that prices have become much more
-                                            reasonable now that the newness is wearing off. For approximately
-                                            $350.00, a new Pocket PC can now be purchased.
-                                        </p>
-                                    </div>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Material used</h5>
-                                        <p>
-                                            Polyester is deemed lower quality due to its none natural quality’s. Made
-                                            from synthetic materials, not natural like wool. Polyester suits become
-                                            creased easily and are known for not being breathable. Polyester suits
-                                            tend to have a shine to them compared to wool and cotton suits, this can
-                                            make the suit look cheap. The texture of velvet is luxurious and
-                                            breathable. Velvet is a great choice for dinner party jacket and can be
-                                            worn all year round.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="tabs-7" role="tabpanel">
-                                <div class="product__details__tab__content">
-                                    <p class="note">
-                                        Nam tempus turpis at metus scelerisque placerat nulla deumantos
-                                        solicitud felis. Pellentesque diam dolor, elementum etos lobortis des mollis
-                                        ut risus. Sedcus faucibus an sullamcorper mattis drostique des commodo
-                                        pharetras loremos.
-                                    </p>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Products Infomation</h5>
-                                        <p>
-                                            A Pocket PC is a handheld computer, which features many of the same
-                                            capabilities as a modern PC. These handy little devices allow
-                                            individuals to retrieve and store e-mail messages, create a contact
-                                            file, coordinate appointments, surf the internet, exchange text messages
-                                            and more. Every product that is labeled as a Pocket PC must be
-                                            accompanied with specific software to operate the unit and must feature
-                                            a touchscreen and touchpad.
-                                        </p>
-                                        <p>
-                                            As is the case with any new technology product, the cost of a Pocket PC
-                                            was substantial during it’s early release. For approximately $700.00,
-                                            consumers could purchase one of top-of-the-line Pocket PCs in 2003.
-                                            These days, customers are finding that prices have become much more
-                                            reasonable now that the newness is wearing off. For approximately
-                                            $350.00, a new Pocket PC can now be purchased.
-                                        </p>
-                                    </div>
-                                    <div class="product__details__tab__content__item">
-                                        <h5>Material used</h5>
-                                        <p>
-                                            Polyester is deemed lower quality due to its none natural quality’s. Made
-                                            from synthetic materials, not natural like wool. Polyester suits become
-                                            creased easily and are known for not being breathable. Polyester suits
-                                            tend to have a shine to them compared to wool and cotton suits, this can
-                                            make the suit look cheap. The texture of velvet is luxurious and
-                                            breathable. Velvet is a great choice for dinner party jacket and can be
-                                            worn all year round.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 <!-- Shop Details Section End -->
 <!-- Related Section Begin -->
 <!-- Related Section Begin -->
