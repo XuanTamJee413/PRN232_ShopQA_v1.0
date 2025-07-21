@@ -19,11 +19,7 @@ namespace ShopQAPresentation.Controllers
             _paymentService = paymentService;
         }
 
-        /// <summary>
-        /// Tạo yêu cầu thanh toán VNPAY.
-        /// </summary>
-        /// <param name="model">Thông tin yêu cầu thanh toán (Số tiền, Thông tin đơn hàng, ID đơn hàng).</param>
-        /// <returns>URL thanh toán VNPAY hoặc thông báo lỗi.</returns>
+        
         [HttpPost("create-payment")]
         public async Task<IActionResult> CreatePayment([FromBody] PaymentRequestModel model)
         {
@@ -61,11 +57,7 @@ namespace ShopQAPresentation.Controllers
             }
         }
 
-        /// <summary>
-        /// Endpoint xử lý callback từ VNPAY sau khi giao dịch hoàn tất.
-        /// VNPAY sẽ gọi GET request đến URL này.
-        /// </summary>
-        /// <returns>Thông báo kết quả thanh toán.</returns>
+        
         [HttpGet("callback")]
         public async Task<IActionResult> PaymentCallback()
         {
@@ -93,7 +85,25 @@ namespace ShopQAPresentation.Controllers
             }
         }
 
-
        
+        [HttpPost("create-cod-payment")]
+        public async Task<IActionResult> CreateCodPayment([FromBody] PaymentRequestModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var resultMessage = await _paymentService.CreateCodPayment(model.Amount, model.OrderId);
+                return Ok(new { message = resultMessage });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi tạo thanh toán COD: {ex.Message}");
+                return StatusCode(500, new { message = "Đã xảy ra lỗi khi tạo thanh toán COD", error = ex.Message });
+            }
+        }
+
+
     }
 }

@@ -10,6 +10,8 @@ namespace Business.Iservices
     public interface IPaymentService 
     {
         Task<string?> CreateVnPayPayment(decimal amount, string orderInfo, int orderId, HttpContext httpContext);
-        Task<(bool, string, string)> ProcessVnPayCallback(IQueryCollection collections); 
+        Task<(bool, string, string)> ProcessVnPayCallback(IQueryCollection collections);
+        Task<string> CreateCodPayment(decimal amount, int orderId);
+
     }
 }

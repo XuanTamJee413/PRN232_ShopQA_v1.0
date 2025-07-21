@@ -28,5 +28,21 @@ namespace DataAccess.Repository
                 .Include(o => o.User) // nếu cần thông tin người dùng
                 .ToList();
         }
+        public async Task AddOrderAsync(Order order)
+        {
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+        }
+
+        public Order GetOrderById(int id)
+        {
+            return _context.Orders
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.ProductVariant)
+                        .ThenInclude(pv => pv.Product)
+                .Include(o => o.User)
+                .First(o => o.Id == id);
+        }
+
     }
 }

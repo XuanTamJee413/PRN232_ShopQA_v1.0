@@ -45,5 +45,46 @@ namespace Business.Service
             });
         }
 
+        public async Task<OrderDto> CreateOrderAsync(OrderDto orderDto)
+        {
+            var order = new Order
+            {
+                OrderDate = orderDto.OrderDate,
+                TotalAmount = orderDto.TotalAmount,
+                UserId = orderDto.User.Id,
+                Items = orderDto.Items.Select(i => new OrderItem
+                {
+                    Quantity = i.Quantity,
+                    Price = i.Price,
+                    ProductVariantId = i.Id // Giả sử i.Id là ID của ProductVariant
+                }).ToList()
+            };
+
+            await _orderRepository.AddOrderAsync(order);
+
+            // Load lại để lấy đầy đủ thông tin (User, ProductName...)
+            var savedOrder = _orderRepository.GetOrderById(order.Id);
+
+            return new OrderDto
+            {
+                Id = savedOrder.Id,
+                OrderDate = savedOrder.OrderDate,
+                TotalAmount = savedOrder.TotalAmount,
+                User = new UserOrderDto
+                {
+                    Id = savedOrder.User.Id,
+                    FullName = savedOrder.User.Username,
+                    Email = savedOrder.User.Email
+                },
+                Items = savedOrder.Items.Select(i => new OrderItemDto
+                {
+                    Id = i.Id,
+                    Quantity = i.Quantity,
+                    Price = i.Price,
+                    ProductName = i.ProductVariant.Product.Name
+                }).ToList()
+            };
+        }
+
     }
 }
