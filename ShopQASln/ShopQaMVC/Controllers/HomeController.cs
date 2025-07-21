@@ -53,116 +53,11 @@ namespace ShopQaMVC.Controllers
         }
 
         // Tamnx ViewProduct list customer side
-        public async Task<IActionResult> Shop(int? categoryId, int? brandId, string? search)
+        public IActionResult Shop()
         {
-            var client = _httpClientFactory.CreateClient();
-
-            var filters = new List<string>();
-            if (categoryId.HasValue)
-                filters.Add($"CategoryId eq {categoryId.Value}");
-            if (brandId.HasValue)
-                filters.Add($"BrandId eq {brandId.Value}");
-            if (!string.IsNullOrWhiteSpace(search))
-                filters.Add($"contains(tolower(Name), '{search.ToLower()}')");
-
-            var filterQuery = filters.Any() ? $"&$filter={string.Join(" and ", filters)}" : "";
-            var productUrl = $"https://localhost:7101/odata/Product?$expand=Variants,Category,Brand{filterQuery}";
-
-            var products = new List<ProductDTO>();
-            var categories = new List<CategoryDTO>();
-            var brands = new List<BrandDTO>();
-
-            try
-            {
-                var response = await client.GetAsync(productUrl);
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-
-                    var productJson = root.GetProperty("value").GetRawText();
-                    var odataProducts = JsonSerializer.Deserialize<List<ProductODataDTO>>(productJson, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }) ?? new();
-
-                    products = odataProducts.Select(p => new ProductDTO
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Description = p.Description,
-                        CategoryId = p.CategoryId,
-                        BrandId = p.BrandId,
-                        ImageUrl = p.ImageUrl,
-                        Category = p.Category,
-                        Brand = p.Brand,
-                        Variants = p.Variants
-                    }).ToList();
-                }
-                else
-                {
-                    ViewBag.ProductError = "Không thể tải sản phẩm";
-                }
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ProductError = "Lỗi sản phẩm: " + ex.Message;
-            }
-
-            try
-            {
-                var categoryRes = await client.GetAsync("https://localhost:7101/odata/Category");
-                if (categoryRes.IsSuccessStatusCode)
-                {
-                    var json = await categoryRes.Content.ReadAsStringAsync();
-                    using var doc = JsonDocument.Parse(json);
-                    var valueJson = doc.RootElement.GetProperty("value").GetRawText();
-                    categories = JsonSerializer.Deserialize<List<CategoryDTO>>(valueJson, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }) ?? new();
-                }
-                else
-                {
-                    ViewBag.CategoryError = "Không thể tải danh mục";
-                }
-            }
-            catch (Exception ex)
-            {
-                ViewBag.CategoryError = "Lỗi danh mục: " + ex.Message;
-            }
-
-            try
-            {
-                var brandRes = await client.GetAsync("https://localhost:7101/odata/Brand");
-                if (brandRes.IsSuccessStatusCode)
-                {
-                    var json = await brandRes.Content.ReadAsStringAsync();
-                    using var doc = JsonDocument.Parse(json);
-                    var valueJson = doc.RootElement.GetProperty("value").GetRawText();
-                    brands = JsonSerializer.Deserialize<List<BrandDTO>>(valueJson, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    }) ?? new();
-                }
-                else
-                {
-                    ViewBag.BrandError = "Không thể tải nhãn hiệu";
-                }
-            }
-            catch (Exception ex)
-            {
-                ViewBag.BrandError = "Lỗi nhãn hiệu: " + ex.Message;
-            }
-
-            ViewBag.Categories = categories;
-            ViewBag.Brands = brands;
-            ViewBag.SelectedCategory = categoryId;
-            ViewBag.SelectedBrand = brandId;
-
-            return View(products);
+            return View();
         }
+
 
         public async Task<IActionResult> SingleProduct(int id)
         {
