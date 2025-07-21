@@ -10,5 +10,8 @@ namespace DataAccess.IRepositories
     public interface IOrderRepository
     {
         IEnumerable<Order> GetAllOrders();
+        Task AddOrderAsync(Order order);
+        Order GetOrderById(int id);
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using Business.Iservices;
+﻿using Business.DTO;
+using Business.Iservices;
 using Business.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,16 @@ namespace ShopQAPresentation.Controllers.Order
         {
             var orders = _orderService.GetAllOrderDtos();
             return Ok(orders);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder([FromBody] OrderDto orderDto)
+        {
+            if (orderDto == null || orderDto.Items == null || !orderDto.Items.Any())
+                return BadRequest("Order must contain at least one item.");
+
+            var createdOrder = await _orderService.CreateOrderAsync(orderDto);
+            return CreatedAtAction(nameof(GetAllOrders), new { id = createdOrder.Id }, createdOrder);
         }
 
     }

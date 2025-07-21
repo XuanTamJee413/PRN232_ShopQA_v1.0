@@ -11,5 +11,6 @@ namespace Business.Iservices
     public interface IOrderService
     {
         IEnumerable<OrderDto> GetAllOrderDtos();
+        Task<OrderDto> CreateOrderAsync(OrderDto orderDto);
     }
 }
