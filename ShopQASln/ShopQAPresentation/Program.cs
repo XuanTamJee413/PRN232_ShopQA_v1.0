@@ -17,13 +17,21 @@ using Microsoft.OData.Edm;
 
 using Microsoft.OData.ModelBuilder;
 using System.Reflection.Emit;
+using CloudinaryDotNet;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 //controller + odata
-
+var cloudinarySettings = builder.Configuration.GetSection("CloudinarySettings");
+var account = new Account(
+    cloudinarySettings["CloudName"],
+    cloudinarySettings["ApiKey"],
+    cloudinarySettings["ApiSecret"]
+);
+var cloudinary = new Cloudinary(account);
+builder.Services.AddSingleton(cloudinary);
 IEdmModel GetEdmModel()
 {
     var builder = new ODataConventionModelBuilder();
@@ -79,7 +87,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<ICartItemService, CartItemService>();
 builder.Services.AddScoped<IWishlistService, WishlistService>();
-
+builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -98,8 +106,8 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
-//builder.Services.Configure<VnPayConfig>(builder.Configuration.GetSection("VnPayConfig"));
 builder.Services.Configure<VnPayConfig>(builder.Configuration.GetSection("VnPay"));
 
 

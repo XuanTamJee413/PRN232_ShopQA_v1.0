@@ -14,5 +14,7 @@ namespace DataAccess.IRepositories
         void Update(ProductVariant variant);
         void Save();
         void Add(ProductVariant variant);
+
+        Task SaveAsync();
     }
 }

@@ -22,13 +22,19 @@ namespace Business.Service
         private readonly ICategoryRepository categoryRepository;
         private readonly IBrandRepository brandRepository;
         private readonly IProductVariantRepository _variantRepo;
-
-        public ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, IBrandRepository brandRepository, IProductVariantRepository variantRepo)
+        private readonly ICloudinaryService _cloudinaryService;
+        public ProductService(
+              IProductRepository productRepository,
+              ICategoryRepository categoryRepository,
+              IBrandRepository brandRepository,
+              IProductVariantRepository variantRepo,
+              ICloudinaryService cloudinaryService) // Inject it through the constructor
         {
             this.productRepository = productRepository;
             this.categoryRepository = categoryRepository;
             this.brandRepository = brandRepository;
             _variantRepo = variantRepo;
+            _cloudinaryService = cloudinaryService; // Assign the injected service
         }
         public IQueryable<Product> GetQueryableVisibleProducts()
         {
@@ -255,7 +261,7 @@ namespace Business.Service
 
             return result;
         }
-        public ProductVariantWithInventoryResDTO UpdateVariantWithInventory(int variantId, ProductVariantWithInventoryUpdateDTO dto)
+        public async Task<ProductVariantWithInventoryResDTO> UpdateVariantWithInventory(int variantId, ProductVariantWithInventoryUpdateDTO dto)
         {
             var variant = _variantRepo.GetVariantWithInventory(variantId)
                 ?? throw new ArgumentException("Không tìm thấy biến thể sản phẩm.");
@@ -264,7 +270,31 @@ namespace Business.Service
             variant.Size = dto.Size;
             variant.Color = dto.Color;
             variant.Stock = dto.Stock;
-            variant.ImageUrl = dto.ImageUrl;
+
+            // Handle image upload ONLY if a new ImageFile is provided
+            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            {
+                // Call the UploadImageAsync method from the injected service
+                var uploadResult = await _cloudinaryService.UploadImageAsync(dto.ImageFile, "ShopQa_ProductVariants");
+                if (uploadResult != null && !string.IsNullOrEmpty(uploadResult.SecureUrl?.ToString()))
+                {
+                    variant.ImageUrl = uploadResult.SecureUrl.ToString();
+                }
+                else
+                {
+                    throw new Exception("Lỗi khi tải ảnh lên Cloudinary.");
+                }
+            }
+            // If no new ImageFile, retain the existing ImageUrl from the DTO (if provided)
+            else if (!string.IsNullOrEmpty(dto.ImageUrl))
+            {
+                variant.ImageUrl = dto.ImageUrl;
+            }
+            else
+            {
+                // Optionally clear ImageUrl if no new file and no existing URL provided
+                variant.ImageUrl = null;
+            }
 
             if (variant.Inventory != null)
             {
@@ -282,7 +312,7 @@ namespace Business.Service
             }
 
             _variantRepo.Update(variant);
-            _variantRepo.Save();
+            _variantRepo.Save(); // Assuming Save is synchronous for now. If it's async, use await _variantRepo.SaveAsync();
 
             return new ProductVariantWithInventoryResDTO
             {
@@ -301,16 +331,36 @@ namespace Business.Service
             };
         }
 
-        public ProductVariantWithInventoryResDTO CreateVariant(ProductVariantCreateDTO dto)
+        public async Task<ProductVariantWithInventoryResDTO> CreateVariant(ProductVariantCreateDTO dto) // Changed to async Task<T>
         {
+            string? imageUrl = null; // Initialize image URL to null
+
+            // Handle image upload if a file is provided
+            if (dto.ImageFile != null && dto.ImageFile.Length > 0)
+            {
+                var uploadResult = await _cloudinaryService.UploadImageAsync(dto.ImageFile, "ShopQa_ProductVariants");
+                if (uploadResult != null && !string.IsNullOrEmpty(uploadResult.SecureUrl?.ToString()))
+                {
+                    imageUrl = uploadResult.SecureUrl.ToString();
+                }
+                else
+                {
+                    throw new Exception("Lỗi khi tải ảnh biến thể lên Cloudinary.");
+                }
+            }
+            else if (!string.IsNullOrEmpty(dto.ImageUrl)) // Fallback to direct URL if file not provided (optional)
+            {
+                imageUrl = dto.ImageUrl;
+            }
+
             var variant = new ProductVariant
             {
                 ProductId = dto.ProductId,
                 Price = dto.Price,
                 Size = dto.Size,
                 Color = dto.Color,
-                Stock = dto.Stock,
-                ImageUrl = dto.ImageUrl,
+                Stock = dto.Stock, // Assuming this is still used, otherwise set to 0 or remove
+                ImageUrl = imageUrl, // Use the uploaded URL or provided URL
                 Inventory = new Inventory
                 {
                     Quantity = dto.InventoryQuantity,
@@ -319,7 +369,7 @@ namespace Business.Service
             };
 
             _variantRepo.Add(variant);
-            _variantRepo.Save();
+            await _variantRepo.SaveAsync(); // Assuming Save() is now SaveAsync()
 
             return new ProductVariantWithInventoryResDTO
             {

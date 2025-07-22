@@ -49,7 +49,6 @@
         <tbody id="variantTableBody"></tbody>
     </table>
 
-    <!-- ✅ Pagination controls -->
     <div class="mb-4 text-center">
         <button id="prevPageBtn" class="btn btn-secondary" disabled>❮ Previous</button>
         <span id="pageNumber">Page 1</span>
@@ -57,7 +56,6 @@
     </div>
 </div>
 
-<!-- ✅ Modal Add Variant -->
 <div class="modal fade" id="addVariantModal" tabindex="-1" aria-labelledby="addVariantModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -89,8 +87,8 @@
                             <input type="number" class="form-control" id="inventoryQuantity" min="0" required />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="imageUrl" class="form-label">Image URL</label>
-                            <input type="text" class="form-control" id="imageUrl" placeholder="/images/..." />
+                            <label for="newVariantImageFile" class="form-label">Image File</label>
+                            <input type="file" class="form-control" id="newVariantImageFile" accept="image/*" />
                         </div>
                     </div>
                 </div>
@@ -103,7 +101,6 @@
     </div>
 </div>
 
-<!-- ✅ Modal Update Variant -->
 <div class="modal fade" id="updateVariantModal" tabindex="-1" aria-labelledby="updateVariantModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -114,7 +111,7 @@
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="updateVariantId" />
-                    <div class="row">
+                    <input type="hidden" id="currentImageUrlHidden" /> <div class="row">
                         <div class="col-md-4 mb-3">
                             <label for="updateSize" class="form-label">Size</label>
                             <input type="text" class="form-control" id="updateSize" required />
@@ -135,8 +132,12 @@
                             <input type="number" class="form-control" id="updateInventoryQuantity" min="0" required />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="updateImageUrl" class="form-label">Image URL</label>
-                            <input type="text" class="form-control" id="updateImageUrl" placeholder="/images/..." />
+                            <label for="updateImageFile" class="form-label">Upload New Image</label>
+                            <input type="file" class="form-control" id="updateImageFile" accept="image/*" />
+                            <small class="form-text text-muted">Leave empty to keep current image.</small>
+                            <div class="mt-2">
+                                <img id="currentVariantImagePreview" src="" class="img-thumbnail" width="100" style="display: none;" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -155,56 +156,53 @@
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
     <script>
         const productId = window.location.pathname.split('/').pop();
-          const token = $('#jwtToken').val();
+        const token = $('#jwtToken').val();
         let currentPage = 1;
         const pageSize = 5;
         let variants = []; // Mảng lưu trữ tất cả các biến thể
         let fuse; // Fuse.js instance
 
         function loadProductDetails() {
-                   $.ajax({
-            url: `https://localhost:7101/api/Product/${productId}`,
-            type: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            },
-            success: function (product) {
-                $('#mainImage').attr('src', product.imageUrl || '/images/default.png');
-                $('#productName').text(product.name);
-                $('#productDescription').text(product.description);
-                $('#productCategory').text(product.categoryName);
-                $('#productBrand').text(product.brand?.name || 'N/A');
+            $.ajax({
+                url: `https://localhost:7101/api/Product/${productId}`,
+                type: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                success: function (product) {
+                    $('#mainImage').attr('src', product.imageUrl || '/images/default.png');
+                    $('#productName').text(product.name);
+                    $('#productDescription').text(product.description);
+                    $('#productCategory').text(product.categoryName);
+                    $('#productBrand').text(product.brand?.name || 'N/A');
 
-                variants = product.variants || [];
+                    variants = product.variants || [];
 
-                const options = {
-                    includeScore: true,
-                    keys: ['size', 'color', 'price']
-                };
-                fuse = new Fuse(variants, options);
+                    const options = {
+                        includeScore: true,
+                        keys: ['size', 'color', 'price']
+                    };
+                    fuse = new Fuse(variants, options);
 
-                showVariants();
-            },
-            error: function (xhr) {
-                alert('❌ Không thể tải thông tin sản phẩm. Lỗi: ' + xhr.responseText);
-            }
-        });
+                    showVariants();
+                },
+                error: function (xhr) {
+                    alert('❌ Không thể tải thông tin sản phẩm. Lỗi: ' + xhr.responseText);
+                }
+            });
         }
 
         function showVariants() {
-            // Lọc theo giá và tìm kiếm
             const minPrice = parseInt($('#minPrice').val()) || 0;
             const maxPrice = parseInt($('#maxPrice').val()) || Infinity;
             const searchQuery = $('#searchInput').val().toLowerCase();
 
-            // Tìm kiếm nâng cao với Fuse.js
             let filteredVariants = variants;
 
             if (searchQuery) {
                 filteredVariants = fuse.search(searchQuery).map(result => result.item);
             }
 
-            // Lọc theo giá
             filteredVariants = filteredVariants.filter(variant => {
                 const price = variant.price;
                 return price >= minPrice && price <= maxPrice;
@@ -244,7 +242,18 @@
             $('#updateColor').val(color);
             $('#updatePrice').val(price);
             $('#updateInventoryQuantity').val(inventoryQuantity);
-            $('#updateImageUrl').val(imageUrl);
+
+            // Set the current image URL to the hidden input
+            $('#currentImageUrlHidden').val(imageUrl);
+
+            // Display current image preview
+            if (imageUrl) {
+                $('#currentVariantImagePreview').attr('src', imageUrl).show();
+            } else {
+                $('#currentVariantImagePreview').hide();
+            }
+            // Clear the file input when opening the modal
+            $('#updateImageFile').val('');
 
             // Show the update variant modal
             $('#updateVariantModal').modal('show');
@@ -265,25 +274,76 @@
             }
         });
 
+        // Add Variant Form Submission
+        $('#createVariantForm').submit(function (e) {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('productId', productId); // Ensure productId is sent for new variants
+            formData.append('size', $('#size').val().trim());
+            formData.append('color', $('#color').val().trim());
+            formData.append('price', parseFloat($('#price').val()));
+            formData.append('inventoryQuantity', parseInt($('#inventoryQuantity').val()));
+
+            const newImageFile = $('#newVariantImageFile')[0].files[0];
+            if (newImageFile) {
+                formData.append('ImageFile', newImageFile); // 'ImageFile' must match DTO property
+            }
+
+            $.ajax({
+                url: `https://localhost:7101/api/Product/variant`, // Assuming this is your API endpoint for adding variants
+                type: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                processData: false, // Required for FormData
+                contentType: false, // Required for FormData
+                data: formData,
+                success: function () {
+                    alert('✅ Variant added successfully!');
+                    $('#addVariantModal').modal('hide');
+                    loadProductDetails(); // Reload product details to update variants table
+                },
+                error: function (xhr) {
+                    alert('❌ Failed to add variant: ' + xhr.responseText);
+                }
+            });
+        });
+
+        // Update Variant Form Submission
         $('#updateVariantForm').submit(function (e) {
             e.preventDefault();
-            const data = {
-                price: parseFloat($('#updatePrice').val()),
-                size: $('#updateSize').val().trim(),
-                color: $('#updateColor').val().trim(),
-                stock: 0,
-                imageUrl: $('#updateImageUrl').val().trim(),
-                inventoryQuantity: parseInt($('#updateInventoryQuantity').val())
-            };
+
             const variantId = $('#updateVariantId').val();
+            const formData = new FormData(); // Use FormData for file uploads
+
+            formData.append('price', parseFloat($('#updatePrice').val()));
+            formData.append('size', $('#updateSize').val().trim());
+            formData.append('color', $('#updateColor').val().trim());
+            formData.append('stock', 0); // Assuming stock is always 0 or handled differently
+            formData.append('inventoryQuantity', parseInt($('#updateInventoryQuantity').val()));
+
+            // Append the image file if selected
+            const imageFile = $('#updateImageFile')[0].files[0];
+            if (imageFile) {
+                formData.append('ImageFile', imageFile); // 'ImageFile' must match the property name in ProductVariantWithInventoryUpdateDTO
+            } else {
+                // If no new file is selected, send the existing ImageUrl to retain it
+                const currentImageUrl = $('#currentImageUrlHidden').val();
+                if (currentImageUrl) {
+                    formData.append('ImageUrl', currentImageUrl); // 'ImageUrl' must match the property name in DTO
+                }
+            }
+
             $.ajax({
                 url: `https://localhost:7101/api/Product/variant/${variantId}`,
                 type: 'PUT',
-                 headers: {
-            'Authorization': 'Bearer ' + token
-        },
-                contentType: 'application/json',
-                data: JSON.stringify(data),
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                processData: false, // Don't process the data (required for FormData)
+                contentType: false, // Don't set content type (required for FormData)
+                data: formData, // Send FormData
                 success: function () {
                     alert('✅ Variant updated successfully!');
                     $('#updateVariantModal').modal('hide');
@@ -296,7 +356,14 @@
         });
 
         $(document).ready(function () {
-            $('#addVariantBtn').click(() => $('#addVariantModal').modal('show'));
+            // Event listener for "Add Variant" button
+            $('#addVariantBtn').click(function() {
+                // Clear the form and any previous file selection
+                $('#createVariantForm')[0].reset();
+                $('#newVariantImageFile').val('');
+                $('#addVariantModal').modal('show');
+            });
+
             $('#searchInput, #minPrice, #maxPrice').on('input', function () {
                 currentPage = 1;  // Reset to the first page on filter change
                 showVariants();

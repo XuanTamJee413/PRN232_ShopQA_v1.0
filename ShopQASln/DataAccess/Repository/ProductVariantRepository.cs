@@ -36,7 +36,10 @@ namespace DataAccess.Repository
         {
             _context.ProductVariants.Update(variant);
         }
-
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync(); // Actual asynchronous save
+        }
         public void Save()
         {
             _context.SaveChanges();

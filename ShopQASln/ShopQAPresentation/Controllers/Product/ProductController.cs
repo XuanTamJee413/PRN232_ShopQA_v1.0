@@ -1,32 +1,30 @@
 ﻿using Business.DTO;
 using Business.Iservices;
+using Business.Service;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using System;
+using System.Linq;
 
-namespace ShopQAPresentation.Controllers.Product
+namespace ShopQAPresentation.Controllers
 {
-    //[Route("api/[controller]")]
-    //[ApiController]
     public class ProductController : ODataController
     {
         private readonly IProductService _productService;
         public ProductController(IProductService productService)
         {
-            _productService = productService ;
+            _productService = productService;
         }
-        //// tamnx test get bang odata https://localhost:7101/odata/Product?$expand=Variants,Category,Brand
         [EnableQuery]
         public IActionResult Get()
         {
             var products = _productService.GetQueryableVisibleProducts();
             return Ok(products);
         }
-        // tamnx test get by id bang odata https://localhost:7101/odata/Product(id)?$expand=Variants,Category,Brand
         [EnableQuery]
         public IActionResult Get([FromODataUri] int key)
         {
@@ -35,25 +33,21 @@ namespace ShopQAPresentation.Controllers.Product
             return Ok(SingleResult.Create(product));
         }
 
-
-        [HttpGet]
-       
+        [HttpGet("api/Product")] 
         [Authorize(Roles = "Admin")]
         public IActionResult GetAllProduct(string? name, int? categoryId, decimal? startPrice, decimal? toPrice)
         {
-                var products = _productService.GetAllProduct(name, categoryId, startPrice, toPrice);
-                return Ok(products);
-          
+            var products = _productService.GetAllProduct(name, categoryId, startPrice, toPrice);
+            return Ok(products);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("api/Product/{id}")] 
         [Authorize(Roles = "Admin")]
         public IActionResult GetProductById(int id)
         {
             try
             {
                 var product = _productService.GetProductById(id);
-
                 return Ok(product);
             }
             catch (ArgumentException ex)
@@ -62,9 +56,9 @@ namespace ShopQAPresentation.Controllers.Product
             }
         }
 
-        [HttpPost]
-         [Authorize(Roles = "Admin")]
-        public IActionResult AddProduct(ProductCreateReqDTO productDTO)
+        [HttpPost("api/Product")] 
+        [Authorize(Roles = "Admin")]
+        public IActionResult AddProduct([FromBody] ProductCreateReqDTO productDTO)
         {
             try
             {
@@ -76,10 +70,9 @@ namespace ShopQAPresentation.Controllers.Product
                 return BadRequest(new { error = ex.Message });
             }
         }
-
-        [HttpPut("{id}")]
+        [HttpPut("api/Product/{id}")] 
         [Authorize(Roles = "Admin")]
-        public IActionResult UpdateProduct(int id, ProductCreateReqDTO productDTO)
+        public IActionResult UpdateProduct(int id, [FromBody] ProductCreateReqDTO productDTO)
         {
             try
             {
@@ -92,14 +85,13 @@ namespace ShopQAPresentation.Controllers.Product
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("api/Product/{id}")] 
         [Authorize(Roles = "Admin")]
         public IActionResult DeleteProduct(int id)
         {
             try
             {
                 return Ok(_productService.DeleteProduct(id));
-
             }
             catch (ArgumentException ex)
             {
@@ -107,28 +99,18 @@ namespace ShopQAPresentation.Controllers.Product
             }
         }
 
-        [HttpPut("variant/{variantId}")]
+        [HttpPut("api/Product/variant/{variantId}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult UpdateVariantWithInventory(int variantId, [FromBody] ProductVariantWithInventoryUpdateDTO dto)
+        public async Task<IActionResult> UpdateVariantWithInventory(int variantId, [FromForm] ProductVariantWithInventoryUpdateDTO dto)
         {
             try
             {
-                var result = _productService.UpdateVariantWithInventory(variantId, dto);
+                var result = await _productService.UpdateVariantWithInventory(variantId, dto);
                 return Ok(result);
             }
             catch (ArgumentException ex)
             {
                 return NotFound(new { message = ex.Message });
-            }
-        }
-        [HttpPost("variant")]
-        //[Authorize(Roles = "Admin")]
-        public IActionResult CreateVariant([FromBody] ProductVariantCreateDTO dto)
-        {
-            try
-            {
-                var result = _productService.CreateVariant(dto);
-                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -136,5 +118,24 @@ namespace ShopQAPresentation.Controllers.Product
             }
         }
 
+
+[HttpPost("api/Product/variant")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateVariant([FromForm] ProductVariantCreateDTO dto) // Changed to [FromForm] and async Task<IActionResult>
+    {
+        try
+        {
+            var result = await _productService.CreateVariant(dto);
+            return Ok(result);
+        }
+        catch (ArgumentException ex) // Good practice to catch specific exceptions
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
+}
 }
