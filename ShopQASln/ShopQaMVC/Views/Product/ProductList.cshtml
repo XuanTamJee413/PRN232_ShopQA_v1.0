@@ -33,6 +33,7 @@
         <table class="table table-striped table-hover">
             <thead>
                 <tr>
+                    <th>Image</th>
                     <th>Name</th>
                     <th>Description</th>
                     <th>Category</th>
@@ -52,28 +53,32 @@
     <div class="modal fade" id="updateProductModal" tabindex="-1" aria-labelledby="updateProductModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form id="updateProductForm">
+                <form id="updateProductForm" enctype="multipart/form-data">
                     <div class="modal-header">
                         <h5 class="modal-title" id="updateProductModalLabel">Update Product</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" id="updateProductId" />
+                        <input type="hidden" id="updateProductId" name="id" />
                         <div class="mb-3">
                             <label for="updateName" class="form-label">Product Name</label>
-                            <input type="text" class="form-control" id="updateName" required />
+                            <input type="text" class="form-control" id="updateName" name="name" required />
                         </div>
                         <div class="mb-3">
                             <label for="updateDescription" class="form-label">Description</label>
-                            <textarea class="form-control" id="updateDescription" rows="3" required></textarea>
+                            <textarea class="form-control" id="updateDescription" name="description" rows="3" required></textarea>
                         </div>
                         <div class="mb-3">
                             <label for="updateCategory" class="form-label">Category</label>
-                            <select class="form-control" id="updateCategory" required></select>
+                            <select class="form-control" id="updateCategory" name="categoryId" required></select>
                         </div>
                         <div class="mb-3">
                             <label for="updateBrand" class="form-label">Brand</label>
-                            <select class="form-control" id="updateBrand" required></select>
+                            <select class="form-control" id="updateBrand" name="brandId" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="updateImage" class="form-label">Product Image</label>
+                            <input type="file" class="form-control" id="updateImage" name="image" />
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -95,7 +100,7 @@
             const pageSize = 5;
             let currentPage = 1;
             const token = $('#jwtToken').val();
-            // Render pagination
+
             function renderPagination(totalPages) {
                 const pagination = $('#pagination');
                 pagination.empty();
@@ -112,7 +117,6 @@
                 }
             }
 
-            // Fetch products with filter
             function fetchProducts() {
                 const name = $('#name').val();
                 const categoryId = $('#category').val();
@@ -120,10 +124,8 @@
                 $.ajax({
                     url: 'https://localhost:7101/api/Product',
                     type: 'GET',
-                         headers: {
-            'Authorization': 'Bearer ' + token
-        },
-                    data: { name: name, categoryId: categoryId },
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    data: { name, categoryId },
                     success: function (data) {
                         const tableBody = $('#productTable tbody');
                         tableBody.empty();
@@ -131,139 +133,94 @@
                         const start = (currentPage - 1) * pageSize;
                         const pagedData = data.slice(start, start + pageSize);
 
-                        if (pagedData.length === 0) {
-                            tableBody.append('<tr><td colspan="4">No products found</td></tr>');
+                        if (!pagedData.length) {
+                            tableBody.append('<tr><td colspan="5">No products found</td></tr>');
                         } else {
                             $.each(pagedData, function (index, product) {
-                                const row = '<tr>' +
-                                   '<td><a href="/Product/Detail/' + product.id + '" class="product-detail-link">' + product.name + '</a></td>' +
-                                    '<td>' + product.description + '</td>' +
-                                    '<td>' + product.categoryName + '</td>' +
-                                    '<td>' +
-                                    '<button class="btn btn-warning btn-sm update-btn" data-id="' + product.id + '">Update</button> ' +
-                                    '<button class="btn btn-danger btn-sm delete-btn" data-id="' + product.id + '">Delete</button>' +
-                                    '</td>' +
-                                    '</tr>';
+                                const imageHtml = product.imageUrl ? `<img src="${product.imageUrl}" width="60" />` : '';
+                                const row = `<tr>
+                                    <td>${imageHtml}</td>
+                                    <td><a href="/Product/Detail/${product.id}">${product.name}</a></td>
+                                    <td>${product.description}</td>
+                                    <td>${product.categoryName}</td>
+                                    <td>
+                                        <button class="btn btn-warning btn-sm update-btn" data-id="${product.id}">Update</button>
+                                        <button class="btn btn-danger btn-sm delete-btn" data-id="${product.id}">Delete</button>
+                                    </td>
+                                </tr>`;
                                 tableBody.append(row);
                             });
                         }
-
-                        const totalPages = Math.ceil(data.length / pageSize);
-                        renderPagination(totalPages);
+                        renderPagination(Math.ceil(data.length / pageSize));
                     },
-                    error: function (xhr, status, error) {
-                        console.error('Error fetching products: ' + error);
+                    error: function (xhr) {
+                        alert('❌ Error fetching products');
                     }
                 });
             }
 
-            // Load categories for filter dropdown
-               function loadCategories() {
-            $.getJSON('https://localhost:7101/odata/Category', function (data) {
-                const categories = data.value; // Lấy danh sách categories từ 'value'
-
-                const categorySelect = $('#category');
-                categorySelect.empty().append('<option value="">-- Chọn danh mục --</option>');
-
-                categories.forEach(c => {
-                    categorySelect.append(`<option value="${c.Id}">${c.Name}</option>`); // Sửa thành c.Id và c.Name
+            function loadCategories(selectId) {
+                $.getJSON('https://localhost:7101/odata/Category', function (data) {
+                    const select = $(selectId);
+                    select.empty().append('<option value="">-- Select Category --</option>');
+                    data.value.forEach(c => {
+                        select.append(`<option value="${c.Id}">${c.Name}</option>`);
+                    });
+                    select.show();
                 });
+            }
 
-                categorySelect.show();
-            });
-        }
+            function loadBrands(selectId) {
+                $.getJSON('https://localhost:7101/odata/Brand', function (data) {
+                    const select = $(selectId);
+                    select.empty().append('<option value="">-- Select Brand --</option>');
+                    data.value.forEach(b => {
+                        select.append(`<option value="${b.Id}">${b.Name}</option>`);
+                    });
+                    select.show();
+                });
+            }
 
-
-            // Initialize categories dropdown
-            loadCategories();
-
-            // Handle search form submission
             $('#searchForm').submit(function (e) {
                 e.preventDefault();
                 currentPage = 1;
                 fetchProducts();
             });
 
-            // Handle product update
-            $('#productTable').on('click', '.update-btn', function (e) {
-                e.preventDefault();
-                const productId = $(this).data('id');
+            $('#productTable').on('click', '.update-btn', function () {
+                const id = $(this).data('id');
 
                 $.ajax({
-                    url: 'https://localhost:7101/api/Product/' + productId,
+                    url: `https://localhost:7101/api/Product/${id}`,
                     type: 'GET',
-                                      headers: {
-            'Authorization': 'Bearer ' + token
-        },
+                    headers: { 'Authorization': 'Bearer ' + token },
                     success: function (product) {
                         $('#updateProductId').val(product.id);
                         $('#updateName').val(product.name);
                         $('#updateDescription').val(product.description);
-
-                        // Load categories for update form
-                              // Load categories for update form
-        $.getJSON('https://localhost:7101/odata/Category', function (data) {
-            const categories = data.value;
-            const categorySelect = $('#updateCategory');
-            categorySelect.empty();
-            categories.forEach(c => {
-                const selected = c.Id === product.CategoryId ? 'selected' : '';
-                categorySelect.append(`<option value="${c.Id}" ${selected}>${c.Name}</option>`);
-            });
-            categorySelect.show();
-        });
-
-        // Load brands for update form
-        $.getJSON('https://localhost:7101/odata/Brand', function (data) {
-            const brands = data.value;
-            const brandSelect = $('#updateBrand');
-            brandSelect.empty();
-            brands.forEach(b => {
-                const selected = b.Id === product.BrandId ? 'selected' : '';
-                brandSelect.append(`<option value="${b.Id}" ${selected}>${b.Name}</option>`);
-            });
-            brandSelect.show();
-        });
-
-
+                        loadCategories('#updateCategory');
+                        loadBrands('#updateBrand');
+                        setTimeout(() => {
+                            $('#updateCategory').val(product.categoryId);
+                            $('#updateBrand').val(product.brandId);
+                        }, 500);
                         $('#updateProductModal').modal('show');
-                    },
-                    error: function (xhr, status, error) {
-                        alert('Error fetching product: ' + error);
                     }
                 });
             });
 
-            // Handle product update form submission
             $('#updateProductForm').submit(function (e) {
                 e.preventDefault();
+                const formData = new FormData(this);
                 const id = $('#updateProductId').val();
-                const name = $('#updateName').val().trim();
-                const description = $('#updateDescription').val().trim();
-                const categoryId = parseInt($('#updateCategory').val());
-                const brandId = parseInt($('#updateBrand').val());
-
-                if (!name || !description || !categoryId || !brandId) {
-                    alert("Please fill out all fields.");
-                    return;
-                }
-
-                const data = {
-                    id: id,
-                    name: name,
-                    description: description,
-                    categoryId: categoryId,
-                    brandId: brandId
-                };
 
                 $.ajax({
-                    url: 'https://localhost:7101/api/Product/' + id,
+                    url: `https://localhost:7101/api/Product/${id}`,
                     type: 'PUT',
-                                      headers: {
-            'Authorization': 'Bearer ' + token
-        },
-                    contentType: 'application/json',
-                    data: JSON.stringify(data),
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function () {
                         alert('✅ Product updated successfully!');
                         $('#updateProductModal').modal('hide');
@@ -275,28 +232,25 @@
                 });
             });
 
-            // Handle product delete
-            $('#productTable').on('click', '.delete-btn', function (e) {
-                e.preventDefault();
+            $('#productTable').on('click', '.delete-btn', function () {
                 const productId = $(this).data('id');
-                if (confirm('Are you sure you want to delete this product?')) {
+                if (confirm('Are you sure to delete this product?')) {
                     $.ajax({
-                        url: 'https://localhost:7101/api/Product/' + productId,
+                        url: `https://localhost:7101/api/Product/${productId}`,
                         type: 'DELETE',
-                                          headers: {
-            'Authorization': 'Bearer ' + token
-        },
+                        headers: { 'Authorization': 'Bearer ' + token },
                         success: function () {
                             alert('Product deleted successfully!');
                             fetchProducts();
                         },
-                        error: function (xhr, status, error) {
-                            alert('Error deleting product: ' + error);
+                        error: function () {
+                            alert('❌ Error deleting product.');
                         }
                     });
                 }
             });
 
+            loadCategories('#category');
             fetchProducts();
         });
     </script>

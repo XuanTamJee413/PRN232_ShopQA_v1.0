@@ -64,6 +64,27 @@ namespace DataAccess.Repository
                     .ThenInclude(v => v.Inventory) 
                 .FirstOrDefault(p => p.Id == id);
         }
+        public async Task AddAsync(Product product)
+        {
+            await _context.Products.AddAsync(product);
+        }
 
+        public Task UpdateAsync(Product product)
+        {
+            _context.Products.Update(product);
+            return Task.CompletedTask;
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product != null)
+            {
+                _context.Products.Remove(product);
+            }
+        }
+
+        public async Task SaveChangesAsync() =>
+            await _context.SaveChangesAsync();
     }
 }

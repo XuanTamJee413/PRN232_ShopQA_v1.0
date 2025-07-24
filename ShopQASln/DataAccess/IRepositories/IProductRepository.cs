@@ -16,5 +16,10 @@ namespace DataAccess.IRepositories
         void Add(Product product);
         void Update(Product product);
         void Delete(int id);
+
+        Task AddAsync(Product product);
+        Task UpdateAsync(Product product);
+        Task DeleteAsync(int id);
+        Task SaveChangesAsync();
     }
 }

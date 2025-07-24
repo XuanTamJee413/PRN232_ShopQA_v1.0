@@ -56,13 +56,13 @@ namespace ShopQAPresentation.Controllers
             }
         }
 
-        [HttpPost("api/Product")] 
-        [Authorize(Roles = "Admin")]
-        public IActionResult AddProduct([FromBody] ProductCreateReqDTO productDTO)
+        [HttpPost("api/Product")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddProduct([FromForm] ProductCreateReqDTO productDTO)
         {
             try
             {
-                var result = _productService.AddProduct(productDTO);
+                var result = await _productService.AddProduct(productDTO);
                 return Ok(result);
             }
             catch (ArgumentException ex)
@@ -70,20 +70,22 @@ namespace ShopQAPresentation.Controllers
                 return BadRequest(new { error = ex.Message });
             }
         }
-        [HttpPut("api/Product/{id}")] 
+
+        [HttpPut("api/Product/{id}")]
         [Authorize(Roles = "Admin")]
-        public IActionResult UpdateProduct(int id, [FromBody] ProductCreateReqDTO productDTO)
+        public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductCreateReqDTO productDTO)
         {
             try
             {
-                var updatedProduct = _productService.UpdateProduct(id, productDTO);
-                return Ok(updatedProduct);
+                var result = await _productService.UpdateProduct(id, productDTO);
+                return Ok(result);
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { error = ex.Message });
             }
         }
+
 
         [HttpDelete("api/Product/{id}")] 
         [Authorize(Roles = "Admin")]

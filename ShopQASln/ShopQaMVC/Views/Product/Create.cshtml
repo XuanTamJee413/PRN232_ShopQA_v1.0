@@ -2,23 +2,24 @@
     ViewData["Title"] = "Create Product";
 }
 <input type="hidden" id="jwtToken" value="@ViewBag.Token" />
+
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Create New Product</h2>
 
-    <form method="post" id="createProductForm" class="border p-4 rounded shadow-sm">
+    <form method="post" enctype="multipart/form-data" id="createProductForm" class="border p-4 rounded shadow-sm">
         <div class="mb-3">
             <label for="name" class="form-label">Product Name</label>
-            <input type="text" class="form-control" id="name" name="name" placeholder="Enter product name" required />
+            <input type="text" class="form-control" id="name" name="name" required />
         </div>
 
         <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <textarea class="form-control" id="description" name="description" placeholder="Enter product description" rows="3" required></textarea>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
         </div>
 
         <div class="mb-3">
             <label for="categoryId" class="form-label">Category</label>
-            <select class="form-control" id="categoryId" name="categoryId" required >
+            <select class="form-control" id="categoryId" name="categoryId" required>
                 <option value="">-- Select category --</option>
             </select>
         </div>
@@ -30,6 +31,11 @@
             </select>
         </div>
 
+        <div class="mb-3">
+            <label for="image" class="form-label">Product Image</label>
+            <input type="file" class="form-control" id="image" name="image" accept="image/*" required />
+        </div>
+
         <button type="submit" class="btn btn-primary w-100">Create Product</button>
     </form>
 </div>
@@ -38,99 +44,83 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
-            console.log("🟢 JS ready");
-               const token = $('#jwtToken').val();
-               console.log(token);
+            const token = $('#jwtToken').val();
+
             // Load Categories
-                  // Load Categories
-        $.ajax({
-            url: 'https://localhost:7101/odata/Category',
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            },
-            dataType: 'json',
-            success: function (data) {
-                const categories = data.value;
-                const categorySelect = $('#categoryId');
-                categorySelect.empty().append('<option value="">-- Chọn danh mục --</option>');
-                categories.forEach(function (cat) {
-                    categorySelect.append(`<option value="${cat.Id}">${cat.Name}</option>`);
-                });
-                categorySelect.show();
-            },
-            error: function () {
-                alert("❌ Failed to load categories");
-            }
-        });
+            $.ajax({
+                url: 'https://localhost:7101/odata/Category',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                success: function (data) {
+                    const categories = data.value;
+                    const categorySelect = $('#categoryId');
+                    categories.forEach(cat => {
+                        categorySelect.append(`<option value="${cat.Id}">${cat.Name}</option>`);
+                    });
+                    categorySelect.show();
+                },
+                error: function () {
+                    alert("❌ Failed to load categories");
+                }
+            });
 
-        // Load Brands
-        $.ajax({
-            url: 'https://localhost:7101/odata/Brand',
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            },
-            dataType: 'json',
-            success: function (data) {
-                const brands = data.value;
-                const brandSelect = $('#brandId');
-                brandSelect.empty().append('<option value="">-- Chọn thương hiệu --</option>');
-                brands.forEach(function (brand) {
-                    brandSelect.append(`<option value="${brand.Id}">${brand.Name}</option>`);
-                });
-                brandSelect.show();
-            },
-            error: function () {
-                alert("❌ Failed to load brands");
-            }
-        });
+            // Load Brands
+            $.ajax({
+                url: 'https://localhost:7101/odata/Brand',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                success: function (data) {
+                    const brands = data.value;
+                    const brandSelect = $('#brandId');
+                    brands.forEach(brand => {
+                        brandSelect.append(`<option value="${brand.Id}">${brand.Name}</option>`);
+                    });
+                    brandSelect.show();
+                },
+                error: function () {
+                    alert("❌ Failed to load brands");
+                }
+            });
 
-
-            // Submit form
+            // Handle Form Submit
             $('#createProductForm').on('submit', function (e) {
                 e.preventDefault();
 
-                const name = $('#name').val().trim();
-                const description = $('#description').val().trim();
-                const categoryId = parseInt($('#categoryId').val());
-                const brandId = parseInt($('#brandId').val());
+                const form = document.getElementById('createProductForm');
+                const formData = new FormData(form);
 
-                let errors = [];
-                if (!name) errors.push("Product name is required.");
-                if (!description) errors.push("Description is required.");
-                if (isNaN(categoryId) || categoryId <= 0) errors.push("Please select a category.");
-                if (isNaN(brandId) || brandId <= 0) errors.push("Please select a brand.");
+                // Client-side validation (optional)
+                const errors = [];
+                if (!formData.get("name")) errors.push("Product name is required.");
+                if (!formData.get("description")) errors.push("Description is required.");
+                if (!formData.get("categoryId")) errors.push("Please select a category.");
+                if (!formData.get("brandId")) errors.push("Please select a brand.");
+                if (!formData.get("image").name) errors.push("Please select an image.");
 
                 if (errors.length > 0) {
                     alert(errors.join("\n"));
                     return;
                 }
 
-                const productData = {
-                    id: 0,
-                    name: name,
-                    description: description,
-                    categoryId: categoryId,
-                    brandId: brandId
-                };
-
-                console.log("📤 Sending product:", productData);
-
                 $.ajax({
                     url: 'https://localhost:7101/api/Product',
                     method: 'POST',
-                        headers: {
-            'Authorization': 'Bearer ' + token
-        },
-                    contentType: 'application/json',
-                    data: JSON.stringify(productData),
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function () {
                         alert("✅ Product created successfully!");
                         window.location.href = '/Product/ProductList';
                     },
                     error: function (xhr) {
-                        const msg = xhr.responseJSON?.message || xhr.responseText || "Unknown error";
+                        const msg = xhr.responseJSON?.error || xhr.responseText || "Unknown error";
                         alert("❌ Error creating product: " + msg);
                     }
                 });

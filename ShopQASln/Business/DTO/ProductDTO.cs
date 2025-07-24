@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Business.DTO
 {
@@ -30,6 +31,7 @@ namespace Business.DTO
         public string Description { get; set; } = default!;
         public int CategoryId { get; set; }
         public int BrandId { get; set; }
+        public IFormFile? Image { get; set; }
     }
     public class ProductResponseDTO
     {

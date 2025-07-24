@@ -16,8 +16,8 @@ namespace Business.Iservices
         IEnumerable<ProductResponseDTO> GetAllProduct(string? name, int? categoryId, decimal? startPrice ,decimal? toPrice);
 
         ProductResponseDTO GetProductById(int id);
-        Product AddProduct(ProductCreateReqDTO productDTO);
-        Product UpdateProduct(int id, ProductCreateReqDTO productDTO);
+        Task<Product> AddProduct(ProductCreateReqDTO productDTO);
+        Task<Product> UpdateProduct(int id, ProductCreateReqDTO productDTO);
 
         String DeleteProduct(int id);
         Task<ProductVariantWithInventoryResDTO> UpdateVariantWithInventory(int variantId, ProductVariantWithInventoryUpdateDTO dto);

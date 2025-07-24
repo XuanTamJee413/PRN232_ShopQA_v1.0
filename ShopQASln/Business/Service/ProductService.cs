@@ -100,8 +100,9 @@ namespace Business.Service
         }
 
 
-        public Product AddProduct(ProductCreateReqDTO productDTO)
+        public async Task<Product> AddProduct(ProductCreateReqDTO productDTO)
         {
+            // Validate
             if (string.IsNullOrWhiteSpace(productDTO.Name))
                 throw new ArgumentException("Name is required.");
 
@@ -111,24 +112,28 @@ namespace Business.Service
             if (string.IsNullOrWhiteSpace(productDTO.Description))
                 throw new ArgumentException("Description is required.");
 
-            if (productDTO.CategoryId <= 0)
-                throw new ArgumentException("Invalid category ID.");
+            var category = categoryRepository.GetById(productDTO.CategoryId)
+                           ?? throw new ArgumentException("Category not found.");
 
-            var category = categoryRepository.GetById(productDTO.CategoryId);
-            if (category == null)
-                throw new ArgumentException("Category not found.");
+            var brand = brandRepository.GetById(productDTO.BrandId)
+                         ?? throw new ArgumentException("Brand not found.");
 
-            var brand = brandRepository.GetById(productDTO.BrandId);
-            if (brand == null)
-                throw new ArgumentException("Brand not found.");
+            // Upload image
+            string? imageUrl = null;
+            if (productDTO.Image != null)
+            {
+                var uploadResult = await _cloudinaryService.UploadImageAsync(productDTO.Image, "products");
+                imageUrl = uploadResult.SecureUrl.ToString();
+            }
 
+            // Create product
             var product = new Product
             {
                 Name = productDTO.Name,
                 Description = productDTO.Description,
                 Category = category,
                 Brand = brand,
-                ImageUrl = null
+                ImageUrl = imageUrl
             };
 
             productRepository.Add(product);
@@ -136,46 +141,34 @@ namespace Business.Service
         }
 
 
-        public Product UpdateProduct(int productId, ProductCreateReqDTO productDTO)
+
+        public async Task<Product> UpdateProduct(int productId, ProductCreateReqDTO productDTO)
         {
-            var product = productRepository.GetById(productId);
-            if (product == null)
-            {
-                throw new ArgumentException("Product not found!");
-            }
+            var product = productRepository.GetById(productId)
+                          ?? throw new ArgumentException("Product not found!");
 
-            // Kiểm tra tên
             if (string.IsNullOrWhiteSpace(productDTO.Name))
-            {
                 throw new ArgumentException("Name is required.");
-            }
 
-            if (!Regex.IsMatch(productDTO.Name, @"^[a-zA-ZÀ-Ỹà-ỹ\s]+$"))
-            {
+            if (!Regex.IsMatch(productDTO.Name, @"^[a-zA-ZÀ-ỹà-ỹ\s]+$"))
                 throw new ArgumentException("Name must contain only letters and spaces.");
-            }
 
-            // Kiểm tra mô tả
             if (string.IsNullOrWhiteSpace(productDTO.Description))
-            {
                 throw new ArgumentException("Description is required.");
-            }
 
-            // Kiểm tra Category
-            var category = categoryRepository.GetById(productDTO.CategoryId);
-            if (category == null)
+            var category = categoryRepository.GetById(productDTO.CategoryId)
+                           ?? throw new ArgumentException("Invalid CategoryId.");
+
+            var brand = brandRepository.GetById(productDTO.BrandId)
+                         ?? throw new ArgumentException("Invalid BrandId.");
+
+            // Nếu có ảnh mới thì upload ảnh mới
+            if (productDTO.Image != null)
             {
-                throw new ArgumentException("Invalid CategoryId.");
+                var uploadResult = await _cloudinaryService.UploadImageAsync(productDTO.Image, "products");
+                product.ImageUrl = uploadResult.SecureUrl.ToString();
             }
 
-            // Kiểm tra Brand
-            var brand = brandRepository.GetById(productDTO.BrandId);
-            if (brand == null)
-            {
-                throw new ArgumentException("Invalid BrandId.");
-            }
-
-            // Cập nhật thông tin
             product.Name = productDTO.Name;
             product.Description = productDTO.Description;
             product.Category = category;
@@ -184,6 +177,7 @@ namespace Business.Service
             productRepository.Update(product);
             return product;
         }
+
 
 
         public string DeleteProduct(int id)
