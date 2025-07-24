@@ -12,6 +12,7 @@ namespace DataAccess.IRepositories
         IEnumerable<Order> GetAllOrders();
         Task AddOrderAsync(Order order);
         Order GetOrderById(int id);
+        Task<Order?> CreateOrderFromCartIdAsync(int cartId);
 
     }
 }
