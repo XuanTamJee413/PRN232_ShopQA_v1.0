@@ -43,6 +43,35 @@ namespace DataAccess.Repository
                 .Include(o => o.User)
                 .First(o => o.Id == id);
         }
+        public async Task<Order?> CreateOrderFromCartIdAsync(int cartId)
+        {
+            var cart = await _context.Carts
+                .Include(c => c.Items)
+                    .ThenInclude(i => i.ProductVariant)
+                .FirstOrDefaultAsync(c => c.Id == cartId);
+
+            if (cart == null || !cart.Items.Any()) return null;
+
+            var order = new Order
+            {
+                UserId = cart.UserId,
+                TotalAmount = cart.Items.Sum(i => i.ProductVariant!.Price * i.Quantity),
+                Items = cart.Items.Select(i => new OrderItem
+                {
+                    ProductVariantId = i.ProductVariantId,
+                    Quantity = i.Quantity,
+                    Price = i.ProductVariant!.Price
+                }).ToList()
+            };
+
+            _context.Orders.Add(order);
+
+            cart.Status = "Close";
+            _context.Carts.Update(cart);
+
+            await _context.SaveChangesAsync();
+            return order;
+        }
 
     }
 }

@@ -12,5 +12,6 @@ namespace Business.Iservices
     {
         IEnumerable<OrderDto> GetAllOrderDtos();
         Task<OrderDto> CreateOrderAsync(OrderDto orderDto);
+        Task<Order?> CreateOrderFromCartIdAsync(int cartId);
     }
 }

@@ -85,6 +85,10 @@ namespace Business.Service
                 }).ToList()
             };
         }
+        public async Task<Order?> CreateOrderFromCartIdAsync(int cartId)
+        {
+            return await _orderRepository.CreateOrderFromCartIdAsync(cartId);
+        }
 
     }
 }
