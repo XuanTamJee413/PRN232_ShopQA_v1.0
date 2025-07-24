@@ -34,7 +34,7 @@ namespace ShopQAPresentation.Controllers
         }
 
         [HttpGet("api/Product")] 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult GetAllProduct(string? name, int? categoryId, decimal? startPrice, decimal? toPrice)
         {
             var products = _productService.GetAllProduct(name, categoryId, startPrice, toPrice);
@@ -42,7 +42,7 @@ namespace ShopQAPresentation.Controllers
         }
 
         [HttpGet("api/Product/{id}")] 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult GetProductById(int id)
         {
             try
@@ -72,7 +72,7 @@ namespace ShopQAPresentation.Controllers
         }
 
         [HttpPut("api/Product/{id}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(int id, [FromForm] ProductCreateReqDTO productDTO)
         {
             try
@@ -88,7 +88,7 @@ namespace ShopQAPresentation.Controllers
 
 
         [HttpDelete("api/Product/{id}")] 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public IActionResult DeleteProduct(int id)
         {
             try
@@ -102,7 +102,7 @@ namespace ShopQAPresentation.Controllers
         }
 
         [HttpPut("api/Product/variant/{variantId}")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateVariantWithInventory(int variantId, [FromForm] ProductVariantWithInventoryUpdateDTO dto)
         {
             try
@@ -122,7 +122,7 @@ namespace ShopQAPresentation.Controllers
 
 
 [HttpPost("api/Product/variant")]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateVariant([FromForm] ProductVariantCreateDTO dto) // Changed to [FromForm] and async Task<IActionResult>
     {
         try
