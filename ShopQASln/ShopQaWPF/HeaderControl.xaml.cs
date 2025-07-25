@@ -23,5 +23,16 @@ namespace ShopQaWPF
         {
             InitializeComponent();
         }
+        private void ProfileMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var profileWindow = new ShopQaWPF.Customer.Profile();
+            profileWindow.Show();
+        }
+
+        private void WishlistIcon_Click(object sender, RoutedEventArgs e)
+        {
+            var wishlistWindow = new ShopQaWPF.Customer.Wishlist();
+            wishlistWindow.Show();
+        }
     }
 }

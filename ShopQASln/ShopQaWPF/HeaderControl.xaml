@@ -15,7 +15,8 @@
                 <!-- Right Menu -->
                 <Menu Background="Black" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0">
                     <MenuItem Header="SETTINGS" Foreground="White" Background="Black">
-                        <MenuItem Header="Profile" Foreground="Blue"/>
+                        
+                        <MenuItem Header="Profile" Foreground="Blue" Click="ProfileMenuItem_Click"/>
                         <MenuItem Header="My Cart" Foreground="Blue"/>
                         <MenuItem Header="My Orders" Foreground="Blue"/>
                         <Separator/>
@@ -48,7 +49,7 @@
 
             <!-- Icons -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="2" Margin="0,0,20,0">
-                <Button Content="♥" FontSize="18" BorderThickness="0" Background="Transparent" Margin="0,0,10,0"/>
+                <Button Content="♥" FontSize="18" BorderThickness="0" Background="Transparent" Margin="0,0,10,0" Click="WishlistIcon_Click" ToolTip="Xem danh sách yêu thích"/>
                 <Button Content="🛒 My Cart" FontWeight="Bold" BorderThickness="0" Background="Transparent"/>
             </StackPanel>
         </Grid>

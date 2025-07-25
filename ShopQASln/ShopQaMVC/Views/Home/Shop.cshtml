@@ -169,9 +169,15 @@
                                  onerror="this.onerror=null;this.src='/img/product/Default_product.jpg';"
                                  alt="Product Image">
                             <ul class="product__hover">
+                                <li>
+                                    <button onclick="addToWishlist(${p.Id}, this)" style="background:none;border:none;padding:0;cursor:pointer;">
+                                        <img src="/img/icon/heart.png" alt="" /> <span>Wishlist</span>
+                                    </button>
+                                </li>
                                 <li><a href="#"><img src="/img/icon/cart.png"> <span>+ Cart</span></a></li>
                                 <li><a href="#"><img src="/img/icon/compare.png"> <span>Compare</span></a></li>
                                 <li><a href="#"><img src="/img/icon/search.png"></a><span>Search</span></a></li>
+
                             </ul>
                         </div>
                         <div class="product__item__text">
@@ -199,4 +205,51 @@
         await loadBrands();
         await loadProducts();
     };
+
+// Hiển thị thông báo
+function showWishlistMessage(msg, isError = false) {
+    let box = document.getElementById('wishlistMessageBox');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'wishlistMessageBox';
+        box.style.position = 'fixed';
+        box.style.top = '20px';
+        box.style.right = '20px';
+        box.style.zIndex = '9999';
+        box.style.padding = '12px 24px';
+        box.style.borderRadius = '6px';
+        box.style.background = isError ? '#dc3545' : '#28a745';
+        box.style.color = '#fff';
+        box.style.fontWeight = 'bold';
+        document.body.appendChild(box);
+    }
+    box.innerText = msg;
+    box.style.display = 'block';
+    setTimeout(() => { box.style.display = 'none'; }, 2000);
+}
+
+// Gửi AJAX thêm wishlist
+async function addToWishlist(productId, btn) {
+    try {
+        const res = await fetch('/Wishlist/AddToWishlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `productId=${productId}`
+        });
+        if (res.ok) {
+            const text = await res.text();
+            // Nếu API trả về thông báo, dùng nó. Nếu không, hiển thị mặc định
+            if (text && text.length < 100 && text.includes('tồn tại')) {
+                showWishlistMessage(text, true);
+            } else {
+                showWishlistMessage('Đã thêm vào danh sách yêu thích!');
+            }
+        } else {
+            const err = await res.text();
+            showWishlistMessage('Lỗi: ' + err, true);
+        }
+    } catch (e) {
+        showWishlistMessage('Lỗi kết nối!', true);
+    }
+}
 </script>

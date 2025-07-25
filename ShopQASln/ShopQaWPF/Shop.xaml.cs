@@ -107,5 +107,43 @@ namespace ShopQaWPF
             var detailWindow = new SingleProduct(product.Id);
             detailWindow.ShowDialog();
         }
+
+        private async void AddToWishlist_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as Button;
+            var product = btn?.Tag as ProductDto;
+            if (product == null || App.CurrentUser == null) return;
+
+            // Kiểm tra sản phẩm đã tồn tại trong wishlist
+            using (var client = new HttpClient { BaseAddress = new Uri("https://localhost:7101/") })
+            {
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", App.JwtToken);
+                try
+                {
+                    var checkResponse = await client.GetAsync($"api/Wishlist/list?userId={App.CurrentUser.Id}");
+                    if (checkResponse.IsSuccessStatusCode)
+                    {
+                        var json = await checkResponse.Content.ReadAsStringAsync();
+                        var wishlist = System.Text.Json.JsonSerializer.Deserialize<ShopQaWPF.DTO.WishlistDTO>(json, new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                        if (wishlist?.Items?.Any(i => i.ProductId == product.Id) == true)
+                        {
+                            MessageBox.Show("Sản phẩm đã tồn tại trong danh sách yêu thích!");
+                            return;
+                        }
+                    }
+                    var url = $"api/Wishlist/add?userId={App.CurrentUser.Id}&productId={product.Id}";
+                    var response = await client.PostAsync(url, null);
+                    if (response.IsSuccessStatusCode)
+                        MessageBox.Show("Đã thêm vào danh sách yêu thích!");
+                    else
+                        MessageBox.Show("Thêm vào yêu thích thất bại!");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi: " + ex.Message);
+                }
+            }
+        }
     }
 }

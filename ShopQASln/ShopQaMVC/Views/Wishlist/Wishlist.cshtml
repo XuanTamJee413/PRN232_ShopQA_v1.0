@@ -43,10 +43,14 @@
                                     <tr>
                                         <td class="product__cart__item">
                                             <div class="product__cart__item__pic">
-                                                <img src="@item.ProductImageUrl" width="90" />
+                                                <a href="/Home/SingleProduct/@item.ProductId">
+                                                    <img src="@item.ProductImageUrl" width="90" />
+                                                </a>
                                             </div>
                                             <div class="product__cart__item__text">
-                                                <h6>@item.ProductName</h6>
+                                                <a href="/Home/SingleProduct/@item.ProductId" style="text-decoration:none;color:inherit;">
+                                                    <h6>@item.ProductName</h6>
+                                                </a>
                                             </div>
                                         </td>
                                         <td>@item.ProductDescription</td>
