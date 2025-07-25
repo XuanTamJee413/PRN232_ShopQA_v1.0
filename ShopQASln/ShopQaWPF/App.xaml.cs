@@ -8,7 +8,7 @@ namespace ShopQaWPF
     public partial class App : Application
     {
         public static string JwtToken { get; set; }
-        public static UserDto CurrentUser { get; set; }
+        public static UserDto CurrentUser { get; set; } // troing này có Id
     }
 
 

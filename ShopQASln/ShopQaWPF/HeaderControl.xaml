@@ -50,7 +50,7 @@
             <!-- Icons -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="2" Margin="0,0,20,0">
                 <Button Content="♥" FontSize="18" BorderThickness="0" Background="Transparent" Margin="0,0,10,0" Click="WishlistIcon_Click" ToolTip="Xem danh sách yêu thích"/>
-                <Button Content="🛒 My Cart" FontWeight="Bold" BorderThickness="0" Background="Transparent"/>
+                <Button Content="🛒 My Cart" FontWeight="Bold" BorderThickness="0" Background="Transparent" Click="CartButton_Click"/>
             </StackPanel>
         </Grid>
     </Grid>

@@ -34,5 +34,12 @@ namespace ShopQaWPF
             var wishlistWindow = new ShopQaWPF.Customer.Wishlist();
             wishlistWindow.Show();
         }
+
+        private void CartButton_Click(object sender, RoutedEventArgs e)
+        {
+            var cartWindow = new ShopQaWPF.Customer.Cart();
+            cartWindow.Show();
+        }
+
     }
 }
