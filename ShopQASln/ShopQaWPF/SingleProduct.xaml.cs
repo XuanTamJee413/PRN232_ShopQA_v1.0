@@ -115,5 +115,122 @@ namespace ShopQaWPF
             if (!string.IsNullOrEmpty(variant.ImageUrl))
                 ProductImage.Source = new BitmapImage(new Uri(variant.ImageUrl));
         }
+        private async void AddToCart_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentVariant == null)
+            {
+                MessageBox.Show("Vui lòng chọn màu và size.");
+                return;
+            }
+
+            if (!int.TryParse(QuantityBox.Text, out int quantity) || quantity <= 0)
+            {
+                MessageBox.Show("Số lượng không hợp lệ.");
+                return;
+            }
+
+            var confirmMsg = $"Xác nhận thêm vào giỏ:\n\nSản phẩm: {ProductName.Text}\n" +
+                             $"Màu: {currentVariant.Color}\nSize: {currentVariant.Size}\nSố lượng: {quantity}";
+            var result = MessageBox.Show(confirmMsg, "Xác nhận", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                int userId = App.CurrentUser.Id;
+
+                // 1. Tìm cart status = "Open" của user
+                var cartRes = await _httpClient.GetAsync($"/odata/Cart?$filter=UserId eq {userId} and Status eq 'Open'&$expand=Items");
+                var cartJson = await cartRes.Content.ReadAsStringAsync();
+                var root = JsonDocument.Parse(cartJson).RootElement;
+                JsonElement? openCart = null;
+
+                if (root.TryGetProperty("value", out var cartList) && cartList.GetArrayLength() > 0)
+                {
+                    openCart = cartList[0];
+                }
+
+                if (openCart != null)
+                {
+                    int cartId = openCart.Value.GetProperty("Id").GetInt32();
+                    var items = openCart.Value.GetProperty("Items");
+
+                    var existedItem = items.EnumerateArray()
+                        .FirstOrDefault(i => i.GetProperty("ProductVariantId").GetInt32() == currentVariant.Id);
+
+                    if (existedItem.ValueKind != JsonValueKind.Undefined)
+                    {
+                        // 2. Nếu item đã có → PATCH tăng số lượng
+                        int itemId = existedItem.GetProperty("Id").GetInt32();
+                        int oldQty = existedItem.GetProperty("Quantity").GetInt32();
+                        int maxStock = currentVariant.Stock;
+                        int newQty = oldQty + quantity;
+
+                        if (newQty > maxStock)
+                        {
+                            MessageBox.Show($"Vượt quá số lượng tồn kho! Hiện còn {maxStock}, bạn đã có {oldQty} trong giỏ.");
+                            return;
+                        }
+
+                        var patchData = new { Quantity = newQty };
+                        var patchJson = JsonSerializer.Serialize(patchData);
+                        var patchContent = new StringContent(patchJson, Encoding.UTF8, "application/json");
+
+                        var patchRes = await _httpClient.PatchAsync($"/odata/CartItems({itemId})", patchContent);
+                        if (patchRes.IsSuccessStatusCode)
+                            MessageBox.Show("Cập nhật số lượng thành công!");
+                        else
+                            MessageBox.Show("Lỗi cập nhật item: " + await patchRes.Content.ReadAsStringAsync());
+                    }
+                    else
+                    {
+                        // 3. Nếu item chưa có → POST thêm mới
+                        var newItem = new
+                        {
+                            ProductVariantId = currentVariant.Id,
+                            Quantity = quantity,
+                            CartId = cartId
+                        };
+                        var postJson = JsonSerializer.Serialize(newItem);
+                        var postRes = await _httpClient.PostAsync("/odata/CartItems", new StringContent(postJson, Encoding.UTF8, "application/json"));
+
+                        if (postRes.IsSuccessStatusCode)
+                            MessageBox.Show("Thêm vào giỏ hàng thành công!");
+                        else
+                            MessageBox.Show("Lỗi thêm mới item: " + await postRes.Content.ReadAsStringAsync());
+                    }
+                }
+                else
+                {
+                    // 4. Chưa có cart → tạo mới cart với status = Open
+                    var newCart = new
+                    {
+                        UserId = userId,
+                        Status = "Open",
+                        CreatedAt = DateTime.UtcNow,
+                        Items = new[]
+                        {
+                    new {
+                        ProductVariantId = currentVariant.Id,
+                        Quantity = quantity
+                    }
+                }
+                    };
+
+                    var cartJsonBody = JsonSerializer.Serialize(newCart);
+                    var cartRes2 = await _httpClient.PostAsync("/odata/Cart", new StringContent(cartJsonBody, Encoding.UTF8, "application/json"));
+
+                    if (cartRes2.IsSuccessStatusCode)
+                        MessageBox.Show("Tạo giỏ mới và thêm sản phẩm thành công!");
+                    else
+                        MessageBox.Show("Lỗi tạo mới cart: " + await cartRes2.Content.ReadAsStringAsync());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi: " + ex.Message);
+            }
+        }
+
+
     }
 }
