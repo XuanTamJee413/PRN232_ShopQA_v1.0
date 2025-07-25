@@ -1,0 +1,103 @@
+﻿<Window x:Class="ShopQaWPF.Dashboard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShopQaWPF"
+        mc:Ignorable="d"
+        Title="Dashboard" Height="500" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button x:Name="btnGoToCategories" 
+                    Content="Quản lý Danh mục (Categories)" 
+                    Click="btnGoToCategories_Click"
+                    Padding="20,10"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#007ACC"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button x:Name="btnGoToBrands" 
+                    Content="Quản lý Thương hiệu (Brands)" 
+                    Click="btnGoToBrands_Click"
+                    Padding="20,10"
+                    Margin="0,20,0,0"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#5C2D91"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button x:Name="btnGoToProducts" 
+                    Content="Quản lý Sản Phẩm (Products)" 
+                    Click="btnGoToProducts_Click"
+                    Padding="20,10"
+                    Margin="0,20,0,0"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#5CB85C"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button x:Name="btnGoToUsers" 
+                    Content="Quản lý Người dùng (Users)" 
+                    Click="btnGoToUsers_Click"
+                    Padding="20,10"
+                    Margin="0,20,0,0"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#F0AD4E"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button x:Name="btnLogout" 
+                    Content="Đăng xuất (Logout)" 
+                    Click="btnLogout_Click"
+                    Padding="20,10"
+                    Margin="0,40,0,0"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#D9534F"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+        </StackPanel>
+    </Grid>
+</Window>
