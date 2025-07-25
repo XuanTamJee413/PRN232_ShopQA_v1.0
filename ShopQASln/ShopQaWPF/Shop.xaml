@@ -28,10 +28,18 @@
 
                         <GridViewColumn Header="Tên" DisplayMemberBinding="{Binding Name}" Width="200"/>
                         <GridViewColumn Header="Mô tả" DisplayMemberBinding="{Binding Description}" Width="300"/>
+                        
                         <GridViewColumn Header="Chi tiết" Width="100">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Content="Xem" Click="Detail_Click" Tag="{Binding}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Yêu thích" Width="60">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="♥" Foreground="#E53935" FontSize="18" Background="Transparent" BorderThickness="0" Cursor="Hand" Click="AddToWishlist_Click" Tag="{Binding}" ToolTip="Thêm vào yêu thích"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>

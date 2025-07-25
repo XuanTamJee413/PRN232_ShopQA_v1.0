@@ -35,13 +35,27 @@ namespace ShopQaMVC.Controllers
         {
             var userJson = HttpContext.Session.GetString("User");
             if (string.IsNullOrEmpty(userJson))
-                return RedirectToAction("Login", "Account");
+                return Content("Bạn cần đăng nhập để sử dụng chức năng này.");
             var userDto = JsonConvert.DeserializeObject<UserDTO>(userJson);
             var userId = userDto?.Id ?? 0;
             var client = _httpClientFactory.CreateClient();
+            // Kiểm tra sản phẩm đã tồn tại trong wishlist chưa
+            var checkRes = await client.GetAsync($"{_apiBaseUrl}/list?userId={userId}");
+            if (checkRes.IsSuccessStatusCode)
+            {
+                var json = await checkRes.Content.ReadAsStringAsync();
+                var wishlist = JsonConvert.DeserializeObject<WishlistDTO>(json);
+                if (wishlist?.Items != null && wishlist.Items.Any(i => i.ProductId == productId))
+                {
+                    return Content("Sản phẩm đã tồn tại trong danh sách yêu thích");
+                }
+            }
+            // Nếu chưa có thì thêm mới
             var response = await client.PostAsync($"{_apiBaseUrl}/add?userId={userId}&productId={productId}", null);
-            // Có thể xử lý thông báo ở đây
-            return RedirectToAction("Wishlist");
+            if (response.IsSuccessStatusCode)
+                return Content("Đã thêm vào danh sách yêu thích!");
+            else
+                return Content("Lỗi khi thêm vào danh sách yêu thích");
         }
 
         [HttpPost]
