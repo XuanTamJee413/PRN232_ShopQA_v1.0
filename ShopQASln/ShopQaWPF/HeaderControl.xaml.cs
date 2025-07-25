@@ -23,5 +23,10 @@ namespace ShopQaWPF
         {
             InitializeComponent();
         }
+        private void ProfileMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var profileWindow = new ShopQaWPF.Customer.Profile();
+            profileWindow.Show();
+        }
     }
 }

@@ -15,7 +15,8 @@
                 <!-- Right Menu -->
                 <Menu Background="Black" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0">
                     <MenuItem Header="SETTINGS" Foreground="White" Background="Black">
-                        <MenuItem Header="Profile" Foreground="Blue"/>
+                        
+                        <MenuItem Header="Profile" Foreground="Blue" Click="ProfileMenuItem_Click"/>
                         <MenuItem Header="My Cart" Foreground="Blue"/>
                         <MenuItem Header="My Orders" Foreground="Blue"/>
                         <Separator/>
