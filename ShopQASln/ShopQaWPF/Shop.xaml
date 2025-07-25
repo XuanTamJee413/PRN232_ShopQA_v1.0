@@ -1,9 +1,13 @@
 ﻿<Window x:Class="ShopQaWPF.Shop"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ShopQaWPF"
         Title="Shop" Height="720" Width="1080">
     <Grid Margin="10">
         <StackPanel Orientation="Vertical">
+            <!-- Header dùng chung -->
+            <local:HeaderControl HorizontalAlignment="Stretch"/>
+
             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                 <ComboBox x:Name="cbCategory" Width="150" Margin="0,0,10,0" />
                 <ComboBox x:Name="cbBrand" Width="150" Margin="0,0,10,0" />
