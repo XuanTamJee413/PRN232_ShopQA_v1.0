@@ -1,6 +1,7 @@
 ﻿using Business.DTO;
 using Business.Iservices;
 using Business.Service;
+using OrderModel = Domain.Models.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -35,6 +36,21 @@ namespace ShopQAPresentation.Controllers.Order
             var createdOrder = await _orderService.CreateOrderAsync(orderDto);
             return CreatedAtAction(nameof(GetAllOrders), new { id = createdOrder.Id }, createdOrder);
         }
+        //tamnx
+        [HttpPost("checkout")]
+        public async Task<IActionResult> Checkout(int cartId)
+        {
+            var order = await _orderService.CreateOrderFromCartIdAsync(cartId);
+            if (order == null) return BadRequest("Giỏ hàng trống hoặc không tồn tại.");
+
+            return Ok(new
+            {
+                order.Id,
+                order.OrderDate,
+                order.TotalAmount
+            });
+        }
+
 
     }
 }

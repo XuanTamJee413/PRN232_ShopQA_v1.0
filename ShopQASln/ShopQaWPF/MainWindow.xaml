@@ -7,6 +7,60 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        
+        <!-- Mượn tạm cái màn hình main này test chức năng tí  -->
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button x:Name="btnGoToCategories" 
+                    Content="Quản lý Danh mục (Categories)" 
+                    Click="btnGoToCategories_Click"
+                    Padding="20,10"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#007ACC"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnGoToUsers"
+                    Content="Quản lý Người dùng (Users)"
+                    Click="btnGoToUsers_Click"
+                    Padding="20,10"
+                    Margin="0,20,0,0"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#FF5722"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
 
+            <Button x:Name="btnGoToBrands" 
+                    Content="Quản lý Thương hiệu (Brands)" 
+                    Click="btnGoToBrands_Click"
+                    Padding="20,10"
+                    Margin="0,20,0,0"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#5C2D91"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
     </Grid>
 </Window>

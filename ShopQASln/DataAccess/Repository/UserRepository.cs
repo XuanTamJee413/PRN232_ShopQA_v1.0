@@ -1,4 +1,5 @@
-﻿using DataAccess.Context;
+﻿
+using DataAccess.Context;
 using DataAccess.IRepositories;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -45,14 +46,15 @@ namespace DataAccess.Repository
                 await _context.SaveChangesAsync();
             }
         }
-        public async Task<User?> FindByEmailOrUsernameAsync(string emailOrUsername)
+        public async Task<IEnumerable<User>> FindByEmailOrUsernameAsync(string emailOrUsername)
         {
             return await _context.Users
                 .Include(u => u.Addresses)
-                .FirstOrDefaultAsync(u =>
+                .Where(u =>
                     u.Email.Contains(emailOrUsername) ||
                     u.Username.Contains(emailOrUsername)
-                );
+                )
+                .ToListAsync();
         }
         public async Task<IEnumerable<User>> FilterByRoleAsync(string role)
         {
@@ -90,6 +92,29 @@ namespace DataAccess.Repository
                 _context.Users.Update(existingUser);
                 await _context.SaveChangesAsync();
             }
+        }
+        public async Task<IEnumerable<User>> SearchUsersAsync(string keyword, string? role)
+        {
+            var query = _context.Users.Include(u => u.Addresses).AsQueryable();
+
+            bool hasKeyword = !string.IsNullOrWhiteSpace(keyword);
+            bool hasRole = !string.IsNullOrWhiteSpace(role) && role != "All";
+
+            if (hasKeyword && hasRole)
+            {
+                query = query.Where(u => (u.Username.Contains(keyword) || u.Email.Contains(keyword)) && u.Role == role);
+            }
+            else if (hasKeyword)
+            {
+                query = query.Where(u => u.Username.Contains(keyword) || u.Email.Contains(keyword));
+            }
+            else if (hasRole)
+            {
+                query = query.Where(u => u.Role == role);
+            }
+            // Nếu không có keyword và role thì trả về tất cả
+
+            return await query.ToListAsync();
         }
         public async Task UpdateAddressAsync(int userId, string? address, string? city, string? country)
         {

@@ -1,10 +1,7 @@
 ﻿@model List<ShopQaMVC.Models.CartVM>
-
 @{
     ViewData["Title"] = "Cart";
-
 }
-<!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-option">
     <div class="container">
         <div class="row">
@@ -21,8 +18,7 @@
         </div>
     </div>
 </section>
-<!-- Breadcrumb Section End -->
-<!-- Shopping Cart Section Begin -->
+
 <section class="shopping-cart spad">
     <div class="container">
         <div class="row">
@@ -45,7 +41,7 @@
                                 <tbody>
                                     @foreach (var item in cart.Items)
                                     {
-                                        <tr>
+                                        <tr data-item-id="@item.Id">
                                             <td class="product__cart__item">
                                                 <div class="product__cart__item__pic">
                                                     <img src="@item.ProductVariant?.ImageUrl" width="90" />
@@ -59,12 +55,14 @@
                                             <td class="quantity__item">
                                                 <div class="quantity">
                                                     <div class="pro-qty-2">
-                                                        <input type="text" value="@item.Quantity" />
+                                                        <input type="text" class="quantity-input" data-cart-item-id="@item.Id" value="@item.Quantity" />
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="cart__price">@($"{item.ProductVariant?.Price * item.Quantity:N0} ₫")</td>
-                                            <td class="cart__close"><i class="fa fa-close"></i></td>
+                                            <td class="cart__close">
+                                                <i class="fa fa-close delete-cart-item" data-cart-item-id="@item.Id" style="cursor:pointer;"></i>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
@@ -81,28 +79,37 @@
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-6">
                         <div class="continue__btn update__btn">
-                            <a href="#"><i class="fa fa-spinner"></i> Update cart</a>
+                            <button id="update-cart-btn" class="site-btn"><i class="fa fa-spinner"></i> Update cart</button>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="col-lg-4">
                 <div class="cart__discount">
-                    <h6>Discount codes</h6>
+                    <h6>Voucher Code</h6> 
                     <form action="#">
                         <input type="text" placeholder="Coupon code">
                         <button type="submit">Apply</button>
                     </form>
                 </div>
+
+                <div class="cart__discount mt-4">
+                    <h6>Thông tin giao hàng</h6>
+                    <form action="#">
+                        <input type="tel" id="shipping-phone" placeholder="Số điện thoại" class="mb-2">
+                        <textarea id="shipping-address" placeholder="Địa chỉ nhận hàng" style="width: 100%; border: 1px solid #e1e1e1; height: 80px; padding: 10px;"></textarea>
+                    </form>
+                </div>
+
                 <div class="cart__discount mt-4">
                     <h6>Your Carts</h6>
                     <ul class="list-group">
                         @for (int i = 0; i < Model.Count; i++)
                         {
                             var cart = Model[i];
-                            <li class="list-group-item cart-selector @(i == 0 ? "active" : "")"
-                                data-cart-id="@cart.Id">
-                                Cart @cart.Id - @cart.CreatedAt.ToString("dd/MM/yyyy")
+                            <li class="list-group-item cart-selector @(i == 0 ? "active" : "")" data-cart-id="@cart.Id">
+                                Cart @cart.Id - @cart.CreatedAt.ToString("dd/MM/yyyy") (@cart.Status)
                             </li>
                         }
                     </ul>
@@ -110,18 +117,70 @@
                 <div class="cart__total">
                     <h6>Cart total</h6>
                     <ul>
-                        <ul>
-                            <li>Subtotal <span id="subtotal-display">0 ₫</span></li>
-                            <li>Total <span id="total-display">0 ₫</span></li>
-                        </ul>
-
+                        <li>Subtotal <span id="subtotal-display">0 ₫</span></li>
+                        <li>Total <span id="total-display">0 ₫</span></li>
                     </ul>
-                    <a id="checkout-btn" href="/Customer/Checkout?cartId=@Model.FirstOrDefault()?.Id&userId=@Model.FirstOrDefault()?.UserId" class="primary-btn">Proceed to checkout</a>
-                </div>
+                    @* tamnx: tú nếu muốn chuyển qua proceed trước thì xem lại đoạn này nha *@
+                    <a id="checkout-btn" href="#" class="primary-btn">Proceed to checkout</a>
+                    <script>
+                        document.getElementById("checkout-btn").addEventListener("click", async function (e) {
+                            e.preventDefault();
+                            const token = sessionStorage.getItem("JwtToken");
 
+                            // Lấy cartId từ phần tử đang active
+                            const activeSelector = document.querySelector(".cart-selector.active");
+                            const cartId = activeSelector ? activeSelector.getAttribute("data-cart-id") : null;
+
+                            // Lấy thông tin giao hàng
+                            const phone = document.getElementById("shipping-phone").value;
+                            const address = document.getElementById("shipping-address").value;
+
+                            if (!cartId) {
+                                alert("Không tìm thấy giỏ hàng.");
+                                return;
+                            }
+
+                            // Kiểm tra thông tin giao hàng
+                            if (!phone || !address) {
+                                alert("Vui lòng điền đầy đủ số điện thoại và địa chỉ nhận hàng.");
+                                return;
+                            }
+
+                            try {
+                                const res = await fetch(`https://localhost:7101/api/Order/checkout?cartId=${cartId}`, {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "Authorization": `Bearer ${token}`
+                                    },
+                                    // Gửi thông tin giao hàng trong body của request
+                                    body: JSON.stringify({
+                                        phone: phone,
+                                        address: address
+                                    })
+                                });
+
+                                if (!res.ok) {
+                                    const error = await res.text();
+                                    alert("Lỗi: " + error);
+                                    return;
+                                }
+
+                                const data = await res.json();
+                                alert("Đặt hàng thành công! Mã đơn: " + data.id);
+                                location.reload();
+                            } catch (err) {
+                                console.error(err);
+                                alert("Có lỗi xảy ra khi đặt hàng.");
+                            }
+                        });
+                    </script>
+                    @* end đoạn cần xem lại *@
+                </div>
             </div>
         </div>
     </div>
+
     @section Scripts {
         <script>
             document.addEventListener("DOMContentLoaded", function () {
@@ -147,16 +206,13 @@
 
                     rows.forEach(row => {
                         const totalText = row.querySelector(".cart__price")?.innerText.replace(/[^\d]/g, "");
-                        if (totalText) {
-                            total += parseInt(totalText);
-                        }
+                        if (totalText) total += parseInt(totalText);
                     });
 
                     subtotalDisplay.innerText = formatCurrencyVND(total);
-                    totalDisplay.innerText = formatCurrencyVND(total); // chưa có thuế hay phí thêm
+                    totalDisplay.innerText = formatCurrencyVND(total);
                 }
 
-                // Khởi tạo: chỉ tính tổng giỏ đầu tiên
                 updateTotal(0);
 
                 cartSelectors.forEach((selector, index) => {
@@ -175,15 +231,60 @@
                             checkoutBtn.href = `/Customer/Checkout?cartId=${cartId}&userId=${userId}`;
                         }
 
-                        // Cập nhật tổng
                         updateTotal(index);
+                    });
+                });
+
+                // Update cart
+                document.getElementById("update-cart-btn").addEventListener("click", async function () {
+                    const token = sessionStorage.getItem("JwtToken");
+                    if (!token) {
+                        alert("Vui lòng đăng nhập lại.");
+                        return;
+                    }
+
+                    const inputs = document.querySelectorAll(".quantity-input");
+                    for (const input of inputs) {
+                        const id = input.dataset.cartItemId;
+                        const quantity = parseInt(input.value);
+                        if (isNaN(quantity) || quantity <= 0) continue;
+
+                        await fetch(`https://localhost:7101/odata/CartItems(${id})`, {
+                            method: "PATCH",
+                            headers: {
+                                "Authorization": `Bearer ${token}`,
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({ Quantity: quantity })
+                        });
+                    }
+
+                    alert("Đã cập nhật giỏ hàng");
+                    location.reload();
+                });
+
+                // Delete item
+                document.querySelectorAll(".delete-cart-item").forEach(btn => {
+                    btn.addEventListener("click", async function () {
+                        if (!confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
+
+                        const id = this.dataset.cartItemId;
+                        const token = sessionStorage.getItem("JwtToken");
+
+                        const res = await fetch(`https://localhost:7101/odata/CartItems(${id})`, {
+                            method: "DELETE",
+                            headers: { "Authorization": `Bearer ${token}` }
+                        });
+
+                        if (res.ok) {
+                            alert("Đã xoá sản phẩm");
+                            location.reload();
+                        } else {
+                            alert("Xoá thất bại");
+                        }
                     });
                 });
             });
         </script>
-
     }
-
-
 </section>
-<!-- Shopping Cart Section End -->

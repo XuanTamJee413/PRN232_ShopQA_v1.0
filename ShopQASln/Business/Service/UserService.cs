@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -33,7 +34,7 @@ namespace Business.Service
                 Email = userDto.Email,
                 Role = userDto.Role,
                 PasswordHash = HashPassword(userDto.Password)
-                
+
 
             };
 
@@ -63,7 +64,7 @@ namespace Business.Service
                 Username = user.Username,
                 Email = user.Email,
                 Role = user.Role,
-                Status = user.Status 
+                Status = user.Status
             };
         }
 
@@ -76,7 +77,7 @@ namespace Business.Service
                 Username = u.Username,
                 Email = u.Email,
                 Role = u.Role,
-                Status = u.Status 
+                Status = u.Status
             });
         }
 
@@ -115,18 +116,17 @@ namespace Business.Service
                 return Convert.ToBase64String(hashBytes);
             }
         }
-        public async Task<UserDTO?> FindByEmailOrUsernameAsync(string keyword)
+        public async Task<IEnumerable<UserDTO>> FindByEmailOrUsernameAsync(string keyword)
         {
-            var user = await _userRepository.FindByEmailOrUsernameAsync(keyword);
-            if (user == null) return null;
-
-            return new UserDTO
+            var users = await _userRepository.FindByEmailOrUsernameAsync(keyword);
+            return users.Select(u => new UserDTO
             {
-                Id = user.Id,
-                Username = user.Username,
-                Email = user.Email,
-                Role = user.Role
-            };
+                Id = u.Id,
+                Username = u.Username,
+                Email = u.Email,
+                Role = u.Role,
+                Status = u.Status
+            });
         }
 
         public async Task<IEnumerable<UserDTO>> FilterUsersByRoleAsync(string role)
@@ -191,11 +191,23 @@ namespace Business.Service
             return user.PasswordHash == oldPassword;
         }
 
-     
+
 
         public async Task UpdateAccountStatusAsync(int userId, string status)
         {
             await _userRepository.UpdateAccountStatusAsync(userId, status);
+        }
+                public async Task<IEnumerable<UserDTO>> SearchUsersAsync(string keyword, string? role)
+        {
+            var users = await _userRepository.SearchUsersAsync(keyword, role);
+            return users.Select(u => new UserDTO
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Email = u.Email,
+                Role = u.Role,
+                Status = u.Status
+            });
         }
     }
 }
