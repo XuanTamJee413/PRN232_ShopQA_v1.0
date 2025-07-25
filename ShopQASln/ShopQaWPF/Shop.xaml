@@ -1,14 +1,39 @@
-﻿<Page x:Class="ShopQaWPF.Shop"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:ShopQaWPF"
-      mc:Ignorable="d" 
-      d:DesignHeight="450" d:DesignWidth="800"
-      Title="Shop">
+﻿<Window x:Class="ShopQaWPF.Shop"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Shop" Height="720" Width="1080">
+    <Grid Margin="10">
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <ComboBox x:Name="cbCategory" Width="150" Margin="0,0,10,0" />
+                <ComboBox x:Name="cbBrand" Width="150" Margin="0,0,10,0" />
+                <TextBox x:Name="txtSearch" Width="200" Margin="0,0,10,0"/>
+                <Button Content="Tìm" Click="Search_Click"/>
+            </StackPanel>
 
-    <Grid>
-        
+            <ListView x:Name="lvProducts" Height="600">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Hình ảnh" Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding ImageUrl}" Width="80" Height="80" Stretch="UniformToFill"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <GridViewColumn Header="Tên" DisplayMemberBinding="{Binding Name}" Width="200"/>
+                        <GridViewColumn Header="Mô tả" DisplayMemberBinding="{Binding Description}" Width="300"/>
+                        <GridViewColumn Header="Chi tiết" Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Xem" Click="Detail_Click" Tag="{Binding}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </StackPanel>
     </Grid>
-</Page>
+</Window>
