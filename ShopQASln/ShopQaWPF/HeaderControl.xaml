@@ -20,7 +20,7 @@
                         <MenuItem Header="My Cart" Foreground="Blue"/>
                         <MenuItem Header="My Orders" Foreground="Blue"/>
                         <Separator/>
-                        <MenuItem Header="Sign out" Foreground="Black"/>
+                        <MenuItem Header="Sign out" Foreground="Black" Click="SignOut_Click"/>
                     </MenuItem>
                 </Menu>
             </Grid>

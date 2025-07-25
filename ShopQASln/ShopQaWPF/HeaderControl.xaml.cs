@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ShopQaWPF.Account;
+using ShopQaWPF.DTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +41,19 @@ namespace ShopQaWPF
         {
             var cartWindow = new ShopQaWPF.Customer.Cart();
             cartWindow.Show();
+        }
+
+        private void SignOut_Click(object sender, RoutedEventArgs e)
+        {
+            App.JwtToken = null;
+            App.CurrentUser = null;
+            LocalStorage.Remove("token");
+
+            var loginWindow = new Login();
+            loginWindow.Show();
+
+            Window currentWindow = Window.GetWindow(this);
+            currentWindow?.Close();
         }
 
     }
