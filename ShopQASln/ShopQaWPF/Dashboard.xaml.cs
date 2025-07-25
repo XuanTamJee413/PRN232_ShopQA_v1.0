@@ -1,4 +1,7 @@
-﻿using ShopQaWPF.Staff;
+﻿using ShopQaWPF.Account;
+using ShopQaWPF.Admin;
+using ShopQaWPF.Models;
+using ShopQaWPF.Staff;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,18 +42,19 @@ namespace ShopQaWPF
 
         private void btnGoToProducts_Click(object sender, RoutedEventArgs e)
         {
-            Products ProductsWindow = new Products();
+            Admin.Product ProductsWindow = new Admin.Product();
             ProductsWindow.Show();
         }
         private void btnGoToUsers_Click(object sender, RoutedEventArgs e)
         {
-           
+            Users userWindow = new Users();
+            userWindow.Show();
         }
 
         private void btnLogout_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow mainWindow = new MainWindow();
-            mainWindow.Show();
+            Login loginWindow = new Login();
+            loginWindow.Show();
             this.Close();
         }
     }

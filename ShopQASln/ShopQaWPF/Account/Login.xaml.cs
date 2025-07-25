@@ -84,8 +84,8 @@ namespace ShopQaWPF.Account
 
                     Window nextWindow = user.Role switch
                     {
-                        "Admin" => new Users(),          // Users.xaml
-                        "Staff" => new Product(),        // Product.xaml
+                        "Admin" => new Dashboard(),          // Users.xaml
+                      //  "Staff" => new Dashboard(),        // Dashboard.xaml
                         "Customer" => new Shop(),        // Shop.xaml
                         _ => null
                     };
