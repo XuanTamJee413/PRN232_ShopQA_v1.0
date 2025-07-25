@@ -87,12 +87,21 @@
 
             <div class="col-lg-4">
                 <div class="cart__discount">
-                    <h6>Discount codes</h6>
+                    <h6>Voucher Code</h6> 
                     <form action="#">
                         <input type="text" placeholder="Coupon code">
                         <button type="submit">Apply</button>
                     </form>
                 </div>
+
+                <div class="cart__discount mt-4">
+                    <h6>Thông tin giao hàng</h6>
+                    <form action="#">
+                        <input type="tel" id="shipping-phone" placeholder="Số điện thoại" class="mb-2">
+                        <textarea id="shipping-address" placeholder="Địa chỉ nhận hàng" style="width: 100%; border: 1px solid #e1e1e1; height: 80px; padding: 10px;"></textarea>
+                    </form>
+                </div>
+
                 <div class="cart__discount mt-4">
                     <h6>Your Carts</h6>
                     <ul class="list-group">
@@ -118,12 +127,22 @@
                             e.preventDefault();
                             const token = sessionStorage.getItem("JwtToken");
 
-                            // lấy cartId từ phần tử đang active
+                            // Lấy cartId từ phần tử đang active
                             const activeSelector = document.querySelector(".cart-selector.active");
                             const cartId = activeSelector ? activeSelector.getAttribute("data-cart-id") : null;
 
+                            // Lấy thông tin giao hàng
+                            const phone = document.getElementById("shipping-phone").value;
+                            const address = document.getElementById("shipping-address").value;
+
                             if (!cartId) {
                                 alert("Không tìm thấy giỏ hàng.");
+                                return;
+                            }
+
+                            // Kiểm tra thông tin giao hàng
+                            if (!phone || !address) {
+                                alert("Vui lòng điền đầy đủ số điện thoại và địa chỉ nhận hàng.");
                                 return;
                             }
 
@@ -133,7 +152,12 @@
                                     headers: {
                                         "Content-Type": "application/json",
                                         "Authorization": `Bearer ${token}`
-                                    }
+                                    },
+                                    // Gửi thông tin giao hàng trong body của request
+                                    body: JSON.stringify({
+                                        phone: phone,
+                                        address: address
+                                    })
                                 });
 
                                 if (!res.ok) {
@@ -150,7 +174,6 @@
                                 alert("Có lỗi xảy ra khi đặt hàng.");
                             }
                         });
-
                     </script>
                     @* end đoạn cần xem lại *@
                 </div>
