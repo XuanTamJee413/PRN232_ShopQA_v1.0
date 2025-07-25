@@ -32,5 +32,12 @@ namespace ShopQaWPF
             ManageBrands brandsWindow = new ManageBrands();
             brandsWindow.Show();
         }
+
+        private void btnGoToUsers_Click(object sender, RoutedEventArgs e)
+        {
+            // Mở cửa sổ quản lý người dùng
+            var usersWindow = new Admin.Users();
+            usersWindow.Show();
+        }
     }
 }

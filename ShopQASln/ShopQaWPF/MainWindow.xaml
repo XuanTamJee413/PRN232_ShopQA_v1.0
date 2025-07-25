@@ -26,6 +26,23 @@
                     </Style>
                 </Button.Resources>
             </Button>
+            <Button x:Name="btnGoToUsers"
+                    Content="Quản lý Người dùng (Users)"
+                    Click="btnGoToUsers_Click"
+                    Padding="20,10"
+                    Margin="0,20,0,0"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#FF5722"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
 
             <Button x:Name="btnGoToBrands" 
                     Content="Quản lý Thương hiệu (Brands)" 

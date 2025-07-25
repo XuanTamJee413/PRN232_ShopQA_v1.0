@@ -1,4 +1,5 @@
-﻿using System;
+﻿     
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,8 +18,9 @@ namespace DataAccess.IRepositories
         Task UpdateAsync(User user);
         
         Task DeleteAsync(int id);
-        Task<User?> FindByEmailOrUsernameAsync(string emailOrUsername);
+        Task<IEnumerable<User>> FindByEmailOrUsernameAsync(string emailOrUsername);
         Task<IEnumerable<User>> FilterByRoleAsync(string role);
+        Task<IEnumerable<User>> SearchUsersAsync(string keyword, string? role);
         Task ChangePasswordAsync(int userId, string newPasswordHash);
         Task<User?> GetProfileAsync(int userId);
         Task UpdatePersonalInfoAsync(User user);

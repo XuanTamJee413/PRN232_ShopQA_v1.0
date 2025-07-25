@@ -1,4 +1,5 @@
-﻿using System;
+﻿       
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,13 +15,13 @@ namespace Business.Iservices
         Task<IEnumerable<UserDTO>> GetAllUsersAsync();
         Task UpdateUserAsync(UserDTO userDto);
         Task DeleteUserAsync(int id);
-        Task<UserDTO?> FindByEmailOrUsernameAsync(string keyword);
+        Task<IEnumerable<UserDTO>> FindByEmailOrUsernameAsync(string keyword);
         Task<IEnumerable<UserDTO>> FilterUsersByRoleAsync(string role);
         Task ChangePasswordAsync(int userId, string newPassword);
         Task<UserDTO?> GetProfileAsync(int userId);
         Task UpdatePersonalInfoAsync(UserDTO userDto);
         Task<bool> ValidatePasswordAsync(int userId, string oldPassword);
-      
+       Task<IEnumerable<UserDTO>> SearchUsersAsync(string keyword, string? role);
         Task UpdateAccountStatusAsync(int userId, string status);
     }
 }

@@ -97,13 +97,19 @@ namespace ShopQAPresentation.Controllers.User
             var users = await _userService.FilterUsersByRoleAsync(role);
             return Ok(users);
         }
-      
+
 
         [HttpPut("status/{id}")]
         public async Task<IActionResult> UpdateUserStatus(int id, [FromQuery] string status)
         {
             await _userService.UpdateAccountStatusAsync(id, status);
             return NoContent();
+        }
+        [HttpGet("search-users")]
+        public async Task<IActionResult> SearchUsers([FromQuery] string? keyword, [FromQuery] string? role)
+        {
+            var result = await _userService.SearchUsersAsync(keyword, role);
+            return Ok(result);
         }
 
     }
