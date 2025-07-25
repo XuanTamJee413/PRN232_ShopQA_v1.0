@@ -66,6 +66,21 @@ namespace DataAccess.Repository
 
             _context.Orders.Add(order);
 
+
+            //giam quatity product
+            foreach (var cartItem in cart.Items)
+            {
+                if (cartItem.ProductVariant != null)
+                {
+                    if (cartItem.ProductVariant.Stock < cartItem.Quantity)
+                    {
+                        throw new InvalidOperationException($"Sản phẩm {cartItem.ProductVariant.Id} không đủ hàng tồn kho.");
+                    }
+                    cartItem.ProductVariant.Stock -= cartItem.Quantity;
+                    _context.ProductVariants.Update(cartItem.ProductVariant);
+                }
+            }
+
             cart.Status = "Close";
             _context.Carts.Update(cart);
 
