@@ -2,7 +2,7 @@ using ShopQaWPF.DTO;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace ShopQaWPF.Customer
+namespace ShopQaWPF.ViewModels
 {
     public class ProfileViewModel : INotifyPropertyChanged
     {
