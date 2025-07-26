@@ -25,6 +25,12 @@ namespace ShopQaWPF.DTO
         {
             return data.ContainsKey(key) ? JsonSerializer.Deserialize<string>(data[key]) : null;
         }
+        public static void Remove(string key)
+        {
+            if (data.ContainsKey(key))
+                data.Remove(key);
+        }
+
     }
 
 }

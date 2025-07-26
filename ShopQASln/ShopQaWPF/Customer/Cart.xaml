@@ -1,12 +1,60 @@
 ﻿<Window x:Class="ShopQaWPF.Customer.Cart"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ShopQaWPF.Customer"
-        mc:Ignorable="d"
-        Title="Cart" Height="450" Width="800">
-    <Grid>
-        
+        Title="Cart" Height="600" Width="1000">
+    <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- LEFT: Hiển thị cart item -->
+        <StackPanel Grid.Column="0">
+            <TextBlock Text="{Binding CurrentCartTitle}" FontWeight="Bold" FontSize="18" Margin="0 0 0 10"/>
+            <ListView Name="CartItemsListView" Margin="0 0 0 10">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Product" Width="200" DisplayMemberBinding="{Binding ProductName}" />
+                        <GridViewColumn Header="Size/Color" Width="120" DisplayMemberBinding="{Binding SizeColor}" />
+                        <GridViewColumn Header="Price" Width="80" DisplayMemberBinding="{Binding Price}" />
+                        <GridViewColumn Header="Quantity" Width="80">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Quantity, Mode=TwoWay}" Width="50"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Total" Width="100" DisplayMemberBinding="{Binding Total}" />
+                        <GridViewColumn Header="Xóa" Width="50">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="X" Foreground="Red" Click="DeleteItem_Click"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0 10 0 0">
+                <Button Content="Cập nhật giỏ hàng" Click="UpdateCart_Click" Width="150" Margin="0 0 10 0"/>
+                <TextBlock Text="Tổng: " FontWeight="Bold" VerticalAlignment="Center"/>
+                <TextBlock Name="TotalText" FontWeight="Bold" Margin="5 0"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- RIGHT: Thông tin giao hàng + chọn cart -->
+        <StackPanel Grid.Column="1" Margin="10 0 0 0">
+            <TextBlock Text="Chọn Cart" FontWeight="Bold" Margin="0 0 0 5"/>
+            <ListBox Name="CartSelector" SelectionChanged="CartSelector_SelectionChanged" Height="100" />
+
+            <TextBlock Text="Số điện thoại" Margin="0 10 0 2"/>
+            <TextBox Name="PhoneTextBox" />
+
+            <TextBlock Text="Địa chỉ" Margin="0 10 0 2"/>
+            <TextBox Name="AddressTextBox" Height="60" TextWrapping="Wrap" AcceptsReturn="True"/>
+
+            <Button Content="Thanh toán" Click="Checkout_Click" Margin="0 20 0 0" Height="40" Background="DarkGreen" Foreground="White"/>
+        </StackPanel>
     </Grid>
 </Window>

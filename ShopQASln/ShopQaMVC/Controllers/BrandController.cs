@@ -186,7 +186,7 @@ namespace ShopQaMVC.Controllers
             }
             else
             {
-                TempData["Error"] = $"Không thể xóa thương hiệu. Lỗi: {response.StatusCode}";
+                TempData["Error"] = $"Không thể xóa do có sản phẩm thuộc thương hiệu này";
             }
             return RedirectToAction(nameof(Index));
         }
