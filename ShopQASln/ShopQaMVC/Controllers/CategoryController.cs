@@ -180,7 +180,7 @@ namespace ShopQaMVC.Controllers
             }
             else
             {
-                TempData["Error"] = $"Không thể xóa danh mục. Lỗi: {response.StatusCode}";
+                TempData["Error"] = $"Không thể xóa do có sản phẩm thuộc danh mục này!";
             }
             return RedirectToAction(nameof(Index));
         }
