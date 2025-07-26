@@ -118,7 +118,7 @@ namespace DataAccess.Repository
         // Thống kê tổng doanh thu
         public decimal GetTotalRevenue()
         {
-            return _context.Orders.Sum(o => o.TotalAmount);
+            return _context.Orders.Where(o => o.Status != "Canceled").Sum(o => o.TotalAmount);
         }
 
         // Lấy danh sách productvariant và số lượng bán ra
