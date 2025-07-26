@@ -1,0 +1,158 @@
+﻿@{
+    ViewData["Title"] = "My Orders";
+    var token = ViewBag.Token as string;
+}
+<section class="breadcrumb-option">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="breadcrumb__text">
+                    <h4>My Orders</h4>
+                    <div class="breadcrumb__links">
+                        <a href="/Home">Home</a>
+                        <span>Orders</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="shopping-cart spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4">
+                <h5>Your Orders</h5>
+                <ul id="order-list" class="list-group"></ul>
+            </div>
+
+            <div class="col-lg-8">
+                <h5>Order Details</h5>
+                <div id="order-details" class="shopping__cart__table">
+                    <p>Chọn một đơn hàng để xem chi tiết.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const token = `@token`;
+
+        function formatCurrencyVND(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        async function fetchOrders() {
+            const res = await fetch("https://localhost:7101/api/Order/my-orders", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const orders = await res.json();
+            const orderList = document.getElementById("order-list");
+            orderList.innerHTML = "";
+
+            orders.forEach((order, index) => {
+                const li = document.createElement("li");
+                li.className = "list-group-item order-selector";
+                li.dataset.orderId = order.id;
+                li.innerText = `Order ${order.id} (${order.status}) - ${new Date(order.orderDate).toLocaleDateString()} (${formatCurrencyVND(order.totalAmount)})`;
+                orderList.appendChild(li);
+
+                // 👇 Nếu là đơn hàng đầu tiên → tự động hiển thị chi tiết
+                if (index === 0) {
+                    li.classList.add("active");
+                    loadOrderDetails(order.id);
+                }
+            });
+
+            // Bắt sự kiện click cho từng đơn hàng
+            document.querySelectorAll(".order-selector").forEach(item => {
+                item.addEventListener("click", function () {
+                    document.querySelectorAll(".order-selector").forEach(i => i.classList.remove("active"));
+                    this.classList.add("active");
+                    loadOrderDetails(this.dataset.orderId);
+                });
+            });
+        }
+
+
+        async function loadOrderDetails(orderId) {
+            const res = await fetch(`https://localhost:7101/api/Order/my-orders/${orderId}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const order = await res.json();
+            const container = document.getElementById("order-details");
+            container.innerHTML = `
+            <h6>Order ID: ${order.id}</h6>
+            <p>Date: ${new Date(order.orderDate).toLocaleDateString()}</p>
+            <p>Status: ${order.status}</p>
+            <p>Total: ${formatCurrencyVND(order.totalAmount)}</p>
+
+            ${renderActionButton(order.id, order.status)}
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${order.items.map(i => `
+                        <tr>
+                            <td>${i.productName}</td>
+                            <td>${i.quantity}</td>
+                            <td>${formatCurrencyVND(i.price)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+
+        }
+        function renderActionButton(orderId, status) {
+            if (status === "Pending") {
+                return `<button onclick="updateOrderStatus(${orderId}, 'Canceled')" class="btn btn-danger mb-3">Cancel Order</button>`;
+            }
+            if (status === "Delivered" || status === "Canceled") {
+                return `<button onclick="updateOrderStatus(${orderId}, 'Pending')" class="btn btn-primary mb-3">Reorder</button>`;
+            }
+            return "";
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            const confirmed = confirm(`Bạn có chắc muốn chuyển trạng thái đơn hàng thành "${newStatus}"?`);
+            if (!confirmed) return;
+
+            const res = await fetch(`https://localhost:7101/api/Order/${orderId}/status`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (res.ok) {
+                alert("Cập nhật trạng thái thành công.");
+                await fetchOrders();
+            } else {
+                alert("Cập nhật thất bại.");
+            }
+        }
+
+
+        document.addEventListener("DOMContentLoaded", fetchOrders);
+    </script>
+}

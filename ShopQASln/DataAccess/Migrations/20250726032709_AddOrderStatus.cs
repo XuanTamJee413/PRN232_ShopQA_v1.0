@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class DBnew : Migration
+    public partial class AddOrderStatus : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -136,7 +136,8 @@ namespace DataAccess.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -389,9 +390,9 @@ namespace DataAccess.Migrations
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { 1, "Áo thun" },
-                    { 2, "Áo khoác" },
-                    { 3, "Chân váy" },
+                    { 1, "Áo sơ mi" },
+                    { 2, "Quần tây" },
+                    { 3, "Đầm nữ" },
                     { 4, "Quần jean" },
                     { 5, "Đồ thể thao" },
                     { 6, "Đồ ngủ" },
@@ -441,34 +442,34 @@ namespace DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "Orders",
-                columns: new[] { "Id", "OrderDate", "TotalAmount", "UserId" },
-                values: new object[] { 1, new DateTime(2025, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), 770000m, 1 });
+                columns: new[] { "Id", "OrderDate", "Status", "TotalAmount", "UserId" },
+                values: new object[] { 1, new DateTime(2025, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "Pending", 770000m, 1 });
 
             migrationBuilder.InsertData(
                 table: "Products",
                 columns: new[] { "Id", "BrandId", "CategoryId", "Description", "ImageUrl", "Name" },
                 values: new object[,]
                 {
-                    { 1, 1, 1, "Form Hàn Quốc, vải lụa mát, thích hợp đi học và đi làm.", "/images/products/ao-so-mi-trang.jpg", "Áo sơ mi trắng nam" },
-                    { 2, 2, 2, "Vải co giãn, mặc nhẹ thoáng mát.", "/images/products/quan-tay.jpg", "Quần tây công sở" },
-                    { 3, 3, 3, "Đầm nữ dáng xòe, chất liệu cao cấp.", "/images/products/dam-nu.jpg", "Đầm nữ công sở" },
-                    { 4, 4, 1, "Áo sơ mi caro trẻ trung, cá tính.", "/images/products/ao-so-mi-caro.jpg", "Áo sơ mi caro nam" },
-                    { 5, 5, 2, "Phong cách thanh lịch, hợp thời trang công sở.", "/images/products/quan-tay-ong-dung.jpg", "Quần tây ống đứng" },
-                    { 6, 6, 3, "Chất cotton thoáng mát, kiểu dáng đơn giản.", "/images/products/dam-suong.jpg", "Đầm suông tay lỡ" },
-                    { 7, 5, 1, "Vải cotton, ít nhăn, dễ ủi, thoải mái vận động.", "/images/products/ao-so-mi-xanh.jpg", "Áo sơ mi xanh dương" },
-                    { 8, 3, 2, "Thiết kế giúp tôn dáng, chất vải cao cấp.", "/images/products/quan-tay-nu.jpg", "Quần tây lưng cao nữ" },
-                    { 9, 2, 3, "Dáng ôm body, phong cách sang trọng.", "/images/products/dam-ren.jpg", "Đầm dự tiệc ren hoa" },
-                    { 10, 6, 1, "Phong cách trẻ trung, lịch sự, dễ phối đồ.", "/images/products/ao-co-tru.jpg", "Áo sơ mi cổ trụ nam" },
-                    { 11, 1, 2, "Tôn dáng, chất liệu mềm mại, co giãn tốt.", "/images/products/quan-slimfit.jpg", "Quần tây slimfit nam" },
-                    { 12, 4, 3, "Dáng ôm body, tôn dáng, phù hợp dự tiệc.", "/images/products/dam-body.jpg", "Đầm body tay dài ren" },
-                    { 13, 5, 1, "Vải lụa cao cấp, mềm mại, không nhăn.", "/images/products/ao-lua-nu.jpg", "Áo sơ mi lụa nữ cao cấp" },
-                    { 14, 2, 2, "Màu xám, đơn giản, thích hợp đi làm.", "/images/products/quan-basic.jpg", "Quần tây nam màu xám" },
-                    { 15, 6, 3, "Phong cách dễ thương, nhẹ nhàng.", "/images/products/dam-hoa-nhi.jpg", "Đầm hoa nhí xòe nhẹ" },
-                    { 16, 3, 1, "Thoáng mát, phù hợp mùa hè.", "/images/products/ao-linen.jpg", "Áo sơ mi linen nam trắng" },
-                    { 17, 4, 2, "Màu nâu, chất kaki, co giãn nhẹ.", "/images/products/quan-kaki.jpg", "Quần kaki công sở" },
-                    { 18, 5, 3, "Phong cách công chúa, phù hợp dạo phố.", "/images/products/dam-maxi.jpg", "Đầm maxi tay bồng trắng" },
-                    { 19, 2, 1, "Form rộng, thoải mái, trẻ trung.", "/images/products/ao-caro-nu.jpg", "Áo sơ mi sọc caro nữ form rộng" },
-                    { 20, 1, 2, "Thiết kế thời trang, mát mẻ cho mùa hè.", "/images/products/quan-lung.jpg", "Quần lửng nữ mùa hè" }
+                    { 1, 1, 1, "Form Hàn Quốc, vải lụa mát, thích hợp đi học và đi làm.", "https://i.pinimg.com/736x/ba/6a/fc/ba6afce25fcf994d07fd160f389e9bb8.jpg", "Áo sơ mi trắng nam" },
+                    { 2, 2, 2, "Vải co giãn, mặc nhẹ thoáng mát.", "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg", "Quần tây công sở" },
+                    { 3, 3, 3, "Đầm nữ dáng xòe, chất liệu cao cấp.", "https://i.pinimg.com/1200x/1e/6e/76/1e6e76d7c4ac2511c7f9e36d870794cd.jpg", "Đầm nữ công sở" },
+                    { 4, 4, 1, "Áo sơ mi caro trẻ trung, cá tính.", "https://i.pinimg.com/1200x/0c/ab/a1/0caba16bfdc3ad7b0fc45d1b1a32ed03.jpg", "Áo sơ mi caro nam" },
+                    { 5, 5, 2, "Phong cách thanh lịch, hợp thời trang công sở.", "https://i.pinimg.com/736x/6a/f2/97/6af29743f957d7f51b47745748a7e165.jpg", "Quần tây ống đứng" },
+                    { 6, 6, 3, "Chất cotton thoáng mát, kiểu dáng đơn giản.", "https://i.pinimg.com/736x/47/8c/46/478c460badc0151e014a6e09d38fe322.jpg", "Đầm suông tay lỡ" },
+                    { 7, 5, 1, "Vải cotton, ít nhăn, dễ ủi, thoải mái vận động.", "https://i.pinimg.com/736x/16/de/73/16de733afd1cacf082efcf9e5d0487cf.jpg", "Áo sơ mi xanh dương" },
+                    { 8, 3, 2, "Thiết kế giúp tôn dáng, chất vải cao cấp.", "https://i.pinimg.com/1200x/ae/07/1d/ae071dfa148fa6d88ab3f922dd97e501.jpg", "Quần tây lưng cao nữ" },
+                    { 9, 2, 3, "Dáng ôm body, phong cách sang trọng.", "https://i.pinimg.com/1200x/9b/d5/65/9bd565b235fb7a428653455fdd62df26.jpg", "Đầm dự tiệc ren hoa" },
+                    { 10, 6, 1, "Phong cách trẻ trung, lịch sự, dễ phối đồ.", "https://i.pinimg.com/736x/0b/fb/24/0bfb2487ffe49e5d47ede015ef4344dd.jpg", "Áo sơ mi cổ trụ nam" },
+                    { 11, 1, 2, "Tôn dáng, chất liệu mềm mại, co giãn tốt.", "https://i.pinimg.com/736x/cb/16/9a/cb169a444973897e466310e41dce00f1.jpg", "Quần tây slimfit nam" },
+                    { 12, 4, 3, "Dáng ôm body, tôn dáng, phù hợp dự tiệc.", "https://i.pinimg.com/736x/ff/0c/dc/ff0cdc4cc4910f9a5d3857a379f41739.jpg", "Đầm body tay dài ren" },
+                    { 13, 5, 1, "Vải lụa cao cấp, mềm mại, không nhăn.", "https://i.pinimg.com/1200x/0a/7e/d9/0a7ed9bc3f0abb3ae287307265e66f18.jpg", "Áo sơ mi lụa nữ cao cấp" },
+                    { 14, 2, 2, "Màu xám, đơn giản, thích hợp đi làm.", "https://i.pinimg.com/1200x/ac/1c/89/ac1c8935b41c307fd7a9e4ce14bdb60e.jpg", "Quần tây nam màu xám" },
+                    { 15, 6, 3, "Phong cách dễ thương, nhẹ nhàng.", "https://i.pinimg.com/1200x/dd/d2/d4/ddd2d45cf3fceef824010b0065192a63.jpg", "Đầm hoa nhí xòe nhẹ" },
+                    { 16, 3, 1, "Thoáng mát, phù hợp mùa hè.", "https://i.pinimg.com/736x/0a/ab/17/0aab17fda602f67221aa34af433c7642.jpg", "Áo sơ mi linen nam trắng" },
+                    { 17, 4, 2, "Màu nâu, chất kaki, co giãn nhẹ.", "https://i.pinimg.com/736x/b4/18/5c/b4185c35d3cffdabac124f06562aa879.jpg", "Quần kaki công sở" },
+                    { 18, 5, 3, "Phong cách công chúa, phù hợp dạo phố.", "https://i.pinimg.com/736x/d6/dc/22/d6dc22af0b5a2647c4f5b779cecac4b4.jpg", "Đầm maxi tay bồng trắng" },
+                    { 19, 2, 1, "Form rộng, thoải mái, trẻ trung.", "https://i.pinimg.com/1200x/51/00/65/5100651cb0d179d9b7b1d0d8aae8ec3e.jpg", "Áo sơ mi sọc caro nữ form rộng" },
+                    { 20, 1, 2, "Thiết kế thời trang, mát mẻ cho mùa hè.", "https://i.pinimg.com/736x/4b/ab/19/4bab19a2a39dab473dfc6c0e8500d0b6.jpg", "Quần lửng nữ mùa hè" }
                 });
 
             migrationBuilder.InsertData(
@@ -481,25 +482,25 @@ namespace DataAccess.Migrations
                 columns: new[] { "Id", "Color", "ImageUrl", "Price", "ProductId", "Size", "Stock" },
                 values: new object[,]
                 {
-                    { 1, "Trắng", "/images/products/ao-so-mi-trang-m.jpg", 350000m, 1, "M", 20 },
-                    { 2, "Trắng", "/images/products/ao-so-mi-trang-l.jpg", 355000m, 1, "L", 15 },
-                    { 3, "Xanh", "/images/products/ao-so-mi-trang-xl.jpg", 360000m, 1, "XL", 10 },
-                    { 4, "Đỏ", "/images/products/ao-so-mi-trang-m-do.jpg", 355000m, 1, "M", 12 },
-                    { 5, "Đen", "/images/products/quan-tay-den-32.jpg", 420000m, 2, "32", 10 },
-                    { 6, "Xám", "/images/products/quan-tay-xam-34.jpg", 430000m, 2, "34", 15 },
-                    { 7, "Đen", "/images/products/quan-tay-den-36.jpg", 435000m, 2, "36", 8 },
-                    { 8, "Đỏ", "/images/products/dam-nu-do-s.jpg", 500000m, 3, "S", 8 },
-                    { 9, "Đen", "/images/products/dam-nu-den-m.jpg", 520000m, 3, "M", 5 },
-                    { 10, "Trắng", "/images/products/dam-nu-trang-l.jpg", 530000m, 3, "L", 3 },
-                    { 11, "Caro Xanh", "/images/products/ao-so-mi-caro-xanh-m.jpg", 370000m, 4, "M", 20 },
-                    { 12, "Caro Đỏ", "/images/products/ao-so-mi-caro-do-l.jpg", 375000m, 4, "L", 15 },
-                    { 13, "Caro Đen", "/images/products/ao-so-mi-caro-den-xl.jpg", 380000m, 4, "XL", 10 },
-                    { 14, "Xám", "/images/products/quan-tay-xam-30.jpg", 440000m, 5, "30", 18 },
-                    { 15, "Đen", "/images/products/quan-tay-den-32.jpg", 445000m, 5, "32", 20 },
-                    { 16, "Xám", "/images/products/quan-tay-xam-34.jpg", 450000m, 5, "34", 12 },
-                    { 17, "Be", "/images/products/dam-suong-be-m.jpg", 460000m, 6, "M", 14 },
-                    { 18, "Trắng", "/images/products/dam-suong-trang-l.jpg", 470000m, 6, "L", 16 },
-                    { 19, "Xanh", "/images/products/dam-suong-xanh-xl.jpg", 480000m, 6, "XL", 10 },
+                    { 1, "Trắng", "https://i.pinimg.com/736x/ba/6a/fc/ba6afce25fcf994d07fd160f389e9bb8.jpg", 350000m, 1, "M", 20 },
+                    { 2, "Trắng", "https://i.pinimg.com/736x/1b/33/c7/1b33c7202d7e7a1a897a5c3a32e8dca9.jpg", 355000m, 1, "L", 15 },
+                    { 3, "Xanh", "https://i.pinimg.com/736x/70/2c/74/702c74a064d3894ddd7b77c98e26d6df.jpg", 360000m, 1, "XL", 10 },
+                    { 4, "Đỏ", "https://i.pinimg.com/1200x/9d/35/fc/9d35fc87378858b43cbcd70a220b12bc.jpg", 355000m, 1, "M", 12 },
+                    { 5, "Đen", "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg", 420000m, 2, "32", 10 },
+                    { 6, "Xám", "https://i.pinimg.com/736x/66/3b/f0/663bf0cdf750c241836dc44eab738d9a.jpg", 430000m, 2, "34", 15 },
+                    { 7, "Đen", "https://i.pinimg.com/736x/25/d5/0d/25d50d7e9e422421667c136f45f18afa.jpg", 435000m, 2, "36", 8 },
+                    { 8, "Đỏ", "https://i.pinimg.com/736x/b7/89/f6/b789f650c5530e458a5406cf740b18da.jpg", 500000m, 3, "S", 8 },
+                    { 9, "Đen", "https://i.pinimg.com/736x/bd/2f/b7/bd2fb7f5ad7fe500d13c1477cee53071.jpg", 520000m, 3, "M", 5 },
+                    { 10, "Trắng", "https://i.pinimg.com/736x/f0/45/ff/f045ff47bbb4884fabf585b417d18773.jpg", 530000m, 3, "L", 3 },
+                    { 11, "Caro Xanh", "https://i.pinimg.com/736x/f0/ea/34/f0ea3496af0e1419783b3a0e6646c0e5.jpg", 370000m, 4, "M", 20 },
+                    { 12, "Caro Đỏ", "https://i.pinimg.com/736x/48/d4/a7/48d4a7ae830964d6f61dadb00ea4dd2a.jpg", 375000m, 4, "L", 15 },
+                    { 13, "Caro Đen", "https://i.pinimg.com/736x/e4/e7/f8/e4e7f8fe5c59a81370a99e2984ed7d82.jpg", 380000m, 4, "XL", 10 },
+                    { 14, "Xám", "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg", 440000m, 5, "30", 18 },
+                    { 15, "Đen", "https://i.pinimg.com/736x/66/3b/f0/663bf0cdf750c241836dc44eab738d9a.jpg", 445000m, 5, "32", 20 },
+                    { 16, "Xám", "https://i.pinimg.com/736x/25/d5/0d/25d50d7e9e422421667c136f45f18afa.jpg", 450000m, 5, "34", 12 },
+                    { 17, "Be", "https://i.pinimg.com/736x/f0/45/ff/f045ff47bbb4884fabf585b417d18773.jpg", 460000m, 6, "M", 14 },
+                    { 18, "Trắng", "https://i.pinimg.com/736x/b7/89/f6/b789f650c5530e458a5406cf740b18da.jpg", 470000m, 6, "L", 16 },
+                    { 19, "Xanh", "https://i.pinimg.com/736x/bd/2f/b7/bd2fb7f5ad7fe500d13c1477cee53071.jpg", 480000m, 6, "XL", 10 },
                     { 20, "Xanh Dương", "/images/products/ao-so-mi-xanh-m.jpg", 355000m, 7, "M", 25 },
                     { 21, "Xanh Dương", "/images/products/ao-so-mi-xanh-l.jpg", 360000m, 7, "L", 20 },
                     { 22, "Xanh Dương", "/images/products/ao-so-mi-xanh-xl.jpg", 370000m, 7, "XL", 10 },

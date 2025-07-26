@@ -13,6 +13,8 @@ namespace DataAccess.IRepositories
         Task AddOrderAsync(Order order);
         Order GetOrderById(int id);
         Task<Order?> CreateOrderFromCartIdAsync(int cartId);
+        List<Order> GetOrdersByUserId(int userId);
+        Task<bool> UpdateOrderStatusAsync(int orderId, string status);
 
     }
 }
