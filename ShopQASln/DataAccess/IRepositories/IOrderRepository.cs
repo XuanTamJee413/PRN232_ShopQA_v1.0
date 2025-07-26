@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Domain.Models;
 
+
 namespace DataAccess.IRepositories
 {
     public interface IOrderRepository
@@ -14,5 +15,22 @@ namespace DataAccess.IRepositories
         Order GetOrderById(int id);
         Task<Order?> CreateOrderFromCartIdAsync(int cartId);
 
+        // Thống kê tổng số đơn hàng
+        int GetTotalOrderCount();
+        // Thống kê tổng doanh thu
+        decimal GetTotalRevenue();
+        // Lấy danh sách productvariant và số lượng bán ra
+        IEnumerable<ProductVariantSalesModel> GetProductVariantSales();
     }
+    public class ProductVariantSalesModel
+{
+    public int ProductVariantId { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public string Size { get; set; } = string.Empty;
+    public string Color { get; set; } = string.Empty;
+    public int QuantitySold { get; set; }
+    public decimal Price { get; set; }
+}
+
+   
 }

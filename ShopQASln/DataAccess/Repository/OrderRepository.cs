@@ -1,4 +1,5 @@
-﻿using DataAccess.Context;
+﻿
+using DataAccess.Context;
 using DataAccess.IRepositories;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -86,6 +87,37 @@ namespace DataAccess.Repository
 
             await _context.SaveChangesAsync();
             return order;
+        }
+
+        // Thống kê tổng số đơn hàng
+        public int GetTotalOrderCount()
+        {
+            return _context.Orders.Count();
+        }
+
+        // Thống kê tổng doanh thu
+        public decimal GetTotalRevenue()
+        {
+            return _context.Orders.Sum(o => o.TotalAmount);
+        }
+
+        // Lấy danh sách productvariant và số lượng bán ra
+        public IEnumerable<ProductVariantSalesModel> GetProductVariantSales()
+        {
+            var query = from oi in _context.OrderItems
+                        join pv in _context.ProductVariants on oi.ProductVariantId equals pv.Id
+                        join p in _context.Products on pv.ProductId equals p.Id
+                        group oi by new { pv.Id, p.Name, pv.Size, pv.Color, pv.Price } into g
+                        select new ProductVariantSalesModel
+                        {
+                            ProductVariantId = g.Key.Id,
+                            ProductName = g.Key.Name,
+                            Size = g.Key.Size,
+                            Color = g.Key.Color,
+                            Price = g.Key.Price,
+                            QuantitySold = g.Sum(x => x.Quantity)
+                        };
+            return query.ToList();
         }
 
     }

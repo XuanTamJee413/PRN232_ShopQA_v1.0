@@ -80,6 +80,24 @@
                 </Button.Resources>
             </Button>
 
+            <Button x:Name="btnGoToStatistics"
+                    Content="Thống kê (Statistics)"
+                    Click="btnGoToStatistics_Click"
+                    Padding="20,10"
+                    Margin="0,20,0,0"
+                    FontSize="16"
+                    FontWeight="Bold"
+                    Background="#17A2B8"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
             <Button x:Name="btnLogout" 
                     Content="Đăng xuất (Logout)" 
                     Click="btnLogout_Click"

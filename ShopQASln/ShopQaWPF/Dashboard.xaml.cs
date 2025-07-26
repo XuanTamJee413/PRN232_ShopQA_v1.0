@@ -57,5 +57,11 @@ namespace ShopQaWPF
             loginWindow.Show();
             this.Close();
         }
+
+        private void btnGoToStatistics_Click(object sender, RoutedEventArgs e)
+        {
+            Admin.Statistics statisticsWindow = new Admin.Statistics();
+            statisticsWindow.Show();
+        }
     }
 }

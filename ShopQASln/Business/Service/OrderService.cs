@@ -90,5 +90,28 @@ namespace Business.Service
             return await _orderRepository.CreateOrderFromCartIdAsync(cartId);
         }
 
+        public int GetTotalOrderCount()
+        {
+            return _orderRepository.GetTotalOrderCount();
+        }
+
+        public decimal GetTotalRevenue()
+        {
+            return _orderRepository.GetTotalRevenue();
+        }
+
+        public IEnumerable<ProductVariantSalesDto> GetProductVariantSales()
+        {
+            var data = _orderRepository.GetProductVariantSales();
+            return data.Select(x => new ProductVariantSalesDto
+            {
+                ProductVariantId = x.ProductVariantId,
+                ProductName = x.ProductName,
+                Size = x.Size,
+                Color = x.Color,
+                QuantitySold = x.QuantitySold,
+                Price = x.Price
+            });
+        }
     }
 }
