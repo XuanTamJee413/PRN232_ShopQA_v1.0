@@ -3,7 +3,7 @@ using Business.DTO;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ShopQaMVC.Models;
 using System.Text.Json;
-using System.Web;
+using System.Web; // Needed for HttpUtility.UrlEncode
 
 namespace ShopQaMVC.Controllers
 {
@@ -13,37 +13,50 @@ namespace ShopQaMVC.Controllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _apiBaseUrl = "https://localhost:7101/odata/Discount";
         private readonly string _productVariantApiUrl = "https://localhost:7101/odata/ProductVariant";
+        private readonly string _productApiUrl = "https://localhost:7101/odata/Product"; // Added for product list
 
         public DiscountController(IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
         }
 
-
-
-        public async Task<IActionResult> Index(string searchProduct, string sortBy, int page = 1)
+        public async Task<IActionResult> Index(string searchProduct, string sortBy, int? productId, int page = 1) // Added productId
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
             var pageSize = 5;
 
             var queryParams = new List<string>
-    {
-        "$count=true",
-        $"$top={pageSize}",
-        $"$skip={(page - 1) * pageSize}",
-        
-        "$expand=ProductVariant($expand=Product)"
-    };
+            {
+                "$count=true",
+                $"$top={pageSize}",
+                $"$skip={(page - 1) * pageSize}",
+                "$expand=ProductVariant($expand=Product)"
+            };
 
-            
+            // Filter by product name (searchProduct)
             if (!string.IsNullOrWhiteSpace(searchProduct))
             {
                 var encodedKeyword = HttpUtility.UrlEncode(searchProduct.ToLower().Trim());
-               
                 queryParams.Add($"$filter=contains(tolower(ProductVariant/Product/Name), '{encodedKeyword}')");
             }
 
-           
+            // Filter by product ID
+            if (productId.HasValue)
+            {
+                // If a searchProduct is already present, combine the filters with 'and'
+                if (queryParams.Any(p => p.StartsWith("$filter=")))
+                {
+                    int filterIndex = queryParams.FindIndex(p => p.StartsWith("$filter="));
+                    queryParams[filterIndex] = queryParams[filterIndex] + $" and ProductVariant/ProductId eq {productId.Value}";
+                }
+                else
+                {
+                    queryParams.Add($"$filter=ProductVariant/ProductId eq {productId.Value}");
+                }
+            }
+
+
+            // Sorting
             if (!string.IsNullOrWhiteSpace(sortBy))
             {
                 switch (sortBy.ToLower())
@@ -61,13 +74,13 @@ namespace ShopQaMVC.Controllers
                         queryParams.Add("$orderby=Amount desc");
                         break;
                     default:
-                        queryParams.Add("$orderby=EndDate desc"); 
+                        queryParams.Add("$orderby=EndDate desc");
                         break;
                 }
             }
             else
             {
-                queryParams.Add("$orderby=EndDate desc"); 
+                queryParams.Add("$orderby=EndDate desc");
             }
 
             var apiEndpoint = $"{_apiBaseUrl}?{string.Join("&", queryParams)}";
@@ -99,11 +112,14 @@ namespace ShopQaMVC.Controllers
                 TempData["Error"] = $"Lỗi API: {response.StatusCode}";
             }
 
-           
+            // Populate product dropdown for filtering
+            await PopulateProductsDropdown();
+
             ViewBag.CurrentSearchProduct = searchProduct;
             ViewBag.CurrentSort = sortBy;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)System.Math.Ceiling((double)totalRecords / pageSize);
+            ViewBag.CurrentProductId = productId; // Pass currentProductId to view
 
             return View(discounts);
         }
@@ -130,6 +146,11 @@ namespace ShopQaMVC.Controllers
                 ModelState.AddModelError("Amount", "Phần trăm giảm giá không được vượt quá 40%.");
             }
 
+            if (model.Amount < 1)
+            {
+                ModelState.AddModelError("Amount", "Phần trăm giảm giá không được dưới 1%.");
+            }
+
             if (!ModelState.IsValid)
             {
                 await PopulateProductVariantsDropdown(model);
@@ -138,7 +159,7 @@ namespace ShopQaMVC.Controllers
 
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
 
-           
+
             var discountDto = new DiscountCreateDTO
             {
                 Amount = model.Amount,
@@ -157,7 +178,7 @@ namespace ShopQaMVC.Controllers
             }
             else
             {
-                
+
                 var errorContent = await response.Content.ReadAsStringAsync();
                 TempData["Error"] = $"Lỗi từ API: {errorContent}";
                 await PopulateProductVariantsDropdown(model);
@@ -169,7 +190,7 @@ namespace ShopQaMVC.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
-            var response = await client.GetAsync($"{_apiBaseUrl}({id})");
+            var response = await client.GetAsync($"{_apiBaseUrl}({id})?$expand=ProductVariant($expand=Product)"); 
 
             if (!response.IsSuccessStatusCode)
             {
@@ -177,6 +198,8 @@ namespace ShopQaMVC.Controllers
             }
 
             var discount = await response.Content.ReadFromJsonAsync<DiscountVM>();
+            if (discount == null) return NotFound();
+
             var model = new DiscountCreateVM
             {
                 Id = discount.Id,
@@ -204,6 +227,11 @@ namespace ShopQaMVC.Controllers
             if (model.Amount > 40)
             {
                 ModelState.AddModelError("Amount", "Phần trăm giảm giá không được vượt quá 40%.");
+            }
+
+            if (model.Amount < 1)
+            {
+                ModelState.AddModelError("Amount", "Phần trăm giảm giá không được dưới 1%.");
             }
 
             if (!ModelState.IsValid)
@@ -262,9 +290,9 @@ namespace ShopQaMVC.Controllers
             var client = _httpClientFactory.CreateClient("IgnoreSSL");
             var selectListItems = new List<SelectListItem>();
 
-          
+
             var productApiUrl = "https://localhost:7101/odata/Product";
-            var apiEndpoint = $"{productApiUrl}?$expand=Variants&$orderby=Name";
+            var apiEndpoint = $"{productApiUrl}?$expand=Variants($expand=Product)&$orderby=Name"; // Expanded Product inside Variants
 
             var response = await client.GetAsync(apiEndpoint);
 
@@ -280,14 +308,14 @@ namespace ShopQaMVC.Controllers
                         {
                             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-                           
+
                             var productList = JsonSerializer.Deserialize<List<ProductVM>>(valueElement.GetRawText(), options);
 
                             if (productList != null)
                             {
-                               
+
                                 selectListItems = productList
-                                    .Where(p => p.Variants != null) // Chỉ lấy các sản phẩm có biến thể
+                                    .Where(p => p.Variants != null) // Only consider products that have variants
                                     .SelectMany(p => p.Variants.Select(v => new SelectListItem
                                     {
                                         Value = v.Id.ToString(),
@@ -308,8 +336,58 @@ namespace ShopQaMVC.Controllers
                 System.Diagnostics.Debug.WriteLine($"API Call Failed: {response.StatusCode}");
             }
 
-           
+
             model.ProductVariants = selectListItems;
+        }
+
+        // Inside DiscountController.cs
+
+        private async Task PopulateProductsDropdown()
+        {
+            var client = _httpClientFactory.CreateClient("IgnoreSSL");
+            var selectListItems = new List<SelectListItem>();
+
+            var apiEndpoint = $"{_productApiUrl}?$orderby=Name";
+
+            var response = await client.GetAsync(apiEndpoint);
+
+            if (response.IsSuccessStatusCode)
+            {
+                try
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    using (JsonDocument doc = JsonDocument.Parse(jsonString))
+                    {
+                        JsonElement root = doc.RootElement;
+                        if (root.TryGetProperty("value", out JsonElement valueElement))
+                        {
+                            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                            var productList = JsonSerializer.Deserialize<List<ProductVM>>(valueElement.GetRawText(), options);
+
+                            if (productList != null)
+                            {
+                                selectListItems = productList
+                                    .Select(p => new SelectListItem
+                                    {
+                                        Value = p.Id.ToString(),
+                                        Text = p.Name
+                                    })
+                                    .ToList();
+                            }
+                        }
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"JSON Deserialization Error: {ex.Message}");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"API Call Failed: {response.StatusCode}");
+            }
+            // Pass the SelectList directly. The first option "-- Chọn sản phẩm --" will be handled by asp-items.
+            ViewBag.Products = new SelectList(selectListItems, "Value", "Text");
         }
     }
 }
