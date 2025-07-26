@@ -5,6 +5,9 @@ using OrderModel = Domain.Models.Order;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace ShopQAPresentation.Controllers.Order
 {
@@ -18,6 +21,43 @@ namespace ShopQAPresentation.Controllers.Order
         {
             _orderService = orderService;
         }
+        [HttpGet("my-orders")]
+        [Authorize] 
+        public IActionResult GetMyOrders()
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            var orders = _orderService.GetOrdersByUserId(userId);
+            return Ok(orders);
+        }
+        [HttpGet("my-orders/{orderId}")]
+        [Authorize]
+        public IActionResult GetMyOrderDetails(int orderId)
+        {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+            Console.WriteLine("UserId == >>>>>>>>> " + userId);
+            var order = _orderService.GetOrderWithDetails(orderId);
+            Console.WriteLine("Order == >>>>>>>>> " + JsonSerializer.Serialize(order));
+            Console.WriteLine($"UserId: {userId}, Order.UserId: {order?.UserId}, Order.User.Id: {order?.User?.Id}");
+
+            if (order == null)
+                return Forbid();
+
+            return Ok(order);
+        }
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] OrderStatusUpdateDto dto)
+        {
+            var result = await _orderService.UpdateOrderStatusAsync(id, dto.Status);
+            if (!result) return NotFound();
+            return NoContent();
+        }
+
+        public class OrderStatusUpdateDto
+        {
+            public string Status { get; set; } = default!;
+        }
+
+
 
         [HttpGet]
         [Authorize(Roles = "Admin")]

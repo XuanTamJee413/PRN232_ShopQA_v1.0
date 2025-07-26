@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(ShopQADbContext))]
-    [Migration("20250714112955_DBnew")]
-    partial class DBnew
+    [Migration("20250726032709_AddOrderStatus")]
+    partial class AddOrderStatus
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -314,17 +314,17 @@ namespace DataAccess.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Áo thun"
+                            Name = "Áo sơ mi"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Áo khoác"
+                            Name = "Quần tây"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Chân váy"
+                            Name = "Đầm nữ"
                         },
                         new
                         {
@@ -467,6 +467,9 @@ namespace DataAccess.Migrations
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
@@ -484,6 +487,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 1,
                             OrderDate = new DateTime(2025, 5, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Pending",
                             TotalAmount = 770000m,
                             UserId = 1
                         });
@@ -622,7 +626,7 @@ namespace DataAccess.Migrations
                             BrandId = 1,
                             CategoryId = 1,
                             Description = "Form Hàn Quốc, vải lụa mát, thích hợp đi học và đi làm.",
-                            ImageUrl = "/images/products/ao-so-mi-trang.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/ba/6a/fc/ba6afce25fcf994d07fd160f389e9bb8.jpg",
                             Name = "Áo sơ mi trắng nam"
                         },
                         new
@@ -631,7 +635,7 @@ namespace DataAccess.Migrations
                             BrandId = 2,
                             CategoryId = 2,
                             Description = "Vải co giãn, mặc nhẹ thoáng mát.",
-                            ImageUrl = "/images/products/quan-tay.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg",
                             Name = "Quần tây công sở"
                         },
                         new
@@ -640,7 +644,7 @@ namespace DataAccess.Migrations
                             BrandId = 3,
                             CategoryId = 3,
                             Description = "Đầm nữ dáng xòe, chất liệu cao cấp.",
-                            ImageUrl = "/images/products/dam-nu.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/1e/6e/76/1e6e76d7c4ac2511c7f9e36d870794cd.jpg",
                             Name = "Đầm nữ công sở"
                         },
                         new
@@ -649,7 +653,7 @@ namespace DataAccess.Migrations
                             BrandId = 4,
                             CategoryId = 1,
                             Description = "Áo sơ mi caro trẻ trung, cá tính.",
-                            ImageUrl = "/images/products/ao-so-mi-caro.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/0c/ab/a1/0caba16bfdc3ad7b0fc45d1b1a32ed03.jpg",
                             Name = "Áo sơ mi caro nam"
                         },
                         new
@@ -658,7 +662,7 @@ namespace DataAccess.Migrations
                             BrandId = 5,
                             CategoryId = 2,
                             Description = "Phong cách thanh lịch, hợp thời trang công sở.",
-                            ImageUrl = "/images/products/quan-tay-ong-dung.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/6a/f2/97/6af29743f957d7f51b47745748a7e165.jpg",
                             Name = "Quần tây ống đứng"
                         },
                         new
@@ -667,7 +671,7 @@ namespace DataAccess.Migrations
                             BrandId = 6,
                             CategoryId = 3,
                             Description = "Chất cotton thoáng mát, kiểu dáng đơn giản.",
-                            ImageUrl = "/images/products/dam-suong.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/47/8c/46/478c460badc0151e014a6e09d38fe322.jpg",
                             Name = "Đầm suông tay lỡ"
                         },
                         new
@@ -676,7 +680,7 @@ namespace DataAccess.Migrations
                             BrandId = 5,
                             CategoryId = 1,
                             Description = "Vải cotton, ít nhăn, dễ ủi, thoải mái vận động.",
-                            ImageUrl = "/images/products/ao-so-mi-xanh.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/16/de/73/16de733afd1cacf082efcf9e5d0487cf.jpg",
                             Name = "Áo sơ mi xanh dương"
                         },
                         new
@@ -685,7 +689,7 @@ namespace DataAccess.Migrations
                             BrandId = 3,
                             CategoryId = 2,
                             Description = "Thiết kế giúp tôn dáng, chất vải cao cấp.",
-                            ImageUrl = "/images/products/quan-tay-nu.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/ae/07/1d/ae071dfa148fa6d88ab3f922dd97e501.jpg",
                             Name = "Quần tây lưng cao nữ"
                         },
                         new
@@ -694,7 +698,7 @@ namespace DataAccess.Migrations
                             BrandId = 2,
                             CategoryId = 3,
                             Description = "Dáng ôm body, phong cách sang trọng.",
-                            ImageUrl = "/images/products/dam-ren.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/9b/d5/65/9bd565b235fb7a428653455fdd62df26.jpg",
                             Name = "Đầm dự tiệc ren hoa"
                         },
                         new
@@ -703,7 +707,7 @@ namespace DataAccess.Migrations
                             BrandId = 6,
                             CategoryId = 1,
                             Description = "Phong cách trẻ trung, lịch sự, dễ phối đồ.",
-                            ImageUrl = "/images/products/ao-co-tru.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/0b/fb/24/0bfb2487ffe49e5d47ede015ef4344dd.jpg",
                             Name = "Áo sơ mi cổ trụ nam"
                         },
                         new
@@ -712,7 +716,7 @@ namespace DataAccess.Migrations
                             BrandId = 1,
                             CategoryId = 2,
                             Description = "Tôn dáng, chất liệu mềm mại, co giãn tốt.",
-                            ImageUrl = "/images/products/quan-slimfit.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/cb/16/9a/cb169a444973897e466310e41dce00f1.jpg",
                             Name = "Quần tây slimfit nam"
                         },
                         new
@@ -721,7 +725,7 @@ namespace DataAccess.Migrations
                             BrandId = 4,
                             CategoryId = 3,
                             Description = "Dáng ôm body, tôn dáng, phù hợp dự tiệc.",
-                            ImageUrl = "/images/products/dam-body.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/ff/0c/dc/ff0cdc4cc4910f9a5d3857a379f41739.jpg",
                             Name = "Đầm body tay dài ren"
                         },
                         new
@@ -730,7 +734,7 @@ namespace DataAccess.Migrations
                             BrandId = 5,
                             CategoryId = 1,
                             Description = "Vải lụa cao cấp, mềm mại, không nhăn.",
-                            ImageUrl = "/images/products/ao-lua-nu.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/0a/7e/d9/0a7ed9bc3f0abb3ae287307265e66f18.jpg",
                             Name = "Áo sơ mi lụa nữ cao cấp"
                         },
                         new
@@ -739,7 +743,7 @@ namespace DataAccess.Migrations
                             BrandId = 2,
                             CategoryId = 2,
                             Description = "Màu xám, đơn giản, thích hợp đi làm.",
-                            ImageUrl = "/images/products/quan-basic.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/ac/1c/89/ac1c8935b41c307fd7a9e4ce14bdb60e.jpg",
                             Name = "Quần tây nam màu xám"
                         },
                         new
@@ -748,7 +752,7 @@ namespace DataAccess.Migrations
                             BrandId = 6,
                             CategoryId = 3,
                             Description = "Phong cách dễ thương, nhẹ nhàng.",
-                            ImageUrl = "/images/products/dam-hoa-nhi.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/dd/d2/d4/ddd2d45cf3fceef824010b0065192a63.jpg",
                             Name = "Đầm hoa nhí xòe nhẹ"
                         },
                         new
@@ -757,7 +761,7 @@ namespace DataAccess.Migrations
                             BrandId = 3,
                             CategoryId = 1,
                             Description = "Thoáng mát, phù hợp mùa hè.",
-                            ImageUrl = "/images/products/ao-linen.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/0a/ab/17/0aab17fda602f67221aa34af433c7642.jpg",
                             Name = "Áo sơ mi linen nam trắng"
                         },
                         new
@@ -766,7 +770,7 @@ namespace DataAccess.Migrations
                             BrandId = 4,
                             CategoryId = 2,
                             Description = "Màu nâu, chất kaki, co giãn nhẹ.",
-                            ImageUrl = "/images/products/quan-kaki.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/b4/18/5c/b4185c35d3cffdabac124f06562aa879.jpg",
                             Name = "Quần kaki công sở"
                         },
                         new
@@ -775,7 +779,7 @@ namespace DataAccess.Migrations
                             BrandId = 5,
                             CategoryId = 3,
                             Description = "Phong cách công chúa, phù hợp dạo phố.",
-                            ImageUrl = "/images/products/dam-maxi.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/d6/dc/22/d6dc22af0b5a2647c4f5b779cecac4b4.jpg",
                             Name = "Đầm maxi tay bồng trắng"
                         },
                         new
@@ -784,7 +788,7 @@ namespace DataAccess.Migrations
                             BrandId = 2,
                             CategoryId = 1,
                             Description = "Form rộng, thoải mái, trẻ trung.",
-                            ImageUrl = "/images/products/ao-caro-nu.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/51/00/65/5100651cb0d179d9b7b1d0d8aae8ec3e.jpg",
                             Name = "Áo sơ mi sọc caro nữ form rộng"
                         },
                         new
@@ -793,7 +797,7 @@ namespace DataAccess.Migrations
                             BrandId = 1,
                             CategoryId = 2,
                             Description = "Thiết kế thời trang, mát mẻ cho mùa hè.",
-                            ImageUrl = "/images/products/quan-lung.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/4b/ab/19/4bab19a2a39dab473dfc6c0e8500d0b6.jpg",
                             Name = "Quần lửng nữ mùa hè"
                         });
                 });
@@ -837,7 +841,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 1,
                             Color = "Trắng",
-                            ImageUrl = "/images/products/ao-so-mi-trang-m.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/ba/6a/fc/ba6afce25fcf994d07fd160f389e9bb8.jpg",
                             Price = 350000m,
                             ProductId = 1,
                             Size = "M",
@@ -847,7 +851,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 2,
                             Color = "Trắng",
-                            ImageUrl = "/images/products/ao-so-mi-trang-l.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/1b/33/c7/1b33c7202d7e7a1a897a5c3a32e8dca9.jpg",
                             Price = 355000m,
                             ProductId = 1,
                             Size = "L",
@@ -857,7 +861,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 3,
                             Color = "Xanh",
-                            ImageUrl = "/images/products/ao-so-mi-trang-xl.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/70/2c/74/702c74a064d3894ddd7b77c98e26d6df.jpg",
                             Price = 360000m,
                             ProductId = 1,
                             Size = "XL",
@@ -867,7 +871,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 4,
                             Color = "Đỏ",
-                            ImageUrl = "/images/products/ao-so-mi-trang-m-do.jpg",
+                            ImageUrl = "https://i.pinimg.com/1200x/9d/35/fc/9d35fc87378858b43cbcd70a220b12bc.jpg",
                             Price = 355000m,
                             ProductId = 1,
                             Size = "M",
@@ -877,7 +881,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 5,
                             Color = "Đen",
-                            ImageUrl = "/images/products/quan-tay-den-32.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg",
                             Price = 420000m,
                             ProductId = 2,
                             Size = "32",
@@ -887,7 +891,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 6,
                             Color = "Xám",
-                            ImageUrl = "/images/products/quan-tay-xam-34.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/66/3b/f0/663bf0cdf750c241836dc44eab738d9a.jpg",
                             Price = 430000m,
                             ProductId = 2,
                             Size = "34",
@@ -897,7 +901,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 7,
                             Color = "Đen",
-                            ImageUrl = "/images/products/quan-tay-den-36.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/25/d5/0d/25d50d7e9e422421667c136f45f18afa.jpg",
                             Price = 435000m,
                             ProductId = 2,
                             Size = "36",
@@ -907,7 +911,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 8,
                             Color = "Đỏ",
-                            ImageUrl = "/images/products/dam-nu-do-s.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/b7/89/f6/b789f650c5530e458a5406cf740b18da.jpg",
                             Price = 500000m,
                             ProductId = 3,
                             Size = "S",
@@ -917,7 +921,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 9,
                             Color = "Đen",
-                            ImageUrl = "/images/products/dam-nu-den-m.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/bd/2f/b7/bd2fb7f5ad7fe500d13c1477cee53071.jpg",
                             Price = 520000m,
                             ProductId = 3,
                             Size = "M",
@@ -927,7 +931,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 10,
                             Color = "Trắng",
-                            ImageUrl = "/images/products/dam-nu-trang-l.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/f0/45/ff/f045ff47bbb4884fabf585b417d18773.jpg",
                             Price = 530000m,
                             ProductId = 3,
                             Size = "L",
@@ -937,7 +941,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 11,
                             Color = "Caro Xanh",
-                            ImageUrl = "/images/products/ao-so-mi-caro-xanh-m.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/f0/ea/34/f0ea3496af0e1419783b3a0e6646c0e5.jpg",
                             Price = 370000m,
                             ProductId = 4,
                             Size = "M",
@@ -947,7 +951,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 12,
                             Color = "Caro Đỏ",
-                            ImageUrl = "/images/products/ao-so-mi-caro-do-l.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/48/d4/a7/48d4a7ae830964d6f61dadb00ea4dd2a.jpg",
                             Price = 375000m,
                             ProductId = 4,
                             Size = "L",
@@ -957,7 +961,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 13,
                             Color = "Caro Đen",
-                            ImageUrl = "/images/products/ao-so-mi-caro-den-xl.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/e4/e7/f8/e4e7f8fe5c59a81370a99e2984ed7d82.jpg",
                             Price = 380000m,
                             ProductId = 4,
                             Size = "XL",
@@ -967,7 +971,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 14,
                             Color = "Xám",
-                            ImageUrl = "/images/products/quan-tay-xam-30.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg",
                             Price = 440000m,
                             ProductId = 5,
                             Size = "30",
@@ -977,7 +981,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 15,
                             Color = "Đen",
-                            ImageUrl = "/images/products/quan-tay-den-32.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/66/3b/f0/663bf0cdf750c241836dc44eab738d9a.jpg",
                             Price = 445000m,
                             ProductId = 5,
                             Size = "32",
@@ -987,7 +991,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 16,
                             Color = "Xám",
-                            ImageUrl = "/images/products/quan-tay-xam-34.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/25/d5/0d/25d50d7e9e422421667c136f45f18afa.jpg",
                             Price = 450000m,
                             ProductId = 5,
                             Size = "34",
@@ -997,7 +1001,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 17,
                             Color = "Be",
-                            ImageUrl = "/images/products/dam-suong-be-m.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/f0/45/ff/f045ff47bbb4884fabf585b417d18773.jpg",
                             Price = 460000m,
                             ProductId = 6,
                             Size = "M",
@@ -1007,7 +1011,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 18,
                             Color = "Trắng",
-                            ImageUrl = "/images/products/dam-suong-trang-l.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/b7/89/f6/b789f650c5530e458a5406cf740b18da.jpg",
                             Price = 470000m,
                             ProductId = 6,
                             Size = "L",
@@ -1017,7 +1021,7 @@ namespace DataAccess.Migrations
                         {
                             Id = 19,
                             Color = "Xanh",
-                            ImageUrl = "/images/products/dam-suong-xanh-xl.jpg",
+                            ImageUrl = "https://i.pinimg.com/736x/bd/2f/b7/bd2fb7f5ad7fe500d13c1477cee53071.jpg",
                             Price = 480000m,
                             ProductId = 6,
                             Size = "XL",

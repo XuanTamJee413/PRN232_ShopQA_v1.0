@@ -13,6 +13,10 @@ namespace Business.Iservices
         IEnumerable<OrderDto> GetAllOrderDtos();
         Task<OrderDto> CreateOrderAsync(OrderDto orderDto);
         Task<Order?> CreateOrderFromCartIdAsync(int cartId);
+        List<OrderDto> GetOrdersByUserId(int userId);
+        OrderDto? GetOrderWithDetails(int orderId);
+        Task<bool> UpdateOrderStatusAsync(int orderId, string status);
+
         // Thống kê tổng số đơn hàng
         int GetTotalOrderCount();
         // Thống kê tổng doanh thu

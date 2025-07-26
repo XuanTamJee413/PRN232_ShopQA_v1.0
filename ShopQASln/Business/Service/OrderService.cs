@@ -89,7 +89,62 @@ namespace Business.Service
         {
             return await _orderRepository.CreateOrderFromCartIdAsync(cartId);
         }
+        public List<OrderDto> GetOrdersByUserId(int userId)
+        {
+            var orders = _orderRepository.GetOrdersByUserId(userId); 
 
+            return orders.Select(o => new OrderDto
+            {
+                Id = o.Id,
+                OrderDate = o.OrderDate,
+                TotalAmount = o.TotalAmount,
+                Status = o.Status,
+                User = new UserOrderDto
+                {
+                    Id = o.User.Id,
+                    FullName = o.User.Username,
+                    Email = o.User.Email
+                },
+                Items = o.Items.Select(i => new OrderItemDto
+                {
+                    Id = i.Id,
+                    Quantity = i.Quantity,
+                    Price = i.Price,
+                    ProductName = i.ProductVariant.Product.Name
+                }).ToList()
+            }).ToList();
+        }
+        public OrderDto? GetOrderWithDetails(int orderId)
+        {
+            var order = _orderRepository.GetOrderById(orderId);
+
+            if (order == null) return null;
+
+            return new OrderDto
+            {
+                Id = order.Id,
+                OrderDate = order.OrderDate,
+                TotalAmount = order.TotalAmount,
+                Status = order.Status,
+                User = new UserOrderDto
+                {
+                    Id = order.User.Id,
+                    FullName = order.User.Username,
+                    Email = order.User.Email
+                },
+                Items = order.Items.Select(i => new OrderItemDto
+                {
+                    Id = i.Id,
+                    Quantity = i.Quantity,
+                    Price = i.Price,
+                    ProductName = i.ProductVariant.Product.Name
+                }).ToList()
+            };
+        }
+        public async Task<bool> UpdateOrderStatusAsync(int orderId, string status)
+        {
+            return await _orderRepository.UpdateOrderStatusAsync(orderId, status);
+        }
         public int GetTotalOrderCount()
         {
             return _orderRepository.GetTotalOrderCount();
