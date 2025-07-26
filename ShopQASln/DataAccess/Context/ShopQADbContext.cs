@@ -228,9 +228,9 @@ namespace DataAccess.Context
         {
             // Category
             modelBuilder.Entity<Category>().HasData(
-                new Category { Id = 1, Name = "Áo thun" },
-                new Category { Id = 2, Name = "Áo khoác" },
-                new Category { Id = 3, Name = "Chân váy" },
+                new Category { Id = 1, Name = "Áo sơ mi" },
+                new Category { Id = 2, Name = "Quần tây" },
+                new Category { Id = 3, Name = "Đầm nữ" },
                 new Category { Id = 4, Name = "Quần jean" },
                 new Category { Id = 5, Name = "Đồ thể thao" },
                 new Category { Id = 6, Name = "Đồ ngủ" },
@@ -278,26 +278,26 @@ namespace DataAccess.Context
 
             // Product 
             modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, Name = "Áo sơ mi trắng nam", Description = "Form Hàn Quốc, vải lụa mát, thích hợp đi học và đi làm.", CategoryId = 1, BrandId = 1, ImageUrl = "/images/products/ao-so-mi-trang.jpg" },
-                new Product { Id = 2, Name = "Quần tây công sở", Description = "Vải co giãn, mặc nhẹ thoáng mát.", CategoryId = 2, BrandId = 2, ImageUrl = "/images/products/quan-tay.jpg" },
-                new Product { Id = 3, Name = "Đầm nữ công sở", Description = "Đầm nữ dáng xòe, chất liệu cao cấp.", CategoryId = 3, BrandId = 3, ImageUrl = "/images/products/dam-nu.jpg" },
-                new Product { Id = 4, Name = "Áo sơ mi caro nam", Description = "Áo sơ mi caro trẻ trung, cá tính.", CategoryId = 1, BrandId = 4, ImageUrl = "/images/products/ao-so-mi-caro.jpg" },
-                new Product { Id = 5, Name = "Quần tây ống đứng", Description = "Phong cách thanh lịch, hợp thời trang công sở.", CategoryId = 2, BrandId = 5, ImageUrl = "/images/products/quan-tay-ong-dung.jpg" },
-                new Product { Id = 6, Name = "Đầm suông tay lỡ", Description = "Chất cotton thoáng mát, kiểu dáng đơn giản.", CategoryId = 3, BrandId = 6, ImageUrl = "/images/products/dam-suong.jpg" },
-                new Product { Id = 7, Name = "Áo sơ mi xanh dương", Description = "Vải cotton, ít nhăn, dễ ủi, thoải mái vận động.", CategoryId = 1, BrandId = 5, ImageUrl = "/images/products/ao-so-mi-xanh.jpg" },
-                new Product { Id = 8, Name = "Quần tây lưng cao nữ", Description = "Thiết kế giúp tôn dáng, chất vải cao cấp.", CategoryId = 2, BrandId = 3, ImageUrl = "/images/products/quan-tay-nu.jpg" },
-                new Product { Id = 9, Name = "Đầm dự tiệc ren hoa", Description = "Dáng ôm body, phong cách sang trọng.", CategoryId = 3, BrandId = 2, ImageUrl = "/images/products/dam-ren.jpg" },
-                new Product { Id = 10, Name = "Áo sơ mi cổ trụ nam", Description = "Phong cách trẻ trung, lịch sự, dễ phối đồ.", CategoryId = 1, BrandId = 6, ImageUrl = "/images/products/ao-co-tru.jpg" },
-                new Product { Id = 11, Name = "Quần tây slimfit nam", Description = "Tôn dáng, chất liệu mềm mại, co giãn tốt.", CategoryId = 2, BrandId = 1, ImageUrl = "/images/products/quan-slimfit.jpg" },
-                new Product { Id = 12, Name = "Đầm body tay dài ren", Description = "Dáng ôm body, tôn dáng, phù hợp dự tiệc.", CategoryId = 3, BrandId = 4, ImageUrl = "/images/products/dam-body.jpg" },
-                new Product { Id = 13, Name = "Áo sơ mi lụa nữ cao cấp", Description = "Vải lụa cao cấp, mềm mại, không nhăn.", CategoryId = 1, BrandId = 5, ImageUrl = "/images/products/ao-lua-nu.jpg" },
-                new Product { Id = 14, Name = "Quần tây nam màu xám", Description = "Màu xám, đơn giản, thích hợp đi làm.", CategoryId = 2, BrandId = 2, ImageUrl = "/images/products/quan-basic.jpg" },
-                new Product { Id = 15, Name = "Đầm hoa nhí xòe nhẹ", Description = "Phong cách dễ thương, nhẹ nhàng.", CategoryId = 3, BrandId = 6, ImageUrl = "/images/products/dam-hoa-nhi.jpg" },
-                new Product { Id = 16, Name = "Áo sơ mi linen nam trắng", Description = "Thoáng mát, phù hợp mùa hè.", CategoryId = 1, BrandId = 3, ImageUrl = "/images/products/ao-linen.jpg" },
-                new Product { Id = 17, Name = "Quần kaki công sở", Description = "Màu nâu, chất kaki, co giãn nhẹ.", CategoryId = 2, BrandId = 4, ImageUrl = "/images/products/quan-kaki.jpg" },
-                new Product { Id = 18, Name = "Đầm maxi tay bồng trắng", Description = "Phong cách công chúa, phù hợp dạo phố.", CategoryId = 3, BrandId = 5, ImageUrl = "/images/products/dam-maxi.jpg" },
-                new Product { Id = 19, Name = "Áo sơ mi sọc caro nữ form rộng", Description = "Form rộng, thoải mái, trẻ trung.", CategoryId = 1, BrandId = 2, ImageUrl = "/images/products/ao-caro-nu.jpg" },
-                new Product { Id = 20, Name = "Quần lửng nữ mùa hè", Description = "Thiết kế thời trang, mát mẻ cho mùa hè.", CategoryId = 2, BrandId = 1, ImageUrl = "/images/products/quan-lung.jpg" }
+                new Product { Id = 1, Name = "Áo sơ mi trắng nam", Description = "Form Hàn Quốc, vải lụa mát, thích hợp đi học và đi làm.", CategoryId = 1, BrandId = 1, ImageUrl = "https://i.pinimg.com/736x/ba/6a/fc/ba6afce25fcf994d07fd160f389e9bb8.jpg" },
+                new Product { Id = 2, Name = "Quần tây công sở", Description = "Vải co giãn, mặc nhẹ thoáng mát.", CategoryId = 2, BrandId = 2, ImageUrl = "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg" },
+                new Product { Id = 3, Name = "Đầm nữ công sở", Description = "Đầm nữ dáng xòe, chất liệu cao cấp.", CategoryId = 3, BrandId = 3, ImageUrl = "https://i.pinimg.com/1200x/1e/6e/76/1e6e76d7c4ac2511c7f9e36d870794cd.jpg" },
+                new Product { Id = 4, Name = "Áo sơ mi caro nam", Description = "Áo sơ mi caro trẻ trung, cá tính.", CategoryId = 1, BrandId = 4, ImageUrl = "https://i.pinimg.com/1200x/0c/ab/a1/0caba16bfdc3ad7b0fc45d1b1a32ed03.jpg" },
+                new Product { Id = 5, Name = "Quần tây ống đứng", Description = "Phong cách thanh lịch, hợp thời trang công sở.", CategoryId = 2, BrandId = 5, ImageUrl = "https://i.pinimg.com/736x/6a/f2/97/6af29743f957d7f51b47745748a7e165.jpg" },
+                new Product { Id = 6, Name = "Đầm suông tay lỡ", Description = "Chất cotton thoáng mát, kiểu dáng đơn giản.", CategoryId = 3, BrandId = 6, ImageUrl = "https://i.pinimg.com/736x/47/8c/46/478c460badc0151e014a6e09d38fe322.jpg" },
+                new Product { Id = 7, Name = "Áo sơ mi xanh dương", Description = "Vải cotton, ít nhăn, dễ ủi, thoải mái vận động.", CategoryId = 1, BrandId = 5, ImageUrl = "https://i.pinimg.com/736x/16/de/73/16de733afd1cacf082efcf9e5d0487cf.jpg" },
+                new Product { Id = 8, Name = "Quần tây lưng cao nữ", Description = "Thiết kế giúp tôn dáng, chất vải cao cấp.", CategoryId = 2, BrandId = 3, ImageUrl = "https://i.pinimg.com/1200x/ae/07/1d/ae071dfa148fa6d88ab3f922dd97e501.jpg" },
+                new Product { Id = 9, Name = "Đầm dự tiệc ren hoa", Description = "Dáng ôm body, phong cách sang trọng.", CategoryId = 3, BrandId = 2, ImageUrl = "https://i.pinimg.com/1200x/9b/d5/65/9bd565b235fb7a428653455fdd62df26.jpg" },
+                new Product { Id = 10, Name = "Áo sơ mi cổ trụ nam", Description = "Phong cách trẻ trung, lịch sự, dễ phối đồ.", CategoryId = 1, BrandId = 6, ImageUrl = "https://i.pinimg.com/736x/0b/fb/24/0bfb2487ffe49e5d47ede015ef4344dd.jpg" },
+                new Product { Id = 11, Name = "Quần tây slimfit nam", Description = "Tôn dáng, chất liệu mềm mại, co giãn tốt.", CategoryId = 2, BrandId = 1, ImageUrl = "https://i.pinimg.com/736x/cb/16/9a/cb169a444973897e466310e41dce00f1.jpg" },
+                new Product { Id = 12, Name = "Đầm body tay dài ren", Description = "Dáng ôm body, tôn dáng, phù hợp dự tiệc.", CategoryId = 3, BrandId = 4, ImageUrl = "https://i.pinimg.com/736x/ff/0c/dc/ff0cdc4cc4910f9a5d3857a379f41739.jpg" },
+                new Product { Id = 13, Name = "Áo sơ mi lụa nữ cao cấp", Description = "Vải lụa cao cấp, mềm mại, không nhăn.", CategoryId = 1, BrandId = 5, ImageUrl = "https://i.pinimg.com/1200x/0a/7e/d9/0a7ed9bc3f0abb3ae287307265e66f18.jpg" },
+                new Product { Id = 14, Name = "Quần tây nam màu xám", Description = "Màu xám, đơn giản, thích hợp đi làm.", CategoryId = 2, BrandId = 2, ImageUrl = "https://i.pinimg.com/1200x/ac/1c/89/ac1c8935b41c307fd7a9e4ce14bdb60e.jpg" },
+                new Product { Id = 15, Name = "Đầm hoa nhí xòe nhẹ", Description = "Phong cách dễ thương, nhẹ nhàng.", CategoryId = 3, BrandId = 6, ImageUrl = "https://i.pinimg.com/1200x/dd/d2/d4/ddd2d45cf3fceef824010b0065192a63.jpg" },
+                new Product { Id = 16, Name = "Áo sơ mi linen nam trắng", Description = "Thoáng mát, phù hợp mùa hè.", CategoryId = 1, BrandId = 3, ImageUrl = "https://i.pinimg.com/736x/0a/ab/17/0aab17fda602f67221aa34af433c7642.jpg" },
+                new Product { Id = 17, Name = "Quần kaki công sở", Description = "Màu nâu, chất kaki, co giãn nhẹ.", CategoryId = 2, BrandId = 4, ImageUrl = "https://i.pinimg.com/736x/b4/18/5c/b4185c35d3cffdabac124f06562aa879.jpg" },
+                new Product { Id = 18, Name = "Đầm maxi tay bồng trắng", Description = "Phong cách công chúa, phù hợp dạo phố.", CategoryId = 3, BrandId = 5, ImageUrl = "https://i.pinimg.com/736x/d6/dc/22/d6dc22af0b5a2647c4f5b779cecac4b4.jpg" },
+                new Product { Id = 19, Name = "Áo sơ mi sọc caro nữ form rộng", Description = "Form rộng, thoải mái, trẻ trung.", CategoryId = 1, BrandId = 2, ImageUrl = "https://i.pinimg.com/1200x/51/00/65/5100651cb0d179d9b7b1d0d8aae8ec3e.jpg" },
+                new Product { Id = 20, Name = "Quần lửng nữ mùa hè", Description = "Thiết kế thời trang, mát mẻ cho mùa hè.", CategoryId = 2, BrandId = 1, ImageUrl = "https://i.pinimg.com/736x/4b/ab/19/4bab19a2a39dab473dfc6c0e8500d0b6.jpg" }
             );
 
 
@@ -305,35 +305,35 @@ namespace DataAccess.Context
             // ProductVariant
             modelBuilder.Entity<ProductVariant>().HasData(
                 // Product 1
-                new ProductVariant { Id = 1, ProductId = 1, Size = "M", Color = "Trắng", Stock = 20, Price = 350000, ImageUrl = "/images/products/ao-so-mi-trang-m.jpg" },
-                new ProductVariant { Id = 2, ProductId = 1, Size = "L", Color = "Trắng", Stock = 15, Price = 355000, ImageUrl = "/images/products/ao-so-mi-trang-l.jpg" },
-                new ProductVariant { Id = 3, ProductId = 1, Size = "XL", Color = "Xanh", Stock = 10, Price = 360000, ImageUrl = "/images/products/ao-so-mi-trang-xl.jpg" },
-                new ProductVariant { Id = 4, ProductId = 1, Size = "M", Color = "Đỏ", Stock = 12, Price = 355000, ImageUrl = "/images/products/ao-so-mi-trang-m-do.jpg" },
+                new ProductVariant { Id = 1, ProductId = 1, Size = "M", Color = "Trắng", Stock = 20, Price = 350000, ImageUrl = "https://i.pinimg.com/736x/ba/6a/fc/ba6afce25fcf994d07fd160f389e9bb8.jpg" },
+                new ProductVariant { Id = 2, ProductId = 1, Size = "L", Color = "Trắng", Stock = 15, Price = 355000, ImageUrl = "https://i.pinimg.com/736x/1b/33/c7/1b33c7202d7e7a1a897a5c3a32e8dca9.jpg" },
+                new ProductVariant { Id = 3, ProductId = 1, Size = "XL", Color = "Xanh", Stock = 10, Price = 360000, ImageUrl = "https://i.pinimg.com/736x/70/2c/74/702c74a064d3894ddd7b77c98e26d6df.jpg" },
+                new ProductVariant { Id = 4, ProductId = 1, Size = "M", Color = "Đỏ", Stock = 12, Price = 355000, ImageUrl = "https://i.pinimg.com/1200x/9d/35/fc/9d35fc87378858b43cbcd70a220b12bc.jpg" },
 
                 // Product 2
-                new ProductVariant { Id = 5, ProductId = 2, Size = "32", Color = "Đen", Stock = 10, Price = 420000, ImageUrl = "/images/products/quan-tay-den-32.jpg" },
-                new ProductVariant { Id = 6, ProductId = 2, Size = "34", Color = "Xám", Stock = 15, Price = 430000, ImageUrl = "/images/products/quan-tay-xam-34.jpg" },
-                new ProductVariant { Id = 7, ProductId = 2, Size = "36", Color = "Đen", Stock = 8, Price = 435000, ImageUrl = "/images/products/quan-tay-den-36.jpg" },
+                new ProductVariant { Id = 5, ProductId = 2, Size = "32", Color = "Đen", Stock = 10, Price = 420000, ImageUrl = "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg" },
+                new ProductVariant { Id = 6, ProductId = 2, Size = "34", Color = "Xám", Stock = 15, Price = 430000, ImageUrl = "https://i.pinimg.com/736x/66/3b/f0/663bf0cdf750c241836dc44eab738d9a.jpg" },
+                new ProductVariant { Id = 7, ProductId = 2, Size = "36", Color = "Đen", Stock = 8, Price = 435000, ImageUrl = "https://i.pinimg.com/736x/25/d5/0d/25d50d7e9e422421667c136f45f18afa.jpg" },
 
                 // Product 3
-                new ProductVariant { Id = 8, ProductId = 3, Size = "S", Color = "Đỏ", Stock = 8, Price = 500000, ImageUrl = "/images/products/dam-nu-do-s.jpg" },
-                new ProductVariant { Id = 9, ProductId = 3, Size = "M", Color = "Đen", Stock = 5, Price = 520000, ImageUrl = "/images/products/dam-nu-den-m.jpg" },
-                new ProductVariant { Id = 10, ProductId = 3, Size = "L", Color = "Trắng", Stock = 3, Price = 530000, ImageUrl = "/images/products/dam-nu-trang-l.jpg" },
+                new ProductVariant { Id = 8, ProductId = 3, Size = "S", Color = "Đỏ", Stock = 8, Price = 500000, ImageUrl = "https://i.pinimg.com/736x/b7/89/f6/b789f650c5530e458a5406cf740b18da.jpg" },
+                new ProductVariant { Id = 9, ProductId = 3, Size = "M", Color = "Đen", Stock = 5, Price = 520000, ImageUrl = "https://i.pinimg.com/736x/bd/2f/b7/bd2fb7f5ad7fe500d13c1477cee53071.jpg" },
+                new ProductVariant { Id = 10, ProductId = 3, Size = "L", Color = "Trắng", Stock = 3, Price = 530000, ImageUrl = "https://i.pinimg.com/736x/f0/45/ff/f045ff47bbb4884fabf585b417d18773.jpg" },
 
                 // Product 4
-                new ProductVariant { Id = 11, ProductId = 4, Size = "M", Color = "Caro Xanh", Stock = 20, Price = 370000, ImageUrl = "/images/products/ao-so-mi-caro-xanh-m.jpg" },
-                new ProductVariant { Id = 12, ProductId = 4, Size = "L", Color = "Caro Đỏ", Stock = 15, Price = 375000, ImageUrl = "/images/products/ao-so-mi-caro-do-l.jpg" },
-                new ProductVariant { Id = 13, ProductId = 4, Size = "XL", Color = "Caro Đen", Stock = 10, Price = 380000, ImageUrl = "/images/products/ao-so-mi-caro-den-xl.jpg" },
+                new ProductVariant { Id = 11, ProductId = 4, Size = "M", Color = "Caro Xanh", Stock = 20, Price = 370000, ImageUrl = "https://i.pinimg.com/736x/f0/ea/34/f0ea3496af0e1419783b3a0e6646c0e5.jpg" },
+                new ProductVariant { Id = 12, ProductId = 4, Size = "L", Color = "Caro Đỏ", Stock = 15, Price = 375000, ImageUrl = "https://i.pinimg.com/736x/48/d4/a7/48d4a7ae830964d6f61dadb00ea4dd2a.jpg" },
+                new ProductVariant { Id = 13, ProductId = 4, Size = "XL", Color = "Caro Đen", Stock = 10, Price = 380000, ImageUrl = "https://i.pinimg.com/736x/e4/e7/f8/e4e7f8fe5c59a81370a99e2984ed7d82.jpg" },
 
                 // Product 5
-                new ProductVariant { Id = 14, ProductId = 5, Size = "30", Color = "Xám", Stock = 18, Price = 440000, ImageUrl = "/images/products/quan-tay-xam-30.jpg" },
-                new ProductVariant { Id = 15, ProductId = 5, Size = "32", Color = "Đen", Stock = 20, Price = 445000, ImageUrl = "/images/products/quan-tay-den-32.jpg" },
-                new ProductVariant { Id = 16, ProductId = 5, Size = "34", Color = "Xám", Stock = 12, Price = 450000, ImageUrl = "/images/products/quan-tay-xam-34.jpg" },
+                new ProductVariant { Id = 14, ProductId = 5, Size = "30", Color = "Xám", Stock = 18, Price = 440000, ImageUrl = "https://i.pinimg.com/736x/24/35/ba/2435bad4a25a5e32de656883badbd134.jpg" },
+                new ProductVariant { Id = 15, ProductId = 5, Size = "32", Color = "Đen", Stock = 20, Price = 445000, ImageUrl = "https://i.pinimg.com/736x/66/3b/f0/663bf0cdf750c241836dc44eab738d9a.jpg" },
+                new ProductVariant { Id = 16, ProductId = 5, Size = "34", Color = "Xám", Stock = 12, Price = 450000, ImageUrl = "https://i.pinimg.com/736x/25/d5/0d/25d50d7e9e422421667c136f45f18afa.jpg" },
 
                 // Product 6
-                new ProductVariant { Id = 17, ProductId = 6, Size = "M", Color = "Be", Stock = 14, Price = 460000, ImageUrl = "/images/products/dam-suong-be-m.jpg" },
-                new ProductVariant { Id = 18, ProductId = 6, Size = "L", Color = "Trắng", Stock = 16, Price = 470000, ImageUrl = "/images/products/dam-suong-trang-l.jpg" },
-                new ProductVariant { Id = 19, ProductId = 6, Size = "XL", Color = "Xanh", Stock = 10, Price = 480000, ImageUrl = "/images/products/dam-suong-xanh-xl.jpg" },
+                new ProductVariant { Id = 17, ProductId = 6, Size = "M", Color = "Be", Stock = 14, Price = 460000, ImageUrl = "https://i.pinimg.com/736x/f0/45/ff/f045ff47bbb4884fabf585b417d18773.jpg" },
+                new ProductVariant { Id = 18, ProductId = 6, Size = "L", Color = "Trắng", Stock = 16, Price = 470000, ImageUrl = "https://i.pinimg.com/736x/b7/89/f6/b789f650c5530e458a5406cf740b18da.jpg" },
+                new ProductVariant { Id = 19, ProductId = 6, Size = "XL", Color = "Xanh", Stock = 10, Price = 480000, ImageUrl = "https://i.pinimg.com/736x/bd/2f/b7/bd2fb7f5ad7fe500d13c1477cee53071.jpg" },
 
                 // Product 7
                 new ProductVariant { Id = 20, ProductId = 7, Size = "M", Color = "Xanh Dương", Stock = 25, Price = 355000, ImageUrl = "/images/products/ao-so-mi-xanh-m.jpg" },

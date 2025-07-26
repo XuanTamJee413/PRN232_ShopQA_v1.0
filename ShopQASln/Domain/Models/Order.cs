@@ -13,6 +13,7 @@ namespace Domain.Models
         public decimal TotalAmount { get; set; }
 
         public int UserId { get; set; }
+        public string? Status { get; set; } = "Pending";
         public User User { get; set; } = default!;
 
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();

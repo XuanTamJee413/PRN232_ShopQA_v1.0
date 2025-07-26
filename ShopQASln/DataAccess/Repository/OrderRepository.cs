@@ -24,8 +24,8 @@ namespace DataAccess.Repository
             return _context.Orders
                 .Include(o => o.Items)
                     .ThenInclude(i => i.ProductVariant)
-                        .ThenInclude(pv => pv.Product) // nếu cần tên sản phẩm
-                .Include(o => o.User) // nếu cần thông tin người dùng
+                        .ThenInclude(pv => pv.Product) 
+                .Include(o => o.User)
                 .ToList();
         }
         public async Task AddOrderAsync(Order order)
@@ -86,6 +86,26 @@ namespace DataAccess.Repository
 
             await _context.SaveChangesAsync();
             return order;
+        }
+        public List<Order> GetOrdersByUserId(int userId)
+        {
+            return _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.Items)
+                    .ThenInclude(i => i.ProductVariant)
+                        .ThenInclude(pv => pv.Product)
+                .Where(o => o.UserId == userId)
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+        }
+        public async Task<bool> UpdateOrderStatusAsync(int orderId, string status)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order == null) return false;
+
+            order.Status = status;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
     }
