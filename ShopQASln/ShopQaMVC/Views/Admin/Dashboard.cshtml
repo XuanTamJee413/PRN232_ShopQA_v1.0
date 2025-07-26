@@ -1,6 +1,10 @@
-﻿@{
-   
+﻿@using ShopQaMVC.Models
+@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    // Dữ liệu thống kê
+    var totalOrderCount = ViewBag.TotalOrderCount ?? 0;
+    var totalRevenue = ViewBag.TotalRevenue ?? 0M;
+    var productVariantSales = ViewBag.ProductVariantSales as List<ProductVariantSalesDto> ?? new List<ProductVariantSalesDto>();
 }
 
 <div class="jumbotron">
@@ -10,6 +14,46 @@
     <p>Here you can manage your shop's categories, brands, products, and more.</p>
 </div>
 
+<!-- Phần thống kê -->
+<h3 class="mt-4 mb-3" style="font-weight:600; color:#333;">Shop Statistics</h3>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <h2 class="card-text">@totalOrderCount</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <h2 class="card-text">@String.Format("{0:N0}₫", totalRevenue)</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Best Selling Products</h5>
+                <ul class="list-group">
+                    @foreach (var item in productVariantSales.Take(3))
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center" style="color: #212529; background-color: #fff; border: none;">
+                            <span style="color: #212529; font-weight: 500;">@item.ProductName (@item.Size/@item.Color)</span>
+                            <span class="badge badge-primary badge-pill">@item.QuantitySold</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Phần thống kê -->
+<h3 class="mt-4 mb-3" style="font-weight:600; color:#333;">Shop Management</h3>
 <div class="row mt-4">
     <div class="col-md-4">
         <div class="card">

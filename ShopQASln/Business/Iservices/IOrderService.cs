@@ -17,5 +17,11 @@ namespace Business.Iservices
         OrderDto? GetOrderWithDetails(int orderId);
         Task<bool> UpdateOrderStatusAsync(int orderId, string status);
 
+        // Thống kê tổng số đơn hàng
+        int GetTotalOrderCount();
+        // Thống kê tổng doanh thu
+        decimal GetTotalRevenue();
+        // Lấy danh sách productvariant và số lượng bán ra
+        IEnumerable<ProductVariantSalesDto> GetProductVariantSales();
     }
 }

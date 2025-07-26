@@ -91,6 +91,33 @@ namespace ShopQAPresentation.Controllers.Order
             });
         }
 
+        // Thống kê tổng số đơn hàng
+        [HttpGet("total-count")]
+        
+        public IActionResult GetTotalOrderCount()
+        {
+            var count = _orderService.GetTotalOrderCount();
+            return Ok(count);
+        }
+
+        // Thống kê tổng doanh thu
+        [HttpGet("total-revenue")]
+        
+        public IActionResult GetTotalRevenue()
+        {
+            var revenue = _orderService.GetTotalRevenue();
+            return Ok(revenue);
+        }
+
+        // Lấy danh sách productvariant và số lượng bán ra
+        [HttpGet("product-variant-sales")]
+       
+        public IActionResult GetProductVariantSales()
+        {
+            var sales = _orderService.GetProductVariantSales();
+            return Ok(sales);
+        }
+
 
     }
 }
